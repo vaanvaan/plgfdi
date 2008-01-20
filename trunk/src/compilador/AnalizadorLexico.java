@@ -123,50 +123,105 @@ public class AnalizadorLexico {
 					}else if((buf>='a'&&buf>='z')||buf=='ñ'){
 						this.transita(1);
 					}else if(buf=='\''){
-						this.transita(3);
+						this.transita(2);
 					}else if(buf=='0'){
-						this.transita(6);
+						this.transita(5);
 					}else if(buf>='1'&&buf<='9'){
-						this.transita(7);
+						this.transita(6);
 					}else if(buf==':'){
-						this.transita(10);
+						this.transita(9);
 					}else if(buf=='+' || buf == '-' || buf =='*' || buf == '/'||buf=='('||buf==')'||buf==';'||buf=='='){
-						this.transita(8);
+						this.transita(10);
 					}else if(buf=='>'){
-						this.transita(12);
+						this.transita(11);
 					}else if(buf=='<'){
+						this.transita(12);
+					}else if(buf=='\0'){
 						this.transita(13);
 					}else{
 						//aqui ira un error(0)
 					}
-					
 					break;
 				case 1:
+					if((buf>='a'&&buf>='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
+						this.transita(1);
+					}else{
+						encontrado=true;
+					}
 					break;
 				case 2:
+					if((buf>='a'&&buf>='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
+						this.transita(3);
+					}else{
+						//error
+					}
 					break;
 				case 3:
+					if(buf=='\''){
+						this.transita(4);
+					}else{
+						//error
+					}
 					break;
 				case 4:
+					encontrado=true;
 					break;
 				case 5:
+					if(buf=='.'||buf=='e'){
+						this.transita(7);
+					}else{
+						//devuelve num
+					}
 					break;
 				case 6:
+					if(buf>='0'&&buf<='9'){
+						this.transita(6);
+					}else if(buf=='.'||buf=='e'){
+						this.transita(7);
+					}else{
+						//devuelve num
+					}
 					break;
 				case 7:
+					if(buf>='0'&&buf<='9'){
+						this.transita(8);
+					}else{
+						//error
+					}
 					break;
 				case 8:
+					if(buf>='0'&&buf<='9'){
+						this.transita(8);
+					}else{
+						encontrado = true;
+					}
 					break;
 				case 9:
+					if(buf =='='){
+						this.transita(10);
+					}else{
+						//error
+					}
 					break;
 				case 10:
+					encontrado = true;
 					break;
 				case 11:
+					if(buf =='='){
+						this.transita(10);
+					}else{
+						encontrado = true;
+					}
 					break;
 				case 12:
+					if(buf =='=' || buf=='>'){
+						this.transita(10);
+					}else{
+						encontrado = true;
+					}
 					break;
 				case 13:
-					break;
+					encontrado = true;
 			}
 		}
 	}
@@ -177,6 +232,12 @@ public class AnalizadorLexico {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 			AnalizadorLexico analizer = new AnalizadorLexico("C:/prueba.txt");
+			for(;;){
+				analizer.scanner();
+				System.out.print(analizer.lex);
+				System.out.println("<-TOKEN ENCONTRADO");
+				if(analizer.lex=="\0"){break;}
+			}
 	}
 
 }
