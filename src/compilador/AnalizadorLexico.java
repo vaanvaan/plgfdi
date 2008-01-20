@@ -110,8 +110,63 @@ public class AnalizadorLexico {
 				this.numLinea++;
 			}else if(buf== '\r' || buf == '\t' || buf == ' '){
 				this.pos++;
-			}else if(buf == ){
-				
+			}
+			switch(this.estado){
+				case 0:
+					if(buf=='\n'){
+						this.numLinea++;
+						this.transita(0);
+						this.lex = "";
+					}else if(buf== '\r' || buf == '\t' || buf == ' '){
+						this.transita(0);
+						this.lex = "";
+					}else if((buf>='a'&&buf>='z')||buf=='ñ'){
+						this.transita(1);
+					}else if(buf=='\''){
+						this.transita(3);
+					}else if(buf=='0'){
+						this.transita(6);
+					}else if(buf>='1'&&buf<='9'){
+						this.transita(7);
+					}else if(buf==':'){
+						this.transita(10);
+					}else if(buf=='+' || buf == '-' || buf =='*' || buf == '/'||buf=='('||buf==')'||buf==';'||buf=='='){
+						this.transita(8);
+					}else if(buf=='>'){
+						this.transita(12);
+					}else if(buf=='<'){
+						this.transita(13);
+					}else{
+						//aqui ira un error(0)
+					}
+					
+					break;
+				case 1:
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+				case 4:
+					break;
+				case 5:
+					break;
+				case 6:
+					break;
+				case 7:
+					break;
+				case 8:
+					break;
+				case 9:
+					break;
+				case 10:
+					break;
+				case 11:
+					break;
+				case 12:
+					break;
+				case 13:
+					break;
 			}
 		}
 	}
