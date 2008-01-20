@@ -176,6 +176,7 @@ public class AnalizadorLexico {
 					}else if(buf=='.'||buf=='e'){
 						this.transita(7);
 					}else{
+						encontrado = true;
 						//devuelve num
 					}
 					break;
