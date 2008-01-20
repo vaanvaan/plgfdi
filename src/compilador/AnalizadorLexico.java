@@ -53,7 +53,7 @@ public class AnalizadorLexico {
 	 * @param state Nuevo estado al que pasa el analizador léxico.
 	 */
 	public void transita(int state){
-		this.lex = lex.concat(archivo.substring(pos,1));
+		this.lex = lex + archivo.charAt(pos); 
 		this.pos++;
 		this.estado = state;
 		
@@ -104,12 +104,9 @@ public class AnalizadorLexico {
 		this.estado = 0;
 		boolean encontrado = false;
 		while(!encontrado){
-			char buf = this.archivo.charAt(pos);
-			if(buf=='\n'){
-				this.pos++;
-				this.numLinea++;
-			}else if(buf== '\r' || buf == '\t' || buf == ' '){
-				this.pos++;
+ 			char buf=' ';
+			if(pos<this.archivo.length()){
+				buf = this.archivo.charAt(pos);
 			}
 			switch(this.estado){
 				case 0:
@@ -120,7 +117,7 @@ public class AnalizadorLexico {
 					}else if(buf== '\r' || buf == '\t' || buf == ' '){
 						this.transita(0);
 						this.lex = "";
-					}else if((buf>='a'&&buf>='z')||buf=='ñ'){
+					}else if((buf>='a'&&buf<='z')||buf=='ñ'){
 						this.transita(1);
 					}else if(buf=='\''){
 						this.transita(2);
@@ -130,7 +127,7 @@ public class AnalizadorLexico {
 						this.transita(6);
 					}else if(buf==':'){
 						this.transita(9);
-					}else if(buf=='+' || buf == '-' || buf =='*' || buf == '/'||buf=='('||buf==')'||buf==';'||buf=='='){
+					}else if(buf=='.'||buf=='+' || buf == '-' || buf =='*' || buf == '/'||buf=='('||buf==')'||buf==';'||buf=='='){
 						this.transita(10);
 					}else if(buf=='>'){
 						this.transita(11);
@@ -143,14 +140,14 @@ public class AnalizadorLexico {
 					}
 					break;
 				case 1:
-					if((buf>='a'&&buf>='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
+					if((buf>='a'&&buf<='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
 						this.transita(1);
 					}else{
 						encontrado=true;
 					}
 					break;
 				case 2:
-					if((buf>='a'&&buf>='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
+					if((buf>='a'&&buf<='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
 						this.transita(3);
 					}else{
 						//error
@@ -200,7 +197,7 @@ public class AnalizadorLexico {
 					if(buf =='='){
 						this.transita(10);
 					}else{
-						//error
+						encontrado = true;
 					}
 					break;
 				case 10:
@@ -222,6 +219,7 @@ public class AnalizadorLexico {
 					break;
 				case 13:
 					encontrado = true;
+					System.exit(0);
 			}
 		}
 	}
@@ -236,7 +234,6 @@ public class AnalizadorLexico {
 				analizer.scanner();
 				System.out.print(analizer.lex);
 				System.out.println("<-TOKEN ENCONTRADO");
-				if(analizer.lex=="\0"){break;}
 			}
 	}
 
