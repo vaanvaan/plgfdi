@@ -30,7 +30,6 @@ public class AnalizadorLexico {
 	 */
 	private int pos;
 	
-	
 	/** Constructor del analizador lexico.
 	 * 
 	 * @param file Nombre del fichero cuyo lexico va a ser analizado.
@@ -44,6 +43,7 @@ public class AnalizadorLexico {
 	}
 	
 	public void transita(int state){
+		lex = lex.concat(archivo.substring(pos,1));
 		
 	}
 	
