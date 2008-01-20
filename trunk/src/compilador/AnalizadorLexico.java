@@ -39,7 +39,7 @@ public class AnalizadorLexico {
 	 */
 	public AnalizadorLexico(String file){
 		this.archivo = AuxFun.getTextoFichero(file);
-		this.archivo = this.archivo.toLowerCase();
+		this.archivo = this.archivo.toLowerCase()+'\0';
 		this.numLinea = 1;
 		this.lex = "";
 		this.token = "";
@@ -47,12 +47,22 @@ public class AnalizadorLexico {
 		this.pos = 0;
 	}
 	
+	/** Función que cambia el estado del analizador lexico, ademas de actualizar el lexema y la posicion
+	 * de lectura del fichero.
+	 * 
+	 * @param state Nuevo estado al que pasa el analizador léxico.
+	 */
 	public void transita(int state){
 		this.lex = lex.concat(archivo.substring(pos,1));
 		this.pos++;
 		this.estado = state;
 		
 	}
+	
+	/** Función que a partir de un lexema dado, devuelve el token asociado.
+	 * 
+	 * @param lexema Lexema a partir del cual se obtiene el token.
+	 */
 	public void token(String lexema){
 		if(lexema == "("){
 			this.token = "lparen";
@@ -89,13 +99,29 @@ public class AnalizadorLexico {
 		}
 	}
 	
+	public void scanner(){
+		this.lex ="";
+		this.estado = 0;
+		boolean encontrado = false;
+		while(!encontrado){
+			char buf = this.archivo.charAt(pos);
+			if(buf=='\n'){
+				this.pos++;
+				this.numLinea++;
+			}else if(buf== '\r' || buf == '\t' || buf == ' '){
+				this.pos++;
+			}else if(buf == ){
+				
+			}
+		}
+	}
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
+			AnalizadorLexico analizer = new AnalizadorLexico("C:/prueba.txt");
 	}
 
 }
