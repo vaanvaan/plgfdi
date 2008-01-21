@@ -107,6 +107,8 @@ public class AnalizadorLexico {
 			this.token = "le";
 		}else if(lexema.compareTo(".")==0){
 			this.token = "punto";
+		}else if(lexema.compareTo(",")==0){
+			this.token = "coma";
 		}
 	}
 	
@@ -146,7 +148,7 @@ public class AnalizadorLexico {
 						this.transita(6);
 					}else if(buf==':'){
 						this.transita(9);
-					}else if(buf=='.'||buf=='+' || buf == '-' || buf =='*' || buf == '/'||buf=='('||buf==')'||buf==';'||buf=='='){
+					}else if(buf==','||buf=='.'||buf=='+' || buf == '-' || buf =='*' || buf == '/'||buf=='('||buf==')'||buf==';'||buf=='='){
 						this.transita(10);
 					}else if(buf=='>'){
 						this.transita(11);
