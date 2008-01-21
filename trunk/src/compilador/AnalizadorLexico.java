@@ -13,11 +13,6 @@ public class AnalizadorLexico {
 	 */
 	private String archivo;
 	/**
-	 * Entero que almacena el número de linea en la que nos encontramos por si hay que lanzar
-	 * algún error.
-	 */
-	private int numLinea;
-	/**
 	 * Cadena de caracteres que contiene el lexema de la cadena analizada.
 	 */
 	private String lex;
@@ -40,7 +35,7 @@ public class AnalizadorLexico {
 	public AnalizadorLexico(String file){
 		this.archivo = AuxFun.getTextoFichero(file);
 		this.archivo = this.archivo.toLowerCase()+'\0';
-		this.numLinea = 1;
+		Global.inicializa();
 		this.lex = "";
 		this.token = "";
 		this.estado = 0;
@@ -58,51 +53,75 @@ public class AnalizadorLexico {
 		this.estado = state;
 		
 	}
-	
+	public void esReservada(String lexema){
+		if(lexema.compareTo("boolean")==0||lexema.compareTo("integer")==0||
+				lexema.compareTo("false")==0||lexema.compareTo("true")==0||
+				lexema.compareTo("begin")==0||lexema.compareTo("end")==0||
+				lexema.compareTo("program")==0||lexema.compareTo("read")==0||
+				lexema.compareTo("write")==0||lexema.compareTo("var")==0||
+				lexema.compareTo("and")==0||lexema.compareTo("or")==0||
+				lexema.compareTo("not")==0||lexema.compareTo("div")==0||
+				lexema.compareTo("mod")==0||lexema.compareTo("real")==0||
+				lexema.compareTo("char")==0||lexema.compareTo("const")==0){
+			this.token = "reserved";
+		}else{
+			this.token = "identificador";
+		}
+	}
 	/** Función que a partir de un lexema dado, devuelve el token asociado.
 	 * 
 	 * @param lexema Lexema a partir del cual se obtiene el token.
 	 */
 	public void token(String lexema){
-		if(lexema == "("){
+		if(lexema.compareTo("(")==0){
 			this.token = "lparen";
-		}else if(lexema == ")"){
+		}else if(lexema.compareTo(")")==0){
 			this.token = "rparen";
-		}else if(lexema == ":"){
+		}else if(lexema.compareTo(":")==0){
 			this.token = "dosp";
-		}else if(lexema == ";"){
+		}else if(lexema.compareTo(";")==0){
 			this.token = "semip";
-		}else if(lexema == "+"){
+		}else if(lexema.compareTo("+")==0){
 			this.token = "suma";
-		}else if(lexema == "-"){
+		}else if(lexema.compareTo("-")==0){
 			this.token = "resta";
-		}else if(lexema == "*"){
+		}else if(lexema.compareTo("*")==0){
 			this.token = "prod";
-		}else if(lexema == "div"){
+		}else if(lexema.compareTo("div")==0){
 			this.token = "div";
-		}else if(lexema == "mod"){
+		}else if(lexema.compareTo("mod")==0){
 			this.token = "mod";
-		}else if(lexema == "/"){
+		}else if(lexema.compareTo("/")==0){
 			this.token = "DivReal";
-		}else if(lexema == "="){
+		}else if(lexema.compareTo("=")==0){
 			this.token = "eq";
-		}else if(lexema == "<>"){
+		}else if(lexema.compareTo("<>")==0){
 			this.token = "ne";
-		}else if(lexema == ">"){
+		}else if(lexema.compareTo(">")==0){
 			this.token = "gt";
-		}else if(lexema == ">="){
+		}else if(lexema.compareTo(">=")==0){
 			this.token = "ge";
-		}else if(lexema == "<"){
+		}else if(lexema.compareTo("<")==0){
 			this.token = "lt";
-		}else if(lexema == "<="){
+		}else if(lexema.compareTo("<=")==0){
 			this.token = "le";
+		}else if(lexema.compareTo(".")==0){
+			this.token = "punto";
 		}
 	}
 	
+	/**
+	 * Funcion que analiza un componente lexico del texto dado y devuelve su lexema.
+	 */
 	public void scanner(){
 		this.lex ="";
+		this.token="";
 		this.estado = 0;
 		boolean encontrado = false;
+		/**
+		 * Bucle dentro del cual hay una serie de casos, donde se simula un automata finito
+		 * determinista.
+		 */
 		while(!encontrado){
  			char buf=' ';
 			if(pos<this.archivo.length()){
@@ -111,7 +130,7 @@ public class AnalizadorLexico {
 			switch(this.estado){
 				case 0:
 					if(buf=='\n'){
-						this.numLinea++;
+						Global.aumentaNumLinea();
 						this.transita(0);
 						this.lex = "";
 					}else if(buf== '\r' || buf == '\t' || buf == ' '){
@@ -136,7 +155,7 @@ public class AnalizadorLexico {
 					}else if(buf=='\0'){
 						this.transita(13);
 					}else{
-						//aqui ira un error(0)
+						Error.error();
 					}
 					break;
 				case 1:
@@ -144,30 +163,33 @@ public class AnalizadorLexico {
 						this.transita(1);
 					}else{
 						encontrado=true;
+						this.esReservada(this.lex);
 					}
 					break;
 				case 2:
 					if((buf>='a'&&buf<='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
 						this.transita(3);
 					}else{
-						//error
+						Error.error();
 					}
 					break;
 				case 3:
 					if(buf=='\''){
 						this.transita(4);
 					}else{
-						//error
+						Error.error();
 					}
 					break;
 				case 4:
 					encontrado=true;
+					this.token = "char";
 					break;
 				case 5:
 					if(buf=='.'||buf=='e'){
 						this.transita(7);
 					}else{
-						//devuelve num
+						encontrado = true;
+						this.token = "num";
 					}
 					break;
 				case 6:
@@ -177,14 +199,14 @@ public class AnalizadorLexico {
 						this.transita(7);
 					}else{
 						encontrado = true;
-						//devuelve num
+						this.token = "num";
 					}
 					break;
 				case 7:
 					if(buf>='0'&&buf<='9'){
 						this.transita(8);
 					}else{
-						//error
+						Error.error();
 					}
 					break;
 				case 8:
@@ -192,6 +214,7 @@ public class AnalizadorLexico {
 						this.transita(8);
 					}else{
 						encontrado = true;
+						this.token = "numReal";
 					}
 					break;
 				case 9:
@@ -199,16 +222,19 @@ public class AnalizadorLexico {
 						this.transita(10);
 					}else{
 						encontrado = true;
+						this.token(this.lex);
 					}
 					break;
 				case 10:
 					encontrado = true;
+					this.token(this.lex);
 					break;
 				case 11:
 					if(buf =='='){
 						this.transita(10);
 					}else{
 						encontrado = true;
+						this.token(this.lex);
 					}
 					break;
 				case 12:
@@ -216,10 +242,12 @@ public class AnalizadorLexico {
 						this.transita(10);
 					}else{
 						encontrado = true;
+						this.token(this.lex);
 					}
 					break;
 				case 13:
 					encontrado = true;
+					this.token = "fin";
 					System.exit(0);
 			}
 		}
@@ -233,8 +261,10 @@ public class AnalizadorLexico {
 			AnalizadorLexico analizer = new AnalizadorLexico("C:/prueba.txt");
 			for(;;){
 				analizer.scanner();
+				System.out.print("Lexema: ");
 				System.out.print(analizer.lex);
-				System.out.println("<-TOKEN ENCONTRADO");
+				System.out.print("  token: ");
+				System.out.println(analizer.token);
 			}
 	}
 
