@@ -17,15 +17,15 @@ public class AnalizadorLexico {
 	 */
 	private String lex;
 	/**
-	 * Estado en el que se encuentra el analizador léxico.
+	 * Estado en el que se encuentra el analizador lï¿½xico.
 	 */
 	private int estado;
 	/**
-	 * Posición en la que se encuentra el analizador léxico dentro de la cadena a analizar.
+	 * Posiciï¿½n en la que se encuentra el analizador lï¿½xico dentro de la cadena a analizar.
 	 */
 	private int pos;
 	/**
-	 * Codigo asignado al lexema si se ha reconocido como válido. P.E. asig para la cadena ':='.
+	 * Codigo asignado al lexema si se ha reconocido como vï¿½lido. P.E. asig para la cadena ':='.
 	 */
 	private String token;
 	/** Constructor del analizador lexico.
@@ -42,10 +42,10 @@ public class AnalizadorLexico {
 		this.pos = 0;
 	}
 	
-	/** Función que cambia el estado del analizador lexico, ademas de actualizar el lexema y la posicion
+	/** Funciï¿½n que cambia el estado del analizador lexico, ademas de actualizar el lexema y la posicion
 	 * de lectura del fichero.
 	 * 
-	 * @param state Nuevo estado al que pasa el analizador léxico.
+	 * @param state Nuevo estado al que pasa el analizador lï¿½xico.
 	 */
 	public void transita(int state){
 		this.lex = lex + archivo.charAt(pos); 
@@ -68,7 +68,7 @@ public class AnalizadorLexico {
 			this.token = "identificador";
 		}
 	}
-	/** Función que a partir de un lexema dado, devuelve el token asociado.
+	/** Funciï¿½n que a partir de un lexema dado, devuelve el token asociado.
 	 * 
 	 * @param lexema Lexema a partir del cual se obtiene el token.
 	 */
@@ -138,7 +138,7 @@ public class AnalizadorLexico {
 					}else if(buf== '\r' || buf == '\t' || buf == ' '){
 						this.transita(0);
 						this.lex = "";
-					}else if((buf>='a'&&buf<='z')||buf=='ñ'){
+					}else if((buf>='a'&&buf<='z')||buf=='ï¿½'){
 						this.transita(1);
 					}else if(buf=='\''){
 						this.transita(2);
@@ -161,7 +161,7 @@ public class AnalizadorLexico {
 					}
 					break;
 				case 1:
-					if((buf>='a'&&buf<='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
+					if((buf>='a'&&buf<='z')||buf=='ï¿½'||(buf>='0'&&buf<='9')){
 						this.transita(1);
 					}else{
 						encontrado=true;
@@ -169,7 +169,7 @@ public class AnalizadorLexico {
 					}
 					break;
 				case 2:
-					if((buf>='a'&&buf<='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
+					if((buf>='a'&&buf<='z')||buf=='ï¿½'||(buf>='0'&&buf<='9')){
 						this.transita(3);
 					}else{
 						Error.error();
@@ -260,7 +260,7 @@ public class AnalizadorLexico {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-			AnalizadorLexico analizer = new AnalizadorLexico("C:/prueba.txt");
+			AnalizadorLexico analizer = new AnalizadorLexico("/home/danieloop/prueba.txt");
 			for(;;){
 				analizer.scanner();
 				System.out.print("Lexema: ");
