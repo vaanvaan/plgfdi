@@ -138,7 +138,7 @@ public class AnalizadorLexico {
 					}else if(buf== '\r' || buf == '\t' || buf == ' '){
 						this.transita(0);
 						this.lex = "";
-					}else if((buf>='a'&&buf<='z')||buf=='ï¿½'){
+					}else if((buf>='a'&&buf<='z')||buf=='ñ'){
 						this.transita(1);
 					}else if(buf=='\''){
 						this.transita(2);
@@ -161,7 +161,7 @@ public class AnalizadorLexico {
 					}
 					break;
 				case 1:
-					if((buf>='a'&&buf<='z')||buf=='ï¿½'||(buf>='0'&&buf<='9')){
+					if((buf>='a'&&buf<='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
 						this.transita(1);
 					}else{
 						encontrado=true;
@@ -169,7 +169,7 @@ public class AnalizadorLexico {
 					}
 					break;
 				case 2:
-					if((buf>='a'&&buf<='z')||buf=='ï¿½'||(buf>='0'&&buf<='9')){
+					if((buf>='a'&&buf<='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
 						this.transita(3);
 					}else{
 						Error.error();
@@ -268,6 +268,20 @@ public class AnalizadorLexico {
 				System.out.print("  token: ");
 				System.out.println(analizer.token);
 			}
+	}
+
+	/**
+	 * @return the lex
+	 */
+	public String getLex() {
+		return lex;
+	}
+
+	/**
+	 * @return the token
+	 */
+	public String getToken() {
+		return token;
 	}
 
 }

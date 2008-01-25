@@ -46,7 +46,7 @@ public class Maquina_P {
 	}
 	
 	public void procesa_programa(){
-		String path = "D:/pru.txt";
+		String path = "c:/pru.txt";
 		String programa = AuxFun.getTextoFichero(path);
 		StringTokenizer enLineas = new StringTokenizer(programa,"\r\n");
 		ArrayList lineas = new ArrayList();
