@@ -34,6 +34,7 @@ public class AnalizadorLexico {
 	 */
 	public AnalizadorLexico(String file){
 		this.archivo = AuxFun.getTextoFichero(file);
+		// FIXME hay que cambiar el lower case y hacerlo en otro sitio para que funcione char
 		this.archivo = this.archivo.toLowerCase()+'\0';
 		Global.inicializa();
 		this.lex = "";
@@ -157,7 +158,7 @@ public class AnalizadorLexico {
 					}else if(buf=='\0'){
 						this.transita(13);
 					}else{
-						Error.error();
+						Error.error("Error léxico");
 					}
 					break;
 				case 1:
@@ -172,14 +173,14 @@ public class AnalizadorLexico {
 					if((buf>='a'&&buf<='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
 						this.transita(3);
 					}else{
-						Error.error();
+						Error.error("Error léxico");
 					}
 					break;
 				case 3:
 					if(buf=='\''){
 						this.transita(4);
 					}else{
-						Error.error();
+						Error.error("Error léxico");
 					}
 					break;
 				case 4:
@@ -208,7 +209,7 @@ public class AnalizadorLexico {
 					if(buf>='0'&&buf<='9'){
 						this.transita(8);
 					}else{
-						Error.error();
+						Error.error("Error léxico");
 					}
 					break;
 				case 8:
@@ -259,7 +260,6 @@ public class AnalizadorLexico {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 			AnalizadorLexico analizer = new AnalizadorLexico("/home/danieloop/prueba.txt");
 			for(;;){
 				analizer.scanner();
