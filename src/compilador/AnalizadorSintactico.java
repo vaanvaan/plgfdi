@@ -10,30 +10,46 @@ package compilador;
 public class AnalizadorSintactico {
 	
 	AnalizadorLexico anaLex;
-	String id_lex;
+	boolean errorGen=false;
 	
 	public AnalizadorSintactico(String path){
 		anaLex = new AnalizadorLexico(path);
-		this.programa();
+		this.programa(errorGen);
 	}
 	
-	public void programa(){
+	public void programa(boolean err0){
+		String lex="";
+		boolean errh1 = false;
+		boolean errh2 = false;
+		boolean err1 = false;
+		
 		this.compara("program");
-		id_lex = this.identificador();
+		this.identificador(lex);
 		this.compara(";");
 		// TODO crear tabla de simbolos
-		this.declaraciones();
-		//errh2<-errh1
-		this.proposicion_compuesta();
-		//err0<-err1
+		this.declaraciones(errh1);
+		errh2=errh1;
+		this.proposicion_compuesta(errh2,err1);
+		err0=err1;
+		this.compara(".");
 		System.out.print("programa correcto");
 	}
-	public String identificador(){
-		anaLex.scanner();
-		return anaLex.getLex();
+	
+	public void declaraciones(boolean err0){
+		
 	}
-	public void proposicion_compuesta(){}
+	
+	public void identificador(String lex){
+		anaLex.scanner();
+		lex = anaLex.getLex();
+	}
+	public void proposicion_compuesta(boolean err0,boolean err1){}
 	public void declaraciones(){}
+	
+	
+	/** Funcion que compara un string dado con el siguiente elemento lexico a analizar.
+	 * @param tok String a comparar con el token del programa.
+	 */
 	public void compara(String tok){
 		anaLex.scanner();
 		String lexema = anaLex.getLex();
