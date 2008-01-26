@@ -8,10 +8,12 @@ package compilador;
  *
  */
 public class AnalizadorSintactico {
-	
+	// TODO hacer global el lexema
+	String lexema;
 	AnalizadorLexico anaLex;
 	boolean errorGen=false;
-	
+	// TODO crear TS
+	// TODO crear listaID
 	public AnalizadorSintactico(String path){
 		anaLex = new AnalizadorLexico(path);
 		this.programa(errorGen);
@@ -88,9 +90,126 @@ public class AnalizadorSintactico {
 		}
 	}
 	
+	public void constante(String tipo0, lista listaID0){
+		String lex0="";
+		String tipo1="";
+		this.compara("const");
+		this.id(String lex0);
+		this.compara(":");
+		this.tipo(tipo1);
+		this.compara("=");
+		// TODO hay que subir el valor
+		this.valor();
+		tipo0=tipo1;
+		listaID0=añadeID(lex0,listaVacia());
+	}
 	
+	public void variable(String tipo0,lista listaID0){
+		lista listaID1;
+		String tipo1 = "";
+		this.compara("var");
+		this.lista_id(listaID1);
+		this.compara(":");
+		this.tipo(tipo1);
+		tipo0=tipo1;
+		listaID0=listaID1;
+	}
 	
+	public void lista_id(lista listaID0){
+		String lex="";
+		lista listaIDh0;
+		lista listaID2;
+		this.id(lex);
+		listaIDh0=añadeID(lex,listaVacia());
+		this.lista_idR(listaIDh0,listaID2);
+		listaID0=listaID2;
+	}
 	
+	public void lista_idR(lista listaIDh0,lista listaID0){
+		// TODO diferenciar aqui entre si falta algo por meter o es vacio
+		if(this.compara(" ")){
+			String lex;
+			lista listaIDh1;
+			lista listaID1;
+			this.compara(",");
+			this.id(lex);
+			listaIDh1=añadeID(lex,listaIDh0);
+			this.lista_idR(listaIDh1,listaID1);
+			listaID0=listaID1;
+		}else{
+			listaID0=listaIDh0;
+		}
+	}
+	
+	public void tipo(String tipo){
+		anaLex.scanner();
+		String lexTipo = anaLex.getLex();
+		if(lexTipo.compareTo("integer")==0){
+			tipo = "integer";
+		}else if(lexTipo.compareTo("boolean")==0){
+			tipo = "boolean";
+		}else if(lexTipo.compareTo("real")==0){
+			tipo = "real";
+		}else if(lexTipo.compareTo("char")==0){
+			tipo = "char";
+		}else{
+			// TODO aqui no se propaga error pero si no es ninguno es error lexico
+			Error.error("Programa mal construido, el tipo no existe");
+		}
+	}
+	
+	public void valor(String tipo){
+		anaLex.scanner();
+		String lexTipo = anaLex.getLex();
+		if(lexTipo.compareTo("integer")==0){
+			tipo = "integer";
+		}else if(lexTipo.compareTo("boolean")==0){
+			tipo = "boolean";
+		}else if(lexTipo.compareTo("real")==0){
+			tipo = "real";
+		}else if(lexTipo.compareTo("char")==0){
+			tipo = "char";
+		}else{
+			// TODO aqui no se propaga error pero si no es ninguno es error lexico
+			Error.error("Programa mal construido, el tipo no existe");
+		}
+	}
+	
+	public void proposicion_compuesta(boolean err0){
+		boolean err1=false;
+		this.compara("begin");
+		this.proposiciones_optativas(err1);
+		this.compara("end");
+		err0=err1;
+	}
+	
+	public void proposiciones_optativas(boolean err0){
+		boolean err1 = false;
+		this.lista_proposiciones(err1);
+		err0=err1;
+	}
+	
+	public void lista_proposiciones(boolean err0){
+		boolean err1 = false;
+		boolean err2 = false;
+		boolean err3 = false;
+		this.proposicion(err1);
+		this.compara(";");
+		err2 = err1;
+		this.lista_proposicionesR(err2,err3);
+		err0=err3;
+	}
+	
+	public void lista_proposicionesR(boolean errh, boolean err){
+		// TODO tracatra, aqui tambien hay que ver por que rama entra
+		if(this.compara(" ")){
+			err=errh;
+		}else{
+			boolean err1=false;
+			this.lista_proposiciones(err1);
+			err = err1 || errh;
+		}
+	}
 	
 	/** Funcion que compara un string dado con el siguiente elemento lexico a analizar.
 	 * @param tok String a comparar con el token del programa.
