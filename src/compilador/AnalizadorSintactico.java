@@ -10,6 +10,7 @@ package compilador;
 public class AnalizadorSintactico {
 	
 	AnalizadorLexico anaLex;
+	String id_lex;
 	
 	public AnalizadorSintactico(String path){
 		anaLex = new AnalizadorLexico(path);
@@ -18,7 +19,7 @@ public class AnalizadorSintactico {
 	
 	public void programa(){
 		this.compara("program");
-		this.identificador();
+		id_lex = this.identificador();
 		this.compara(";");
 		// TODO crear tabla de simbolos
 		this.declaraciones();
@@ -27,8 +28,9 @@ public class AnalizadorSintactico {
 		//err0<-err1
 		System.out.print("programa correcto");
 	}
-	public void identificador(){
+	public String identificador(){
 		anaLex.scanner();
+		return anaLex.getLex();
 	}
 	public void proposicion_compuesta(){}
 	public void declaraciones(){}
