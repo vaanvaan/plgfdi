@@ -19,19 +19,7 @@ public class AnalizadorSintactico {
 		this.programa(errorGen);
 	}
 	
-	public String valorDe(String lexema){
-		return tablaSim.getEntrada(lexema).getValor();
-	}
 	
-	public boolean compatibles(String tipo1,String tipo2){
-		return (tipo1.compareTo(tipo2)==0);
-	}
-	public void id(){
-		this.anaLex.scanner();
-		if(anaLex.getToken().compareTo("identificador")!=0){
-			Error.error("identificador no valido");
-		}
-	}
 	public void programa(boolean err0){
 		String lex;
 		boolean errh1 = false;
@@ -209,7 +197,7 @@ public class AnalizadorSintactico {
 		boolean err1=false;
 		this.compara("begin");
 		this.proposiciones_optativas(err1);
-		this.compara("end");
+		//this.compara("end"); lo bajamos
 		err0=err1 || errh;
 	}
 	
@@ -231,8 +219,10 @@ public class AnalizadorSintactico {
 	}
 	
 	public void lista_proposicionesR(boolean errh, boolean err){
-		// TODO tracatra, aqui tambien hay que ver por que rama entra
-		if(this.compara(" ")){
+		anaLex.scanner();
+		String lexTipo = anaLex.getLex();
+		// TODO si no es end, hay que bajar lex a donde lo necesite
+		if(lexTipo.compareTo("end")==0){
 			err=errh;
 		}else{
 			boolean err1=false;
@@ -241,41 +231,12 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	public void proposicion(boolean err0){
-		if(){	
-			String lex;
-			boolean err1= false;
-			this.id(lex);
-			this.compara(":=");
-			this.expresion(err1);
-			err0=err1 || !existeID(lex) || !compatibles(ts[lex].tipo,expresion.tipo)||tipoDecl(lex)!=var;
-			emite(asig);
-			desapila-dir(ts[lex].dir);
-		}else if(){
-			boolean err1= false;
-			proposicion_compuesta(err1);
-			err0 = err1;
-		}else if(){
-			String lex;
-			this.compara("read");
-			this.compara("(");
-			this.id(lex);
-			this.compara(")");
-			err0=existeID(lex);
-			emite("Read");
-		}else if(){
-			String lex;
-			boolean err1 = false;
-			this.compara("write");
-			this.compara("(");
-			this.expresion(err1);
-			err0=err1;
-			this.compara(")");
-			emite("Write");
-		}
-	}
 	
-
+	
+	
+//*************************************************************************************************
+//                             FUNCIONES AUXILIARES
+//*************************************************************************************************
 	
 	/** Funcion que compara un string dado con el siguiente elemento lexico a analizar.
 	 * @param tok String a comparar con el token del programa.
@@ -289,9 +250,22 @@ public class AnalizadorSintactico {
 	}
 	
 	
+	public String valorDe(String lexema){
+		return tablaSim.getEntrada(lexema).getValor();
+	}
 	
 	
+	public boolean compatibles(String tipo1,String tipo2){
+		return (tipo1.compareTo(tipo2)==0);
+	}
 	
+	
+	public void id(){
+		this.anaLex.scanner();
+		if(anaLex.getToken().compareTo("identificador")!=0){
+			Error.error("identificador no valido");
+		}
+	}
 	
 
 	/**
