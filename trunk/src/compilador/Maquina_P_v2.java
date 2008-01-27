@@ -630,7 +630,7 @@ public class Maquina_P_v2 {
 	}
 	
 	public void escribir(){
-		if (pila.size() > 1){
+		if (!pila.empty()){
 			String cima = pila.peek().toString();
 			System.out.println(cima);
 			pc++;

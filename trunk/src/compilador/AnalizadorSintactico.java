@@ -62,15 +62,18 @@ public class AnalizadorSintactico {
 	}
 	
 	public void declaracionesR(int dirh0,boolean errh0,boolean err0,int dir0){
-		// TODO hay que ver en cual de los 2 casos estas, en el que hay una declaracion o no hay nada
-		if(this.compara(" ")){  
+		
+		/**
+		 * Si el lexema anterior era ; es que no queda nada por cubrir
+		 */
+		if(this.lexema.compareTo(";")!=0){  
 			int dirh1 = 0;
 			boolean errh1 = false;
 			boolean err1 = false;
 			int dir1 = 0;
 			this.declaracion(tipo,listaID,tipoDecl);
 			dirh1 = dirh0 + 1;
-			errh1 = (errh0 || existeID(listaID));
+			errh1 = (errh0 || this.tablaSim.existeID(listaID));
 			this.compara(";");
 			this.declaracionesR(dirh1, errh1, err1, dir1);
 			err0 = err1;

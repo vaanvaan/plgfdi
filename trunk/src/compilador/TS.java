@@ -61,6 +61,16 @@ public class TS {
 		return ts.containsKey(id);
 	}
 	
+	public boolean existeID(ListaID lista){
+		boolean aux = true;
+	    int i = lista.nElementos();
+	    int j = 0;
+	    while (j < i || aux){
+	    	aux = this.existeID(lista.elementoAt(j));
+	    }
+	    return aux;
+	}
+	
 	/** Función que devuelve el tipo del identificador, si este existe.
 	 * @param id identificador del que se quiere saber su tipo.
 	 * @return devuelve un string con el tipo, o error si no existe ese identificador.
