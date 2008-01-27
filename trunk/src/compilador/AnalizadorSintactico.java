@@ -231,6 +231,49 @@ public class AnalizadorSintactico {
 		}
 	}
 	
+	public void proposicion(boolean err0){
+		anaLex.scanner();
+		String lexToken= anaLex.getToken();
+		String lexTipo = anaLex.getLex();
+		if(lexToken.compareTo("identificador")==0){
+			String lex="";
+			String tipo1="";
+			boolean err1 = false;
+			lex = lexTipo;
+			this.compara(":=");
+			this.expresion(err1,tipo1);
+			err0=err1 || !this.tablaSim.existeID(lex) || !this.compatibles(this.tablaSim.devuelveTipo(lex), tipo1) || this.tablaSim.tipoDecl(lex)!= "var";
+			this.emite("asig");
+		}else if(lexTipo.compareTo("read")==0){
+			this.compara("(");
+			String lex="";
+			this.id();
+			lex = this.lexema;
+			this.compara(")");
+			err0= !this.tablaSim.existeID(lex);
+			this.emite("read");
+		}else if(lexTipo.compareTo("write")==0){
+			this.compara("(");
+			boolean err1 = false;
+			String tipo1 ="";
+			this.expresion(err1,tipo1);
+			err0=err1;
+			this.compara(")");
+			this.emite("write");
+		}else if(lexTipo.compareTo("begin")==0){
+			// TODO arreglar esto, porque aqui entraria en proposicion compuesta con el begin ya leido
+			boolean errh = false;
+			boolean err1 = false;
+			this.proposicion_compuesta(errh, err1);
+			err0= err1;
+		}else{
+			Error.error("Error en la proposicion");
+		}
+	}
+	
+	public void expresion(boolean err0, String tipo){
+		
+	}
 	
 	
 	
@@ -267,6 +310,9 @@ public class AnalizadorSintactico {
 		}
 	}
 	
+	public void emite(String a){
+		
+	}
 
 	/**
 	 * @param args
