@@ -21,5 +21,16 @@ public class ListaID {
 	public void añadeID(String lex){
 		listaID.add(lex);
 	}
-
+	
+	public boolean esVacia(){
+		return listaID.isEmpty();
+	}
+	
+	public String primero(){
+		return (String) listaID.firstElement();
+	}
+	
+	public void eliminaPrimero(){
+		listaID.removeElementAt(0);
+	}
 }

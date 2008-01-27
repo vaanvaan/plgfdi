@@ -42,6 +42,17 @@ public class TS {
 		else return true;
 	}
 	
+	public boolean añadeLista(ListaID lista,String tipoDec,String tipo,int dir){
+		boolean auxB=true;
+		while(!lista.esVacia() || !auxB){
+			String idAux = lista.primero();
+			lista.eliminaPrimero();
+			auxB = añadeTS(idAux,tipoDec,tipo,"",dir);
+			dir++;
+		}
+		return auxB;
+	}
+	
 	/** Función que mira si existe una variable o una constante en la tabla.
 	 * @param id identificador, clave de la tabla
 	 * @return devuelve true si existe ese identificador

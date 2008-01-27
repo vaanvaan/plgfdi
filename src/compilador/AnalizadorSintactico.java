@@ -8,15 +8,15 @@ package compilador;
  *
  */
 public class AnalizadorSintactico {
-	// TODO hacer global el lexema
 	String lexema;
 	AnalizadorLexico anaLex;
 	TS tablaSim;
 	boolean errorGen=false;
-	// TODO crear listaID
+	ListaID listaID;
 	public AnalizadorSintactico(String path){
 		anaLex = new AnalizadorLexico(path);
 		tablaSim = new TS();
+		listaID = new ListaID();
 		this.programa(errorGen);
 	}
 	
@@ -33,7 +33,6 @@ public class AnalizadorSintactico {
 		boolean errh1 = false;
 		boolean errh2 = false;
 		boolean err1 = false;
-		
 		this.compara("program");
 		this.identificador();
 		this.lexema = lex;
@@ -43,7 +42,6 @@ public class AnalizadorSintactico {
 		this.proposicion_compuesta(errh2,err1);
 		err0=err1;
 		this.compara(".");
-		System.out.print("programa correcto");
 	}
 	
 	public void declaraciones(boolean err0){
@@ -51,13 +49,16 @@ public class AnalizadorSintactico {
 		boolean err1 = false;
 		int dir1 = 0;
 		int dirh1 = 0;
-		this.declaracion(tipo,listaID,tipoDecl);
+		String tipo;
+		ListaID lista;
+		String tipoDec;
+		this.declaracion(tipo,lista,tipoDec);
 		errh1 = false;
 		dirh1 = 0;
 		this.compara(";");
 		this.declaracionesR(dirh1,errh1,err1,dir1);
 		err0=err1;
-		// TODO añadir a la lista
+		tablaSim.añadeLista(lista, tipoDec, tipo, dirh1);
 	}
 	
 	public void declaracionesR(int dirh0,boolean errh0,boolean err0,int dir0){
