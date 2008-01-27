@@ -13,6 +13,7 @@ public class entradaTS {
 	private String id;
 	private String tipoDec;
 	private String tipo;
+	private String valor;
 	private int dir;
 	
 	/**
@@ -20,12 +21,14 @@ public class entradaTS {
 	 * @param id Identidicador.
 	 * @param tipoDec Variable (VAR) o Constante (CONST).
 	 * @param tipo Tipo del elemento (entero, booleano, real, caracter).
+	 * @param valor Valor del identificador.
 	 * @param dir Dirección de la memoria de datos donde se encuentra el valor del elemento. 
 	 */
-	public entradaTS(String id, String tipoDec, String tipo, int dir){
+	public entradaTS(String id, String tipoDec, String tipo,String valor, int dir){
 		this.id = id;
 		this.tipoDec = tipoDec;
 		this.tipo = tipo;
+		this.valor = valor;
 		this.dir = dir;
 	}
 	
@@ -47,7 +50,7 @@ public class entradaTS {
 	
 	/**
 	 * Acceso al tipo de datos.
-	 * @return entreo, booleano, real, caracter.
+	 * @return entero, booleano, real, caracter.
 	 */
 	public String getTipo(){
 		return this.tipo;
@@ -61,4 +64,11 @@ public class entradaTS {
 		return this.dir;
 		}
 	
+	
+	/** Acceso al valor del identificador.
+	 * @return valor
+	 */
+	public String getValor(){
+		return this.valor;
+	}
 }
