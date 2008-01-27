@@ -12,11 +12,10 @@ public class AnalizadorSintactico {
 	AnalizadorLexico anaLex;
 	TS tablaSim;
 	boolean errorGen=false;
-	ListaID listaID;
+	
 	public AnalizadorSintactico(String path){
 		anaLex = new AnalizadorLexico(path);
 		tablaSim = new TS();
-		listaID = new ListaID();
 		this.programa(errorGen);
 	}
 	
@@ -27,19 +26,23 @@ public class AnalizadorSintactico {
 	public boolean compatibles(String tipo1,String tipo2){
 		return (tipo1.compareTo(tipo2)==0);
 	}
-	
+	public void id(){
+		this.anaLex.scanner();
+		if(anaLex.getToken().compareTo("identificador")!=0){
+			Error.error("identificador no valido");
+		}
+	}
 	public void programa(boolean err0){
 		String lex;
 		boolean errh1 = false;
 		boolean errh2 = false;
 		boolean err1 = false;
 		this.compara("program");
-		this.identificador();
-		this.lexema = lex;
+		this.id(); //
 		this.compara(";");
-		this.declaraciones(errh1);
-		errh2=errh1;
-		this.proposicion_compuesta(errh2,err1);
+		this.declaraciones(errh1); //	
+		errh2=errh1;	
+		this.proposicion_compuesta(errh2,err1); //
 		err0=err1;
 		this.compara(".");
 	}
@@ -49,9 +52,9 @@ public class AnalizadorSintactico {
 		boolean err1 = false;
 		int dir1 = 0;
 		int dirh1 = 0;
-		String tipo;
-		ListaID lista;
-		String tipoDec;
+		String tipo="";
+		ListaID lista=null;
+		String tipoDec="";
 		this.declaracion(tipo,lista,tipoDec);
 		errh1 = false;
 		dirh1 = 0;
@@ -70,6 +73,9 @@ public class AnalizadorSintactico {
 			int dirh1 = 0;
 			boolean errh1 = false;
 			boolean err1 = false;
+			String tipo = "";
+			String tipoDecl= "";
+			ListaID listaID = null;
 			int dir1 = 0;
 			this.declaracion(tipo,listaID,tipoDecl);
 			dirh1 = dirh0 + 1;
@@ -78,49 +84,57 @@ public class AnalizadorSintactico {
 			this.declaracionesR(dirh1, errh1, err1, dir1);
 			err0 = err1;
 			dir0 = dir1;
-			// TODO añadir a la lista
+			this.tablaSim.añadeLista(listaID, tipoDecl, tipo, dirh1);
 		}else{
 			err0=errh0;
 			dir0=dirh0;
 		}
 		
 	}
-	public void declaracion(String tipo0,lista listaID0,String tipoDecl0){
-		if(this.compara(" ")){
+	public void declaracion(String tipo0,ListaID listaID0,String tipoDecl0){
+		this.anaLex.scanner();
+		if(this.lexema.compareTo("var")==0){
 			String tipo1 = "";
-			lista listaID1;
+			ListaID listaID1= null;
 			this.variable(tipo1,listaID1);
 			tipo0=tipo1;
 			listaID0=listaID1;
 			tipoDecl0="var";
-		}else{
+		}else if(this.lexema.compareTo("const")==0){
 			String tipo1 = "";
-			lista listaID1;
+			ListaID listaID1=null;
 			this.constante(tipo1,listaID1);
 			tipo0=tipo1;
 			listaID0=listaID1;
 			tipoDecl0="var";
+		}else{
+			Error.error("Programa mal formado, deberia declarar una constante o una variable");
 		}
 	}
 	
-	public void constante(String tipo0, lista listaID0){
+	public void constante(String tipo0,ListaID listaID0){
 		String lex0="";
 		String tipo1="";
-		this.compara("const");
-		this.id(String lex0);
+		String valor = "";
+		//he subido la comparacion de const a declaracion
+		this.id();
+		lex0=this.lexema;
 		this.compara(":");
 		this.tipo(tipo1);
 		this.compara("=");
 		// TODO hay que subir el valor
-		this.valor();
+		this.valor(valor);
+		String val = valor; 
 		tipo0=tipo1;
-		listaID0=añadeID(lex0,listaVacia());
+		ListaID listaID = new ListaID();
+		listaID.añadeID(lex0);
+		listaID0 = listaID;
 	}
 	
-	public void variable(String tipo0,lista listaID0){
-		lista listaID1;
+	public void variable(String tipo0,ListaID listaID0){
+		ListaID listaID1=null;
 		String tipo1 = "";
-		this.compara("var");
+		//He subido la comparacion de var a declaracion
 		this.lista_id(listaID1);
 		this.compara(":");
 		this.tipo(tipo1);
@@ -128,25 +142,28 @@ public class AnalizadorSintactico {
 		listaID0=listaID1;
 	}
 	
-	public void lista_id(lista listaID0){
+	public void lista_id(ListaID listaID0){
 		String lex="";
-		lista listaIDh0;
-		lista listaID2;
-		this.id(lex);
-		listaIDh0=añadeID(lex,listaVacia());
+		ListaID listaIDh0 = new ListaID();
+		ListaID listaID2=null;
+		this.id();
+		lex = this.lexema;
+		listaIDh0.añadeID(lex);
 		this.lista_idR(listaIDh0,listaID2);
 		listaID0=listaID2;
 	}
 	
-	public void lista_idR(lista listaIDh0,lista listaID0){
-		// TODO diferenciar aqui entre si falta algo por meter o es vacio
-		if(this.compara(" ")){
+	public void lista_idR(ListaID listaIDh0,ListaID listaID0){
+		this.anaLex.scanner();
+		String aux = this.lexema;
+		if(aux.compareTo(",")==0){
 			String lex;
-			lista listaIDh1;
-			lista listaID1;
-			this.compara(",");
-			this.id(lex);
-			listaIDh1=añadeID(lex,listaIDh0);
+			ListaID listaIDh1=null;
+			ListaID listaID1=null;
+			this.id();
+			lex = this.lexema;
+			listaIDh0.añadeID(lex);
+			listaIDh1=listaIDh0;
 			this.lista_idR(listaIDh1,listaID1);
 			listaID0=listaID1;
 		}else{
@@ -166,7 +183,7 @@ public class AnalizadorSintactico {
 		}else if(lexTipo.compareTo("char")==0){
 			tipo = "char";
 		}else{
-			// TODO aqui no se propaga error pero si no es ninguno es error lexico
+			// FIXME aqui no se propaga error pero si no es ninguno es error lexico
 			Error.error("Programa mal construido, el tipo no existe");
 		}
 	}
