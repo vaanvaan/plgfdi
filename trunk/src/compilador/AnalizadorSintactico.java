@@ -11,24 +11,33 @@ public class AnalizadorSintactico {
 	// TODO hacer global el lexema
 	String lexema;
 	AnalizadorLexico anaLex;
+	TS tablaSim;
 	boolean errorGen=false;
-	// TODO crear TS
 	// TODO crear listaID
 	public AnalizadorSintactico(String path){
 		anaLex = new AnalizadorLexico(path);
+		tablaSim = new TS();
 		this.programa(errorGen);
 	}
 	
+	public String valorDe(String lexema){
+		return tablaSim.getEntrada(lexema).getValor();
+	}
+	
+	public boolean compatibles(String tipo1,String tipo2){
+		return (tipo1.compareTo(tipo2)==0);
+	}
+	
 	public void programa(boolean err0){
-		String lex="";
+		String lex;
 		boolean errh1 = false;
 		boolean errh2 = false;
 		boolean err1 = false;
 		
 		this.compara("program");
-		this.identificador(lex);
+		this.identificador();
+		this.lexema = lex;
 		this.compara(";");
-		// TODO crear tabla de simbolos
 		this.declaraciones(errh1);
 		errh2=errh1;
 		this.proposicion_compuesta(errh2,err1);
@@ -175,12 +184,12 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	public void proposicion_compuesta(boolean err0){
+	public void proposicion_compuesta(boolean errh, boolean err0){
 		boolean err1=false;
 		this.compara("begin");
 		this.proposiciones_optativas(err1);
 		this.compara("end");
-		err0=err1;
+		err0=err1 || errh;
 	}
 	
 	public void proposiciones_optativas(boolean err0){

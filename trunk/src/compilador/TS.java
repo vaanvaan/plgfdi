@@ -32,13 +32,48 @@ public class TS {
 	 * @param id Identificador del elemento. Es la clave de la tabla hash.
 	 * @param tipoDec Variable (VAR) o constante (CONST).
 	 * @param tipo Tipo del elemento (entero, booleano, real, caracter).
+	 * @param valor String con el valor del identificador en ese momento.
 	 * @param dir Dirección de la memoria de datos donde se encuentra el valor del elemento.
 	 * @return True si se añade con éxito, False si ya existe un elemento con la misma ID.
 	 */
-	public boolean añadeTS(String id, String tipoDec, String tipo, int dir){
-		entradaTS aux = (entradaTS) ts.put(new entradaTS(id, tipoDec, tipo, dir), id);
+	public boolean añadeTS(String id, String tipoDec, String tipo,String valor,int dir){
+		entradaTS aux = (entradaTS) ts.put(new entradaTS(id, tipoDec, tipo,valor, dir), id);
 		if (aux == null) return false;
 		else return true;
+	}
+	
+	/** Función que mira si existe una variable o una constante en la tabla.
+	 * @param id identificador, clave de la tabla
+	 * @return devuelve true si existe ese identificador
+	 */
+	public boolean existeID(String id){
+		return ts.containsKey(id);
+	}
+	
+	/** Función que devuelve el tipo del identificador, si este existe.
+	 * @param id identificador del que se quiere saber su tipo.
+	 * @return devuelve un string con el tipo, o error si no existe ese identificador.
+	 */
+	public String tipoID(String id){
+		if(existeID(id)){
+			entradaTS aux = (entradaTS) getEntrada(id);
+			return aux.getTipo();
+		}else{
+			return "error";
+		}
+	}
+	
+	/** Función que devuelve si el identificador es una constante o una variable, o error si no existe.
+	 * @param id Nombre del identificador del cual se quiere saber si es variable o constante.
+	 * @return Devuelve un string diciendo si es variable, constante, o error si no existe.
+	 */
+	public String tipoDecl(String id){
+		if(existeID(id)){
+			entradaTS aux = (entradaTS) getEntrada(id);
+			return aux.getTipoDec();
+		}else{
+			return "error";
+		}
 	}
 	
 	/**
