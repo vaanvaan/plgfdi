@@ -106,4 +106,14 @@ public class TS {
 		return (entradaTS) ts.get(id);
 	}
 	
+	public String devuelveTipo(String id){
+		entradaTS aux = (entradaTS) getEntrada(id);
+		return aux.getTipo();
+	}
+	
+	public String devuelveTipoDecl(String id){
+		entradaTS aux = (entradaTS) getEntrada(id);
+		return aux.getTipoDec();
+	}
+	
 }
