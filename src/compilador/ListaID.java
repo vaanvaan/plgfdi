@@ -22,8 +22,20 @@ public class ListaID {
 		listaID.add(lex);
 	}
 	
+	public boolean contiene(String lex){
+		return listaID.contains(lex);
+	} 
+	
+	public int nElementos(){
+		return listaID.capacity();
+	}
+	
 	public boolean esVacia(){
 		return listaID.isEmpty();
+	}
+	
+	public String elementoAt(int i){
+		return (String)listaID.elementAt(i);
 	}
 	
 	public String primero(){
