@@ -8,7 +8,6 @@ package compilador;
  *
  */
 public class AnalizadorSintactico {
-	String lexema;
 	AnalizadorLexico anaLex;
 	TS tablaSim;
 	boolean errorGen=false;
@@ -21,7 +20,6 @@ public class AnalizadorSintactico {
 	
 	
 	public void programa(boolean err0){
-		String lex;
 		boolean errh1 = false;
 		boolean errh2 = false;
 		boolean err1 = false;
@@ -53,11 +51,10 @@ public class AnalizadorSintactico {
 	}
 	
 	public void declaracionesR(int dirh0,boolean errh0,boolean err0,int dir0){
-		
 		/**
 		 * Si el lexema anterior era ; es que no queda nada por cubrir
 		 */
-		if(this.lexema.compareTo(";")!=0){  
+		if(this.anaLex.getLex().compareTo(";")!=0){  
 			int dirh1 = 0;
 			boolean errh1 = false;
 			boolean err1 = false;
@@ -79,21 +76,24 @@ public class AnalizadorSintactico {
 		}
 		
 	}
+	
 	public void declaracion(String tipo0,ListaID listaID0,String tipoDecl0){
-		this.anaLex.scanner();
-		if(this.lexema.compareTo("var")==0){
+		this.anaLex.predice();
+		if(this.anaLex.getLex().compareTo("var")==0){
 			String tipo1 = "";
 			ListaID listaID1= null;
 			this.variable(tipo1,listaID1);
 			tipo0=tipo1;
-			listaID0=listaID1;
+			listaID1.copiar(listaID0);
+			//listaID0=listaID1;
 			tipoDecl0="var";
-		}else if(this.lexema.compareTo("const")==0){
+		}else if(this.anaLex.getLex().compareTo("const")==0){
 			String tipo1 = "";
 			ListaID listaID1=null;
 			this.constante(tipo1,listaID1);
 			tipo0=tipo1;
-			listaID0=listaID1;
+			listaID1.copiar(listaID0);
+			//listaID0=listaID1;
 			tipoDecl0="var";
 		}else{
 			Error.error("Programa mal formado, deberia declarar una constante o una variable");
@@ -104,9 +104,9 @@ public class AnalizadorSintactico {
 		String lex0="";
 		String tipo1="";
 		String valor = "";
-		//he subido la comparacion de const a declaracion
+		this.compara("const");
 		this.id();
-		lex0=this.lexema;
+		lex0=this.anaLex.getLex();
 		this.compara(":");
 		this.tipo(tipo1);
 		this.compara("=");
@@ -116,51 +116,57 @@ public class AnalizadorSintactico {
 		tipo0=tipo1;
 		ListaID listaID = new ListaID();
 		listaID.añadeID(lex0);
-		listaID0 = listaID;
+		listaID.copiar(listaID0);
+		//listaID0 = listaID;
 	}
 	
 	public void variable(String tipo0,ListaID listaID0){
 		ListaID listaID1=null;
 		String tipo1 = "";
-		//He subido la comparacion de var a declaracion
+		this.compara("var");
 		this.lista_id(listaID1);
 		this.compara(":");
 		this.tipo(tipo1);
 		tipo0=tipo1;
-		listaID0=listaID1;
+		listaID1.copiar(listaID0);
+		//listaID0=listaID1;
 	}
 	
 	public void lista_id(ListaID listaID0){
-		String lex="";
+		String lex=" ";
 		ListaID listaIDh0 = new ListaID();
 		ListaID listaID2=null;
 		this.id();
-		lex = this.lexema;
+		lex = this.anaLex.getLex();
 		listaIDh0.añadeID(lex);
 		this.lista_idR(listaIDh0,listaID2);
-		listaID0=listaID2;
+		listaID2.copiar(listaID0);
+		//listaID0=listaID2;
 	}
 	
 	public void lista_idR(ListaID listaIDh0,ListaID listaID0){
-		this.anaLex.scanner();
-		String aux = this.lexema;
+		this.anaLex.predice();
+		String aux = this.anaLex.getLex();
 		if(aux.compareTo(",")==0){
 			String lex;
 			ListaID listaIDh1=null;
 			ListaID listaID1=null;
+			this.compara(",");
 			this.id();
-			lex = this.lexema;
+			lex = this.anaLex.getLex();
 			listaIDh0.añadeID(lex);
-			listaIDh1=listaIDh0;
+			listaIDh0.copiar(listaIDh1);
+			//listaIDh1=listaIDh0;
 			this.lista_idR(listaIDh1,listaID1);
-			listaID0=listaID1;
+			listaID1.copiar(listaID0);
+			//listaID0=listaID1;
 		}else{
 			listaID0=listaIDh0;
 		}
 	}
 	
 	public void tipo(String tipo){
-		anaLex.scanner();
+		this.anaLex.scanner();
 		String lexTipo = anaLex.getLex();
 		if(lexTipo.compareTo("integer")==0){
 			tipo = "integer";
@@ -197,7 +203,7 @@ public class AnalizadorSintactico {
 		boolean err1=false;
 		this.compara("begin");
 		this.proposiciones_optativas(err1);
-		//this.compara("end"); lo bajamos
+		this.compara("end"); 
 		err0=err1 || errh;
 	}
 	
@@ -219,9 +225,8 @@ public class AnalizadorSintactico {
 	}
 	
 	public void lista_proposicionesR(boolean errh, boolean err){
-		anaLex.scanner();
+		this.anaLex.predice();
 		String lexTipo = anaLex.getLex();
-		// TODO si no es end, hay que bajar lex a donde lo necesite
 		if(lexTipo.compareTo("end")==0){
 			err=errh;
 		}else{
@@ -232,36 +237,41 @@ public class AnalizadorSintactico {
 	}
 	
 	public void proposicion(boolean err0){
-		anaLex.scanner();
+		this.anaLex.predice();
 		String lexToken= anaLex.getToken();
 		String lexTipo = anaLex.getLex();
 		if(lexToken.compareTo("identificador")==0){
 			String lex="";
 			String tipo1="";
 			boolean err1 = false;
-			lex = lexTipo;
+			this.id();
+			lex = this.anaLex.getLex();
 			this.compara(":=");
 			this.expresion(err1,tipo1);
 			err0=err1 || !this.tablaSim.existeID(lex) || !this.compatibles(this.tablaSim.devuelveTipo(lex), tipo1) || this.tablaSim.tipoDecl(lex)!= "var";
+			// TODO emitir
 			this.emite("asig");
 		}else if(lexTipo.compareTo("read")==0){
+			this.compara("read");
 			this.compara("(");
 			String lex="";
 			this.id();
-			lex = this.lexema;
+			lex = this.anaLex.getLex();
 			this.compara(")");
 			err0= !this.tablaSim.existeID(lex);
+			// TODO emitir
 			this.emite("read");
 		}else if(lexTipo.compareTo("write")==0){
+			this.compara("write");
 			this.compara("(");
 			boolean err1 = false;
 			String tipo1 ="";
 			this.expresion(err1,tipo1);
 			err0=err1;
 			this.compara(")");
+			// TODO emitir
 			this.emite("write");
 		}else if(lexTipo.compareTo("begin")==0){
-			// TODO arreglar esto, porque aqui entraria en proposicion compuesta con el begin ya leido
 			boolean errh = false;
 			boolean err1 = false;
 			this.proposicion_compuesta(errh, err1);
@@ -272,7 +282,9 @@ public class AnalizadorSintactico {
 	}
 	
 	public void expresion(boolean err0, String tipo){
-		
+		this.anaLex.predice();
+		String lexToken= anaLex.getToken();
+		String lexTipo = anaLex.getLex();
 	}
 	
 	
@@ -311,7 +323,7 @@ public class AnalizadorSintactico {
 	}
 	
 	public void emite(String a){
-		
+		System.out.println(a);
 	}
 
 	/**
@@ -319,7 +331,6 @@ public class AnalizadorSintactico {
 	 */
 	public static void main(String[] args) {
 		AnalizadorSintactico anaSin = new AnalizadorSintactico("c:/prueba.txt");
-
 	}
 
 }
