@@ -15,11 +15,11 @@ public class ListaID {
 	 * puesto que no vamos a crear programas muy grandes.
 	 */
 	public ListaID(){
-		Vector listaID = new Vector(100);
+		listaID = new Vector(100);
 	}
 	
 	public void añadeID(String lex){
-		listaID.add(lex);
+		listaID.addElement(lex);
 	}
 	
 	public boolean contiene(String lex){
@@ -27,7 +27,7 @@ public class ListaID {
 	} 
 	
 	public int nElementos(){
-		return listaID.capacity();
+		return listaID.size();
 	}
 	
 	public boolean esVacia(){
@@ -44,5 +44,12 @@ public class ListaID {
 	
 	public void eliminaPrimero(){
 		listaID.removeElementAt(0);
+	}
+	public void copiar(ListaID l){
+		l = new ListaID();
+		System.out.println(listaID.size());
+		for(int i = 0;i<listaID.size();i++){
+			l.añadeID((String)listaID.elementAt(i));
+		}
 	}
 }

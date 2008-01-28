@@ -256,19 +256,158 @@ public class AnalizadorLexico {
 		}
 	}
 	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-			AnalizadorLexico analizer = new AnalizadorLexico("/home/danieloop/prueba.txt");
-			for(;;){
-				analizer.scanner();
-				System.out.print("Lexema: ");
-				System.out.print(analizer.lex);
-				System.out.print("  token: ");
-				System.out.println(analizer.token);
+	public void predice(){
+		this.lex ="";
+		this.token="";
+		this.estado = 0;
+		int posAux = this.pos;
+		
+		boolean encontrado = false;
+		/**
+		 * Bucle dentro del cual hay una serie de casos, donde se simula un automata finito
+		 * determinista.
+		 */
+		while(!encontrado){
+ 			char buf=' ';
+			if(pos<this.archivo.length()){
+				buf = this.archivo.charAt(pos);
 			}
+			switch(this.estado){
+				case 0:
+					if(buf=='\n'){
+						Global.aumentaNumLinea();
+						this.transita(0);
+						this.lex = "";
+					}else if(buf== '\r' || buf == '\t' || buf == ' '){
+						this.transita(0);
+						this.lex = "";
+					}else if((buf>='a'&&buf<='z')||buf=='ñ'){
+						this.transita(1);
+					}else if(buf=='\''){
+						this.transita(2);
+					}else if(buf=='0'){
+						this.transita(5);
+					}else if(buf>='1'&&buf<='9'){
+						this.transita(6);
+					}else if(buf==':'){
+						this.transita(9);
+					}else if(buf==','||buf=='.'||buf=='+' || buf == '-' || buf =='*' || buf == '/'||buf=='('||buf==')'||buf==';'||buf=='='){
+						this.transita(10);
+					}else if(buf=='>'){
+						this.transita(11);
+					}else if(buf=='<'){
+						this.transita(12);
+					}else if(buf=='\0'){
+						this.transita(13);
+					}else{
+						Error.error("Error léxico");
+					}
+					break;
+				case 1:
+					if((buf>='a'&&buf<='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
+						this.transita(1);
+					}else{
+						encontrado=true;
+						this.pos = posAux;
+						this.esReservada(this.lex);
+					}
+					break;
+				case 2:
+					if((buf>='a'&&buf<='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
+						this.transita(3);
+					}else{
+						Error.error("Error léxico");
+					}
+					break;
+				case 3:
+					if(buf=='\''){
+						this.transita(4);
+					}else{
+						Error.error("Error léxico");
+					}
+					break;
+				case 4:
+					encontrado=true;
+					this.pos = posAux;
+					this.token = "char";
+					break;
+				case 5:
+					if(buf=='.'||buf=='e'){
+						this.transita(7);
+					}else{
+						encontrado = true;
+						this.pos = posAux;
+						this.token = "num";
+					}
+					break;
+				case 6:
+					if(buf>='0'&&buf<='9'){
+						this.transita(6);
+					}else if(buf=='.'||buf=='e'){
+						this.transita(7);
+					}else{
+						encontrado = true;
+						this.pos = posAux;
+						this.token = "num";
+					}
+					break;
+				case 7:
+					if(buf>='0'&&buf<='9'){
+						this.transita(8);
+					}else{
+						Error.error("Error léxico");
+					}
+					break;
+				case 8:
+					if(buf>='0'&&buf<='9'){
+						this.transita(8);
+					}else{
+						encontrado = true;
+						this.pos = posAux;
+						this.token = "numReal";
+					}
+					break;
+				case 9:
+					if(buf =='='){
+						this.transita(10);
+					}else{
+						encontrado = true;
+						this.pos = posAux;
+						this.token(this.lex);
+					}
+					break;
+				case 10:
+					encontrado = true;
+					this.pos = posAux;
+					this.token(this.lex);
+					break;
+				case 11:
+					if(buf =='='){
+						this.transita(10);
+					}else{
+						encontrado = true;
+						this.pos = posAux;
+						this.token(this.lex);
+					}
+					break;
+				case 12:
+					if(buf =='=' || buf=='>'){
+						this.transita(10);
+					}else{
+						encontrado = true;
+						this.pos = posAux;
+						this.token(this.lex);
+					}
+					break;
+				case 13:
+					encontrado = true;
+					this.pos = posAux;
+					this.token = "fin";
+					System.exit(0);
+			}
+		}
 	}
+	
 
 	/**
 	 * @return the lex
@@ -283,5 +422,27 @@ public class AnalizadorLexico {
 	public String getToken() {
 		return token;
 	}
+	
 
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+			AnalizadorLexico analizer = new AnalizadorLexico("c:/prueba.txt");
+			for(;;){
+				analizer.scanner();
+				System.out.println("SCANNER");
+				System.out.print("Lexema: ");
+				System.out.print(analizer.lex);
+				System.out.print("  token: ");
+				System.out.println(analizer.token);
+				analizer.predice();
+				System.out.println("PREDICE");
+				System.out.print("Lexema: ");
+				System.out.print(analizer.lex);
+				System.out.print("  token: ");
+				System.out.println(analizer.token);
+			}
+	}
+	
 }
