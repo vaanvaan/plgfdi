@@ -39,15 +39,16 @@ public class AnalizadorSintactico {
 		int dir1 = 0;
 		int dirh1 = 0;
 		String tipo="";
+		String val="";
 		ListaID lista=null;
 		String tipoDec="";
-		this.declaracion(tipo,lista,tipoDec);
+		this.declaracion(tipo,lista,tipoDec, val);
 		errh1 = false;
 		dirh1 = 0;
 		this.compara(";");
 		this.declaracionesR(dirh1,errh1,err1,dir1);
 		err0=err1;
-		tablaSim.añadeLista(lista, tipoDec, tipo, dirh1);
+		tablaSim.añadeLista(lista, tipoDec, tipo, val, dirh1);
 	}
 	
 	public void declaracionesR(int dirh0,boolean errh0,boolean err0,int dir0){
@@ -60,16 +61,17 @@ public class AnalizadorSintactico {
 			boolean err1 = false;
 			String tipo = "";
 			String tipoDecl= "";
+			String val="";
 			ListaID listaID = null;
 			int dir1 = 0;
-			this.declaracion(tipo,listaID,tipoDecl);
+			this.declaracion(tipo,listaID,tipoDecl, val);
 			dirh1 = dirh0 + 1;
 			errh1 = (errh0 || this.tablaSim.existeID(listaID));
 			this.compara(";");
 			this.declaracionesR(dirh1, errh1, err1, dir1);
 			err0 = err1;
 			dir0 = dir1;
-			this.tablaSim.añadeLista(listaID, tipoDecl, tipo, dirh1);
+			this.tablaSim.añadeLista(listaID, tipoDecl, tipo, val, dirh1);
 		}else{
 			err0=errh0;
 			dir0=dirh0;
@@ -77,7 +79,7 @@ public class AnalizadorSintactico {
 		
 	}
 	
-	public void declaracion(String tipo0,ListaID listaID0,String tipoDecl0){
+	public void declaracion(String tipo0,ListaID listaID0,String tipoDecl0, String val){
 		this.anaLex.predice();
 		if(this.anaLex.getLex().compareTo("var")==0){
 			String tipo1 = "";
@@ -90,7 +92,7 @@ public class AnalizadorSintactico {
 		}else if(this.anaLex.getLex().compareTo("const")==0){
 			String tipo1 = "";
 			ListaID listaID1=null;
-			this.constante(tipo1,listaID1);
+			this.constante(tipo1,listaID1, val);
 			tipo0=tipo1;
 			listaID1.copiar(listaID0);
 			//listaID0=listaID1;
@@ -100,10 +102,9 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	public void constante(String tipo0,ListaID listaID0){
+	public void constante(String tipo0,ListaID listaID0, String val){
 		String lex0="";
 		String tipo1="";
-		String valor = "";
 		this.compara("const");
 		this.id();
 		lex0=this.anaLex.getLex();
@@ -111,8 +112,7 @@ public class AnalizadorSintactico {
 		this.tipo(tipo1);
 		this.compara("=");
 		// TODO hay que subir el valor
-		this.valor(valor);
-		String val = valor; 
+		val = this.valor(tipo1); 
 		tipo0=tipo1;
 		ListaID listaID = new ListaID();
 		listaID.añadeID(lex0);
@@ -182,20 +182,22 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	public void valor(String tipo){
+	public String valor(String tipo){
 		anaLex.scanner();
-		String lexTipo = anaLex.getLex();
-		if(lexTipo.compareTo("integer")==0){
-			tipo = "integer";
-		}else if(lexTipo.compareTo("boolean")==0){
-			tipo = "boolean";
-		}else if(lexTipo.compareTo("real")==0){
-			tipo = "real";
-		}else if(lexTipo.compareTo("char")==0){
-			tipo = "char";
+		String token = anaLex.getToken();
+		if(token.compareTo("num")==0 && tipo.compareTo("integer")==0){
+			return anaLex.getLex(); 
+		}else if((token.compareTo("true")==0 || token.compareTo("false")==0)
+					&& tipo.compareTo("boolean")==0){
+			return anaLex.getLex();
+		}else if(token.compareTo("numReal")==0 && tipo.compareTo("real")==0){
+			return anaLex.getLex();
+		}else if(token.compareTo("char")==0 && tipo.compareTo("char")==0){
+			return anaLex.getLex();
 		}else{
 			// TODO aqui no se propaga error pero si no es ninguno es error lexico
 			Error.error("Programa mal construido, el tipo no existe");
+			return "";
 		}
 	}
 	
@@ -307,7 +309,7 @@ public class AnalizadorSintactico {
 				boolean err1= false;
 				String tipo1="";
 				String op="";
-				this.oprel(op);
+				this.operador(op);
 				this.exp_simple(err1, tipo1);
 				err0=err1 || !tipo0.equals(tipo1);
 				this.emite(op);
@@ -323,7 +325,7 @@ public class AnalizadorSintactico {
 		String tipo1="";
 		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0){
 			String op="";
-			this.opsuma(op);
+			this.operador(op);
 			this.termino(err1, tipo1);
 			err0=err1;
 			tipo0=tipo1;
@@ -337,13 +339,96 @@ public class AnalizadorSintactico {
 		
 	}
 
-	private void opsuma(String op) {
-		this.anaLex.scanner();
-		op = anaLex.getLex();	
+	private void termino(boolean err0, String tipo0) {
+		boolean err1 = false;
+		boolean err2 = false;
+		String tipo1 = "";
+		this.factor(err1, tipo1);
+		this.terminoR(tipo1,err2);
+		err0 = err1 || err2;
+		tipo0 = tipo1;		
 	}
 
 
-	private void oprel(String op) {
+	private void factor(boolean err0, String tipo0) {
+		this.anaLex.predice();
+		String token = this.anaLex.getToken();
+		String lex = this.anaLex.getLex();
+		boolean err1 = false;
+		String tipo1 = "";
+		if (token.compareTo("identificador")==0){
+			this.id();
+			lex = this.anaLex.getLex(); 
+			err0 = this.tablaSim.existeID(lex);
+			tipo0 = this.tablaSim.devuelveTipo(lex);
+		} else if (token.compareTo("lparen")==0){
+			this.compara("(");
+			this.expresion(err1, tipo1);
+			err0 = err1; tipo0 = tipo1;
+			this.compara(")");
+		} else if (lex.compareTo("not")==0){
+			this.anaLex.scanner();
+			this.factor(err1, tipo1);
+			err0 = err1; tipo0 = tipo1;
+			this.emite(this.anaLex.getLex());
+		} else if (lex.compareTo("true")==0 || lex.compareTo("false")==0){
+			this.anaLex.scanner();
+			err0 = false;
+			tipo0 = "boolean";
+			this.emite(this.anaLex.getLex());
+		} else if (token.compareTo("num")==0){
+			this.anaLex.scanner();
+			err0 = false;
+			tipo0 = "integer";
+			this.emite(this.anaLex.getLex());
+		} else if (token.compareTo("numReal")==0){
+			this.anaLex.scanner();
+			err0 = false;
+			tipo0 = "real";
+			this.emite(this.anaLex.getLex());
+		}
+		
+		
+	}
+
+
+	private void terminoR(String tipo0, boolean err0) {
+		this.anaLex.predice();
+		String lexToken = this.anaLex.getToken();
+		String lexTipo = this.anaLex.getLex();
+		if (lexToken.compareTo("prod")==0 || lexToken.compareTo("div")==0
+				|| lexToken.compareTo("mod")==0 || lexToken.compareTo("DivReal")==0
+				|| lexTipo.compareTo("and")==0){
+			String op = "", tipo1 = "";
+			boolean err1 = false;
+			this.operador(op);
+			this.termino(err1, tipo1);
+			err0 = err1 || !tipo0.equals(tipo1);
+		} else {
+			err0 = false;
+		}
+		
+	}
+
+	private void exp_simpleR(String tipo0, boolean err0) {
+		this.anaLex.predice();
+		String lexToken=this.anaLex.getToken();
+		String lexTipo= this.anaLex.getLex();
+		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0
+				|| lexTipo.compareTo("or")==0){
+			String op="";
+			boolean err1 = false;
+			String tipo1 = "";
+			this.operador(op);
+			this.exp_simple(err1, tipo1);
+			err0=err1 || !tipo0.equals(tipo1);
+			this.emite(op);
+		} else {
+			err0 = false;
+		}
+	}
+
+	private void operador(String op) {
 		this.anaLex.scanner();
 		op = anaLex.getLex();	
 	}
