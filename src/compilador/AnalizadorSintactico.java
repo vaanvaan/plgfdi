@@ -247,7 +247,7 @@ public class AnalizadorSintactico {
 			this.id();
 			lex = this.anaLex.getLex();
 			this.compara(":=");
-			this.expresion(err1,tipo1);
+			this.expresion(err1, tipo1);
 			err0=err1 || !this.tablaSim.existeID(lex) || !this.compatibles(this.tablaSim.devuelveTipo(lex), tipo1) || this.tablaSim.tipoDecl(lex)!= "var";
 			// TODO emitir
 			this.emite("asig");
@@ -266,7 +266,7 @@ public class AnalizadorSintactico {
 			this.compara("(");
 			boolean err1 = false;
 			String tipo1 ="";
-			this.expresion(err1,tipo1);
+			this.expresion(err1, tipo1);
 			err0=err1;
 			this.compara(")");
 			// TODO emitir
@@ -281,18 +281,80 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	public void expresion(boolean err0, String tipo){
+	public void expresion(boolean err0, String tipo0){
 		this.anaLex.predice();
 		String lexToken= anaLex.getToken();
-		String lexTipo = anaLex.getLex();
+		if(lexToken.compareTo("char")==0){
+			err0 = false;
+			tipo0 = "char";
+			this.anaLex.scanner();
+			this.emite(anaLex.getLex());
+		}else{
+			boolean err1=false;
+			boolean err2=false;
+			String tipo1 = "";
+			this.exp_simple(err1, tipo1);
+			this.expresionR(err2, tipo1);
+			err0 = err1 || err2;
+		}
 	}
 	
+	private void expresionR(boolean err0, String tipo0) {
+		this.anaLex.predice();
+		String lexToken= anaLex.getToken();
+		if(lexToken.compareTo("eq")==0 || lexToken.compareTo("ne")==0 || lexToken.compareTo("gt")==0
+			|| lexToken.compareTo("ge")==0 || lexToken.compareTo("lt")==0 || lexToken.compareTo("le")==0){
+				boolean err1= false;
+				String tipo1="";
+				String op="";
+				this.oprel(op);
+				this.exp_simple(err1, tipo1);
+				err0=err1 || !tipo0.equals(tipo1);
+				this.emite(op);
+		} else {
+			err0 = false;
+		}
+	}
 	
+	private void exp_simple(boolean err0, String tipo0) {
+		this.anaLex.predice();
+		String lexToken = anaLex.getToken();
+		boolean err1=false;
+		String tipo1="";
+		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0){
+			String op="";
+			this.opsuma(op);
+			this.termino(err1, tipo1);
+			err0=err1;
+			tipo0=tipo1;
+			this.emite(op);
+		} else {
+			boolean err2=false;
+			this.termino(err1, tipo1);
+			this.exp_simpleR(tipo1, err2);
+			err0=err1 || err2;
+		}
+		
+	}
+
+	private void opsuma(String op) {
+		this.anaLex.scanner();
+		op = anaLex.getLex();	
+	}
+
+
+	private void oprel(String op) {
+		this.anaLex.scanner();
+		op = anaLex.getLex();	
+	}
 	
 //*************************************************************************************************
 //                             FUNCIONES AUXILIARES
 //*************************************************************************************************
-	
+
+
+
+
 	/** Funcion que compara un string dado con el siguiente elemento lexico a analizar.
 	 * @param tok String a comparar con el token del programa.
 	 */
