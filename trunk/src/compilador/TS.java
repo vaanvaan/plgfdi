@@ -44,7 +44,7 @@ public class TS {
 	
 	public boolean añadeLista(ListaID lista,String tipoDec,String tipo, String valor, int dir){
 		boolean auxB=true;
-		while(!lista.esVacia() || !auxB){
+		while(!lista.esVacia() && !auxB){
 			String idAux = lista.primero();
 			lista.eliminaPrimero();
 			auxB = añadeTS(idAux,tipoDec,tipo,valor,dir);
