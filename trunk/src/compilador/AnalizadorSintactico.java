@@ -21,10 +21,11 @@ public class AnalizadorSintactico {
 	
 	public boolean programa(){
 		this.compara("program");
-		this.id(); //
+		this.id(); 
 		this.compara(";");
-		boolean errh1 = this.declaraciones(); //	
-		boolean err1 = this.proposicion_compuesta(errh1); //
+		boolean errh1 = this.declaraciones(); 
+		System.out.println(this.tablaSim.toString());
+		boolean err1 = this.proposicion_compuesta(errh1); 
 		this.compara(".");
 		return err1;
 	}
@@ -39,15 +40,15 @@ public class AnalizadorSintactico {
 		ListaID lista = ((ListaID) t1.getnTupla(1));
 		String tipoDec = t1.getnTupla(2).toString();
 		String val = t1.getnTupla(3).toString();
+		int diraux = lista.tamaño()-1;
 		errh1 = false;
 		dirh1 = 0;
 		this.compara(";");
-		Tupla t2 = this.declaracionesR(dirh1,errh1);
+		// TODO efectivamente sigue añadiendo despues como si fuera una única variable
+		tablaSim.añadeLista(lista, tipoDec, tipo, val, dirh1);
+		Tupla t2 = this.declaracionesR(diraux,errh1);
 		err1=((Boolean)t2.getnTupla(0)).booleanValue();
 		dir1=((Integer)t2.getnTupla(1)).intValue();
-		// TODO hay que revisar que dir es la que entra, que creo que da igual, y que creo que tenemos mal
-		//porque si declaramos una lista no deberia sumar 1 luego...nose nose
-		tablaSim.añadeLista(lista, tipoDec, tipo, val, dirh1);
 		return err1;
 	}
 	
@@ -65,9 +66,10 @@ public class AnalizadorSintactico {
 			String tipoDecl = t1.getnTupla(2).toString();
 			String val = t1.getnTupla(3).toString();
 			dirh1 = dirh0 + 1;
+			int diraux = dirh1 + listaID.tamaño()-1;
 			errh1 = (errh0 || this.tablaSim.existeID(listaID));
 			this.compara(";");
-			Tupla t2 = this.declaracionesR(dirh1, errh1);
+			Tupla t2 = this.declaracionesR(diraux, errh1);
 			err1=((Boolean)t2.getnTupla(0)).booleanValue();
 			dir1=((Integer)t2.getnTupla(1)).intValue();
 			t.setnTupla(0, err1);
@@ -205,7 +207,14 @@ public class AnalizadorSintactico {
 	}
 	
 	public boolean proposiciones_optativas(){
-		boolean err1=this.lista_proposiciones();
+		this.anaLex.predice();
+		boolean err1;
+		String lexTipo = anaLex.getLex();
+		if(lexTipo.compareTo("end")==0){
+			err1 = false;
+		}else{
+			err1=this.lista_proposiciones();
+		}
 		return err1;
 	}
 	
