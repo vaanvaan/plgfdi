@@ -10,149 +10,109 @@ package compilador;
 public class AnalizadorSintactico {
 	AnalizadorLexico anaLex;
 	TS tablaSim;
-	boolean errorGen=false;
 	
 	public AnalizadorSintactico(String path){
 		anaLex = new AnalizadorLexico(path);
 		tablaSim = new TS();
-		boolean errorP = this.programa();
 	}
 	
 	
-	public boolean programa(){
+	public void programa() throws Exception{
 		this.compara("program");
 		this.id(); 
 		this.compara(";");
-		boolean errh1 = this.declaraciones(); 
-		System.out.println(this.tablaSim.toString());
-		boolean err1 = this.proposicion_compuesta(errh1); 
+		this.declaraciones();
+		this.proposicion_compuesta(); 
 		this.compara(".");
-		return err1;
 	}
 	
-	public boolean declaraciones(){
-		boolean errh1 = false;
-		boolean err1 = false;
-		int dir1 = 0;
-		int dirh1 = 0;
-		Tupla t1 = this.declaracion();
-		String tipo = t1.getnTupla(0).toString();
-		ListaID lista = ((ListaID) t1.getnTupla(1));
-		String tipoDec = t1.getnTupla(2).toString();
-		String val = t1.getnTupla(3).toString();
-		int diraux = lista.tamaño()-1;
-		errh1 = false;
-		dirh1 = 0;
+	private void declaraciones() throws Exception{
+		Tupla decs = this.declaracion(); // devuelve listaID, tipoDec, tipo, valor
 		this.compara(";");
-		// TODO efectivamente sigue añadiendo despues como si fuera una única variable
-		tablaSim.añadeLista(lista, tipoDec, tipo, val, dirh1);
-		Tupla t2 = this.declaracionesR(diraux,errh1);
-		err1=((Boolean)t2.getnTupla(0)).booleanValue();
-		dir1=((Integer)t2.getnTupla(1)).intValue();
-		return err1;
+		tablaSim.añadeLista((ListaID)decs.getnTupla(0), (String)decs.getnTupla(1), 
+							(String)decs.getnTupla(2), (String)decs.getnTupla(3));
+		this.declaracionesR();
 	}
 	
-	public Tupla declaracionesR(int dirh0,boolean errh0){
-		Tupla t = new Tupla(2);
+	private void declaracionesR() throws Exception{
 		this.anaLex.predice();
 		if(this.anaLex.getLex().compareTo("var")==0||this.anaLex.getLex().compareTo("const")==0){  
-			int dirh1 = 0;
-			boolean errh1 = false;
-			boolean err1 = false;
-			int dir1 = 0;
 			Tupla t1 = this.declaracion();
-			String tipo = t1.getnTupla(0).toString();
-			ListaID listaID = ((ListaID) t1.getnTupla(1));
-			String tipoDecl = t1.getnTupla(2).toString();
-			String val = t1.getnTupla(3).toString();
-			dirh1 = dirh0 + 1;
-			int diraux = dirh1 + listaID.tamaño()-1;
-			errh1 = (errh0 || this.tablaSim.existeID(listaID));
 			this.compara(";");
-			Tupla t2 = this.declaracionesR(diraux, errh1);
-			err1=((Boolean)t2.getnTupla(0)).booleanValue();
-			dir1=((Integer)t2.getnTupla(1)).intValue();
-			t.setnTupla(0, err1);
-			t.setnTupla(1, dir1);
-			this.tablaSim.añadeLista(listaID, tipoDecl, tipo, val, dirh1);
-		}else{
-			t.setnTupla(0, errh0);
-			t.setnTupla(1, dirh0);
+			tablaSim.añadeLista((ListaID)t1.getnTupla(0), (String)t1.getnTupla(1), 
+					(String)t1.getnTupla(2), (String)t1.getnTupla(3));
+			this.declaracionesR();
 		}
-		return t;
 	}
 	
-	public Tupla declaracion(){
-		Tupla t = new Tupla(4);
+	private Tupla declaracion() throws Exception{
+		Tupla dec = new Tupla(4);
 		this.anaLex.predice();
 		if(this.anaLex.getLex().compareTo("var")==0){
-			Tupla t1 = this.variable();
-			String tipo1 = t1.getnTupla(0).toString();
-			ListaID listaID1 = ((ListaID) t1.getnTupla(1));
-			t.setnTupla(0, tipo1);
-			t.setnTupla(1, listaID1);
-			t.setnTupla(2, "var");
-			t.setnTupla(3, "");
+			Tupla var = this.variable(); // Devuelve listaID, tipo
+			dec.setnTupla(0, var.getnTupla(0));
+			dec.setnTupla(1, "var");
+			dec.setnTupla(2, var.getnTupla(1));
+			dec.setnTupla(3, "");
 		}else if(this.anaLex.getLex().compareTo("const")==0){
-			Tupla t2 = this.constante();
-			String tipo1 = t2.getnTupla(0).toString();
-			ListaID listaID1 = ((ListaID) t2.getnTupla(1));
-			String v = t2.getnTupla(0).toString();
-			t.setnTupla(0, tipo1);
-			t.setnTupla(1, listaID1);
-			t.setnTupla(2, "const");
-			t.setnTupla(3, v);
+			Tupla cons = this.constante(); // Devuelve listaID, tipo, valor
+			dec.setnTupla(0, cons.getnTupla(0));
+			dec.setnTupla(1, "const");
+			dec.setnTupla(2, cons.getnTupla(1));
+			dec.setnTupla(3, cons.getnTupla(2));
 		}else{
-			Error.error("Programa mal formado, deberia declarar una constante o una variable");
+			throw new Exception("Error sintaxis: No hay declaraciones.");
 		}
-		return t;
+		return dec;
 	}
 	
-	public Tupla constante(){
+	private Tupla constante() throws Exception{
 		Tupla t = new Tupla(3);
 		this.compara("const");
 		this.id();
 		String lex0=this.anaLex.getLex();
+		if (this.tablaSim.existeID(lex0)) throw new Exception("Error sintaxis: ID ya existente.");
 		this.compara(":");
 		String tipo1 = this.tipo();
 		this.compara("=");
-		// TODO esto no se si es entrada o salida
-		String val = this.valor(tipo1); 
+		String valor = this.valor(tipo1); 
 		ListaID listaID = new ListaID();
 		listaID.añadeID(lex0);
-		t.setnTupla(0, tipo1);
-		t.setnTupla(1, listaID);
-		t.setnTupla(2, val);
+		t.setnTupla(0, listaID);
+		t.setnTupla(1, tipo1);
+		t.setnTupla(2, valor);
 		return t;
 	}
 	
-	public Tupla variable(){
+	private Tupla variable() throws Exception{
 		Tupla t = new Tupla(2);
 		this.compara("var");
-		ListaID l=this.lista_id();
+		ListaID listaID=this.lista_id();
 		this.compara(":");
 		String tipo1 = this.tipo();
-		t.setnTupla(0, tipo1);
-		t.setnTupla(1, l);
+		t.setnTupla(0, listaID);
+		t.setnTupla(1, tipo1);
 		return t;
 	}
 	
-	public ListaID lista_id(){
+	private ListaID lista_id() throws Exception{
 		this.id();
-		ListaID l = new ListaID();
 		String lex = this.anaLex.getLex();
-		l.añadeID(lex);
-		return this.lista_idR(l);
+		if (this.tablaSim.existeID(lex)) throw new Exception("Error sintaxis: ID ya existente.");
+		ListaID listaID = new ListaID();
+		listaID.añadeID(lex);
+		return this.lista_idR(listaID);
 	}
 	
-	public ListaID lista_idR(ListaID listaIDh0){
+	private ListaID lista_idR(ListaID listaIDh0) throws Exception{
 		this.anaLex.predice();
-		String aux = this.anaLex.getLex();
-		if(aux.compareTo(",")==0){
+		String aux = this.anaLex.getToken();
+		if(aux.compareTo("coma")==0){
 			String lex;
 			this.compara(",");
 			this.id();
 			lex = this.anaLex.getLex();
+			if (this.tablaSim.existeID(lex)) throw new Exception("Error sintaxis: ID ya existente.");
 			listaIDh0.añadeID(lex);
 			return this.lista_idR(listaIDh0);
 		}else{
@@ -160,7 +120,7 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	public String tipo(){
+	private String tipo() throws Exception{
 		String tipo="";
 		this.anaLex.scanner();
 		String lexTipo = anaLex.getLex();
@@ -173,290 +133,210 @@ public class AnalizadorSintactico {
 		}else if(lexTipo.compareTo("char")==0){
 			tipo = "char";
 		}else{
-			Error.error("Programa mal construido, el tipo no existe");
+			throw new Exception("Error sintaxis: Tipo incorrecto.");
 		}
 		return tipo;
 	}
 	
-	public String valor(String tipo){
+	private String valor(String tipo) throws Exception{
 		anaLex.scanner();
 		String token = anaLex.getToken();
+		String lex = anaLex.getLex();
 		if(token.compareTo("num")==0 && tipo.compareTo("integer")==0){
-			return anaLex.getLex(); 
-		}else if((token.compareTo("true")==0 || token.compareTo("false")==0)
+			return lex; 
+		}else if((lex.compareTo("true")==0 || lex.compareTo("false")==0)
 					&& tipo.compareTo("boolean")==0){
-			return anaLex.getLex();
+			return lex;
 		}else if(token.compareTo("numReal")==0 && tipo.compareTo("real")==0){
-			return anaLex.getLex();
+			return lex;
 		}else if(token.compareTo("char")==0 && tipo.compareTo("char")==0){
-			return anaLex.getLex();
+			return lex;
 		}else{
-			// TODO aqui no se propaga error pero si no es ninguno es error lexico
-			Error.error("Programa mal construido, el tipo no existe");
-			return "";
+			throw new Exception("Error sintaxis: valor no corresponde con tipo.");
 		}
 	}
+
+// FIN PARTE DECLARACIONES
+// HASTA AQUÍ ESTÁ BIEN COMPLETO
 	
-	public boolean proposicion_compuesta(boolean errh){
-		boolean err0;
+	private void proposicion_compuesta() throws Exception{
 		this.compara("begin");
-		boolean err1 = this.proposiciones_optativas();
+		this.proposiciones_optativas();
 		this.compara("end"); 
-		err0=err1 || errh;
-		return err0;
 	}
 	
-	public boolean proposiciones_optativas(){
+	private void proposiciones_optativas() throws Exception{
 		this.anaLex.predice();
-		boolean err1;
-		String lexTipo = anaLex.getLex();
-		if(lexTipo.compareTo("end")==0){
-			err1 = false;
-		}else{
-			err1=this.lista_proposiciones();
+		String lex = this.anaLex.getLex();
+		if (lex.compareTo("end")!=0){
+			// Si no es programa vacío, seguimos.
+			this.lista_proposiciones();
 		}
-		return err1;
 	}
 	
-	public boolean lista_proposiciones(){
-		boolean err0;
-		boolean err2 = false;
-		boolean err1 = this.proposicion();
+	private void lista_proposiciones() throws Exception{
+		this.proposicion();
 		this.compara(";");
-		err2 = err1;
-		boolean err3 = this.lista_proposicionesR(err2);
-		err0=err3;
-		return err0;
+		this.lista_proposicionesR();
 	}
 	
-	public boolean lista_proposicionesR(boolean errh){
+	private void lista_proposicionesR() throws Exception{
 		this.anaLex.predice();
-		boolean err;
 		String lexTipo = anaLex.getLex();
-		if(lexTipo.compareTo("end")==0){
-			err=errh;
-		}else{
-			boolean err1 = this.lista_proposiciones();
-			err = err1 || errh;
+		if(lexTipo.compareTo("end")!=0){
+			// Ya no hay más proposiciones.
+			this.lista_proposiciones();
 		}
-		return err;
 	}
 	
-	public boolean proposicion(){
-		boolean err0=false;
+	private void proposicion() throws Exception{
 		this.anaLex.predice();
 		String lexToken= anaLex.getToken();
 		String lexTipo = anaLex.getLex();
 		if(lexToken.compareTo("identificador")==0){
-			String lex="";
 			this.id();
-			lex = this.anaLex.getLex();
+			String lex = this.anaLex.getLex();
 			this.compara(":=");
-			Tupla t1 = this.expresion();
-			boolean err1 = ((Boolean)t1.getnTupla(0)).booleanValue();
-		    String tipo1 = t1.getnTupla(1).toString();
-			err0=err1 || !this.tablaSim.existeID(lex) || !this.compatibles(this.tablaSim.devuelveTipo(lex), tipo1) || this.tablaSim.tipoDecl(lex)!= "var";
+			String tipo = this.expresion(); // Devuelve tipo
+			if (!this.tablaSim.existeID(lex) 
+					|| !this.compatibles(this.tablaSim.devuelveTipo(lex), tipo) 
+					|| this.tablaSim.tipoDecl(lex)!= "var"){
+				throw new Exception("Error sintaxis: Asignación incorrecta.");
+			}
 			this.emite("asig");
 		}else if(lexTipo.compareTo("read")==0){
 			this.compara("read");
 			this.compara("(");
-			String lex="";
 			this.id();
-			lex = this.anaLex.getLex();
+			String lex = this.anaLex.getLex();
+			if (!this.tablaSim.existeID(lex)) throw new Exception("Error sintaxis: ID no declarado.");
 			this.compara(")");
-			err0= !this.tablaSim.existeID(lex);
 			this.emite("read");
 		}else if(lexTipo.compareTo("write")==0){
 			this.compara("write");
 			this.compara("(");
-			Tupla t1 = this.expresion();
-			boolean err1 = ((Boolean)t1.getnTupla(0)).booleanValue();
-		    String tipo1 = t1.getnTupla(1).toString();
-			err0=err1;
+			this.expresion();
 			this.compara(")");
 			this.emite("write");
-		}else if(lexTipo.compareTo("begin")==0){
-			boolean errh = false;
-			// TODO aqui no se si deberiamos propagar algun error o no
-			boolean err1 = this.proposicion_compuesta(errh);
-			err0= err1;
 		}else{
-			Error.error("Error en la proposicion");
-			err0=true;
+			// Si lo siguiente no empieza por "begin" ya dará error.
+			this.proposicion_compuesta();
 		}
-		return err0;
 	}
 	
-	public Tupla expresion(){
-		Tupla t = new Tupla(2);
-		boolean err0;
-		String tipo0="";
+	private String expresion() throws Exception{
+		String t="";
 		this.anaLex.predice();
 		String lexToken= anaLex.getToken();
 		if(lexToken.compareTo("char")==0){
-			err0 = false;
-			tipo0 = "char";
+			t = "char";
 			this.anaLex.scanner();
 			this.emite(anaLex.getLex());
-			t.setnTupla(0, err0);
-			t.setnTupla(1, tipo0);
 		}else{
-			Tupla t1=this.exp_simple();
-			boolean err1 = ((Boolean)t1.getnTupla(0)).booleanValue();
-		    String tipo1 = t1.getnTupla(1).toString();
-			boolean err2 = this.expresionR(tipo1);
-			err0 = err1 || err2;
-			t.setnTupla(0, err0);
-			t.setnTupla(1, tipo1);
+			t=this.exp_simple();
+			t=this.expresionR(t);
 		}
 		return t;
 	}
 	
-	private boolean expresionR(String tipo0) {
-		boolean err0;
+	private String expresionR(String tipo) throws Exception {
 		this.anaLex.predice();
 		String lexToken= anaLex.getToken();
 		if(lexToken.compareTo("eq")==0 || lexToken.compareTo("ne")==0 || lexToken.compareTo("gt")==0
 			|| lexToken.compareTo("ge")==0 || lexToken.compareTo("lt")==0 || lexToken.compareTo("le")==0){
 				String op = this.operador();
-				Tupla t1 = this.exp_simple();
-				boolean err1 = ((Boolean)t1.getnTupla(0)).booleanValue();
-			    String tipo1 = t1.getnTupla(1).toString();
-				err0=err1 || !compatibles(tipo0,tipo1);
+				String t1 = this.exp_simple();
+				if (!compatibles(tipo,t1)) throw new Exception("Error sintaxis: Tipos no compatibles.");
 				this.emite(op);
-		} else {
-			err0 = false;
-		}
-	return err0;	
+				// Si todo va bien, el tipo cambia a boolean por ser relaccional.
+				return "boolean";
+		} else { 
+			return tipo;}
 	}
 	
-	private Tupla exp_simple() {
-		Tupla t = new Tupla(2);
-		boolean err0;
-		String tipo0="";
+	private String exp_simple() throws Exception {
+		String tipo="";
 		this.anaLex.predice();
 		String lexToken = anaLex.getToken();
 		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0){
 			String op = this.operador();
-			Tupla t1 = this.termino();
-			boolean err1 = ((Boolean)t1.getnTupla(0)).booleanValue();
-		    String tipo1 = t1.getnTupla(1).toString();
-			err0=err1;
-			tipo0=tipo1;
+			tipo = this.termino();
 			this.emite(op);
 		} else {
-			Tupla t2 = this.termino();
-			boolean err1 = ((Boolean)t2.getnTupla(0)).booleanValue();
-		    String tipo1 = t2.getnTupla(1).toString();
-			boolean err2 = this.exp_simpleR(tipo1);
-			err0=err1 || err2;
+			tipo = this.termino();
+			this.exp_simpleR(tipo);
 		}
-		t.setnTupla(0, err0);
-		t.setnTupla(1, tipo0);
-		return t;
+		return tipo;
 	}
 
-	private Tupla termino() {
-		Tupla t = new Tupla(2);
-		boolean err0;
-		String tipo0;
-		Tupla t1=this.factor();
-		boolean err1 = ((Boolean)t1.getnTupla(0)).booleanValue();
-	    String tipo1 = t1.getnTupla(1).toString();
-		boolean err2 = this.terminoR(tipo1);
-		err0 = err1 || err2;
-		tipo0 = tipo1;	
-		t.setnTupla(0, err0);
-		t.setnTupla(1, tipo0);
-		return t;
+	private String termino() throws Exception {
+		String tipo=this.factor();
+		this.terminoR(tipo);
+		return tipo;
 	}
 
 
-	private Tupla factor() {
-		Tupla t = new Tupla(2);
-		boolean err0=false;
-		String tipo0="";
+	private String factor() throws Exception {
+		String tipo="";
 		this.anaLex.predice();
 		String token = this.anaLex.getToken();
 		String lex = this.anaLex.getLex();
 		if (token.compareTo("identificador")==0){
 			this.id();
 			lex = this.anaLex.getLex(); 
-			err0 = this.tablaSim.existeID(lex);
-			tipo0 = this.tablaSim.devuelveTipo(lex);
+			if (!tablaSim.existeID(lex)) throw new Exception("Error sintaxis: ID no declarado.");
+			tipo = this.tablaSim.devuelveTipo(lex);
 		} else if (token.compareTo("lparen")==0){
 			this.compara("(");
-			Tupla t1 = this.expresion();
-			boolean err1 = ((Boolean)t1.getnTupla(0)).booleanValue();
-		    String tipo1 = t1.getnTupla(1).toString();
-			err0 = err1; tipo0 = tipo1;
+			tipo = this.expresion();
 			this.compara(")");
 		} else if (lex.compareTo("not")==0){
 			this.anaLex.scanner();
-			Tupla t1 = this.factor();
-			boolean err1 = ((Boolean)t1.getnTupla(0)).booleanValue();
-		    String tipo1 = t1.getnTupla(1).toString();
-			err0 = err1; tipo0 = tipo1;
-			this.emite(this.anaLex.getLex());
+			String l = this.anaLex.getLex();
+			tipo = this.factor();
+			this.emite(l);
 		} else if (lex.compareTo("true")==0 || lex.compareTo("false")==0){
 			this.anaLex.scanner();
-			err0 = false;
-			tipo0 = "boolean";
+			tipo = "boolean";
 			this.emite(this.anaLex.getLex());
 		} else if (token.compareTo("num")==0){
 			this.anaLex.scanner();
-			err0 = false;
-			tipo0 = "integer";
+			tipo = "integer";
 			this.emite(this.anaLex.getLex());
 		} else if (token.compareTo("numReal")==0){
 			this.anaLex.scanner();
-			err0 = false;
-			tipo0 = "real";
+			tipo = "real";
 			this.emite(this.anaLex.getLex());
 		}
-		t.setnTupla(0, err0);
-		t.setnTupla(1, tipo0);
-		return t;
+		return tipo;
 	}
 
 
-	private boolean terminoR(String tipo0) {
-		boolean err0;
+	private void terminoR(String tipo) throws Exception {
 		this.anaLex.predice();
-		String lexToken = this.anaLex.getToken();
 		String lexTipo = this.anaLex.getLex();
-		if (lexToken.compareTo("prod")==0 || lexToken.compareTo("div")==0
-				|| lexToken.compareTo("mod")==0 || lexToken.compareTo("DivReal")==0
+		String lexToken = this.anaLex.getToken();
+		if (lexToken.compareTo("prod")==0 || lexTipo.compareTo("div")==0
+				|| lexTipo.compareTo("mod")==0 || lexToken.compareTo("DivReal")==0
 				|| lexTipo.compareTo("and")==0){
 			String op =this.operador();
-			Tupla t1 = this.termino();
-			boolean err1 = ((Boolean)t1.getnTupla(0)).booleanValue();
-		    String tipo1 = t1.getnTupla(1).toString();
-			err0 = err1 || !compatibles(tipo0,tipo1);
+			String t= this.termino();
+			if (!compatibles(tipo,t)) throw new Exception("Error sintaxis: Tipos no compatibles.");
 			emite(op);
-		} else {
-			err0 = false;
 		}
-		return err0;
 	}
 
-	private boolean exp_simpleR(String tipo0) {
-		boolean err0;
+	private void exp_simpleR(String tipo0) throws Exception {
 		this.anaLex.predice();
 		String lexToken=this.anaLex.getToken();
 		String lexTipo= this.anaLex.getLex();
 		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0
 				|| lexTipo.compareTo("or")==0){
 			String op = this.operador();
-			Tupla t1 = this.exp_simple();
-			boolean err1 = ((Boolean)t1.getnTupla(0)).booleanValue();
-		    String tipo1 = t1.getnTupla(1).toString();
-			err0=err1 || !compatibles(tipo0,tipo1);
+			String t1 = this.exp_simple();
+			if (!compatibles(tipo0,t1)) throw new Exception("Error sintaxis: tipos no compatibles.");
 			this.emite(op);
-		} else {
-			err0 = false;
 		}
-		return err0;
 	}
 
 	private String operador() {
@@ -473,34 +353,29 @@ public class AnalizadorSintactico {
 
 	/** Funcion que compara un string dado con el siguiente elemento lexico a analizar.
 	 * @param tok String a comparar con el token del programa.
+	 * @throws Exception 
 	 */
-	public void compara(String tok){
+	private void compara(String tok) throws Exception{
 		anaLex.scanner();
 		String lexema = anaLex.getLex();
 		if(lexema.compareTo(tok)!=0){
-			Error.error("Programa mal formado");
+			throw new Exception("Error sintaxis: Programa mal formado.");
 		}
 	}
 	
-	
-	public String valorDe(String lexema){
-		return tablaSim.getEntrada(lexema).getValor();
-	}
-	
-	
-	public boolean compatibles(String tipo1,String tipo2){
+	private boolean compatibles(String tipo1,String tipo2){
 		return (tipo1.compareTo(tipo2)==0);
 	}
 	
 	
-	public void id(){
+	private void id() throws Exception{
 		this.anaLex.scanner();
 		if(anaLex.getToken().compareTo("identificador")!=0){
-			Error.error("identificador no valido");
+			throw new Exception("Error sintaxis: identificador no válido.");
 		}
 	}
 	
-	public void emite(String a){
+	private void emite(String a){
 		System.out.println(a);
 	}
 
@@ -509,6 +384,12 @@ public class AnalizadorSintactico {
 	 */
 	public static void main(String[] args) {
 		AnalizadorSintactico anaSin = new AnalizadorSintactico("c:/prueba.txt");
+		try {
+			anaSin.programa();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
