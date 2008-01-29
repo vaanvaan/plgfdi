@@ -17,6 +17,11 @@ public class TS {
 	@SuppressWarnings("unchecked")
 	private Hashtable ts;
 	
+	/**
+	 * Siguiente dirección vacía en la tabla.
+	 */
+	private int dir;
+	
 	
 	/**
 	 * Constructora. Inicializa la tabla.
@@ -24,6 +29,7 @@ public class TS {
 	@SuppressWarnings("unchecked")
 	public TS(){
 		ts = new Hashtable(20);
+		dir = 0;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -33,23 +39,24 @@ public class TS {
 	 * @param tipoDec Variable (VAR) o constante (CONST).
 	 * @param tipo Tipo del elemento (entero, booleano, real, caracter).
 	 * @param valor String con el valor del identificador en ese momento.
-	 * @param dir Dirección de la memoria de datos donde se encuentra el valor del elemento.
 	 * @return True si se añade con éxito, False si ya existe un elemento con la misma ID.
 	 */
-	public boolean añadeTS(String id, String tipoDec, String tipo,String valor,int dir){
+	private boolean añadeTS(String id, String tipoDec, String tipo,String valor){
 		entradaTS aux = new entradaTS(id, tipoDec, tipo,valor, dir); 
 		ts.put(id,aux);
 		if (aux == null) return false;
-		else return true;
+		else {
+			dir++;
+			return true;
+		}
 	}
 	
-	public boolean añadeLista(ListaID lista,String tipoDec,String tipo, String valor, int dir){
+	public boolean añadeLista(ListaID lista,String tipoDec,String tipo, String valor){
 		boolean auxB=true;
 		while(!lista.esVacia() && auxB){
 			String idAux = lista.primero();
 			lista.eliminaPrimero();
-			auxB = añadeTS(idAux,tipoDec,tipo,valor,dir);
-			dir++;
+			auxB = añadeTS(idAux,tipoDec,tipo,valor);
 		}
 		return auxB;
 	}
@@ -62,22 +69,13 @@ public class TS {
 		return ts.containsKey(id);
 	}
 	
-	public boolean existeID(ListaID lista){
-		boolean aux = true;
-	    int i = lista.nElementos();
-	    int j = 0;
-	    while (j < i || aux){
-	    	aux = this.existeID(lista.elementoAt(j));
-	    	j++;
-	    }
-	    return aux;
-	}
 	
 	/** Función que devuelve el tipo del identificador, si este existe.
 	 * @param id identificador del que se quiere saber su tipo.
 	 * @return devuelve un string con el tipo, o error si no existe ese identificador.
 	 */
-	public String tipoID(String id){
+	/**
+	private String tipoID(String id){
 		if(existeID(id)){
 			entradaTS aux = (entradaTS) getEntrada(id);
 			return aux.getTipo();
@@ -85,6 +83,7 @@ public class TS {
 			return "error";
 		}
 	}
+	**/
 	
 	/** Función que devuelve si el identificador es una constante o una variable, o error si no existe.
 	 * @param id Nombre del identificador del cual se quiere saber si es variable o constante.
@@ -104,7 +103,7 @@ public class TS {
 	 * @param id Identificador cuya entrada en la tabla queremos obtener.
 	 * @return Entrada correspondiente. Null si no existe.
 	 */
-	public entradaTS getEntrada(String id){
+	private entradaTS getEntrada(String id){
 		return (entradaTS) ts.get(id);
 	}
 	
@@ -113,9 +112,11 @@ public class TS {
 		return aux.getTipo();
 	}
 	
-	public String devuelveTipoDecl(String id){
+	/**
+	private String devuelveTipoDecl(String id){
 		entradaTS aux = (entradaTS) getEntrada(id);
 		return aux.getTipoDec();
 	}
+	**/
 	
 }

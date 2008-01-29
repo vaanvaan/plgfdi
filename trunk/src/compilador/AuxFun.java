@@ -1,5 +1,7 @@
+/**
+ * 
+ */
 package compilador;
-
 import  java.io.*;
 
 /**
