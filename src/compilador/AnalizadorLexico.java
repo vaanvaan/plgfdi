@@ -275,7 +275,6 @@ public class AnalizadorLexico {
 			switch(this.estado){
 				case 0:
 					if(buf=='\n'){
-						Global.aumentaNumLinea();
 						this.transita(0);
 						this.lex = "";
 					}else if(buf== '\r' || buf == '\t' || buf == ' '){

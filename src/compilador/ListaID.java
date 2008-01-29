@@ -45,11 +45,8 @@ public class ListaID {
 	public void eliminaPrimero(){
 		listaID.removeElementAt(0);
 	}
-	public void copiar(ListaID l){
-		l = new ListaID();
-		System.out.println(listaID.size());
-		for(int i = 0;i<listaID.size();i++){
-			l.añadeID((String)listaID.elementAt(i));
-		}
+	
+	public int tamaño(){
+		return listaID.size();
 	}
 }

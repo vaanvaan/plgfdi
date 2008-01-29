@@ -23,7 +23,7 @@ public class TS {
 	 */
 	@SuppressWarnings("unchecked")
 	public TS(){
-		ts = new Hashtable();
+		ts = new Hashtable(20);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -37,14 +37,15 @@ public class TS {
 	 * @return True si se añade con éxito, False si ya existe un elemento con la misma ID.
 	 */
 	public boolean añadeTS(String id, String tipoDec, String tipo,String valor,int dir){
-		entradaTS aux = (entradaTS) ts.put(new entradaTS(id, tipoDec, tipo,valor, dir), id);
+		entradaTS aux = new entradaTS(id, tipoDec, tipo,valor, dir); 
+		ts.put(id,aux);
 		if (aux == null) return false;
 		else return true;
 	}
 	
 	public boolean añadeLista(ListaID lista,String tipoDec,String tipo, String valor, int dir){
 		boolean auxB=true;
-		while(!lista.esVacia() && !auxB){
+		while(!lista.esVacia() && auxB){
 			String idAux = lista.primero();
 			lista.eliminaPrimero();
 			auxB = añadeTS(idAux,tipoDec,tipo,valor,dir);
@@ -67,6 +68,7 @@ public class TS {
 	    int j = 0;
 	    while (j < i || aux){
 	    	aux = this.existeID(lista.elementoAt(j));
+	    	j++;
 	    }
 	    return aux;
 	}
