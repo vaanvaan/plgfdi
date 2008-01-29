@@ -1,0 +1,21 @@
+Bugs
+----
+-asignacion de variables etc, falta emite (apila-dir, desapila-dir).
+-expresiones con tipos char, da error léxico siempre (debe ser por los "");
+-al detectar un error léxico no evalúa más programa
+-errores léxicos que se confunden con sintácticos a veces
+	ej: begn -- Da error sintáctico, y es léxico no?
+	afinar la función compara para este tipo de casos
+
+cambios
+-------
+-Sintáctico funciona con excepciones muy bien.
+-añadido atributo dir a la tabla. Se encarga internamente de actualizarlo.
+-el resto parece que bien, yo diría que PERFECTO, me he tirado la tarde probando casos raros de asignaciones etc.
+	(igual se me ha pasado alguno)
+
+falta
+-----
+-sólo faltaría cambiar la función emite para que genere el código P en fichero (con bytecode o como se prefiera).
+-habría que diferenciar el valor de emite según sea opSuma o signo, porque supongo que el comportamiento será diferente
+	en el funcionamiento de la maquina P (ya que uno es unario y el otro no)
