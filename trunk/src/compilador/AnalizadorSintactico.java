@@ -24,6 +24,8 @@ public class AnalizadorSintactico {
 		this.declaraciones();
 		this.proposicion_compuesta(); 
 		this.compara(".");
+		this.anaLex.scanner();
+		this.emite(this.anaLex.getToken());
 	}
 	
 	private void declaraciones() throws Exception{
@@ -31,6 +33,14 @@ public class AnalizadorSintactico {
 		this.compara(";");
 		tablaSim.añadeLista((ListaID)decs.getnTupla(0), (String)decs.getnTupla(1), 
 							(String)decs.getnTupla(2), (String)decs.getnTupla(3));
+		
+		// Ahora añadimos código-P si hemos declarado una constante
+		String tipoDec = (String) decs.getnTupla(1); 
+		if (tipoDec.compareTo("const")==0){
+			this.emite("apila "+ decs.getnTupla(3));
+			String id = (String) (decs.getnTupla(4));
+			this.emite("desapila_dir "+ this.tablaSim.getDir(id));
+		}
 		this.declaracionesR();
 	}
 	
@@ -41,12 +51,20 @@ public class AnalizadorSintactico {
 			this.compara(";");
 			tablaSim.añadeLista((ListaID)t1.getnTupla(0), (String)t1.getnTupla(1), 
 					(String)t1.getnTupla(2), (String)t1.getnTupla(3));
+			
+			// Ahora añadimos código-P si hemos declarado una constante
+			String tipoDec = (String) t1.getnTupla(1); 
+			if (tipoDec.compareTo("const")==0){
+				this.emite("apila "+ t1.getnTupla(3));
+				String id = (String) (t1.getnTupla(4));
+				this.emite("desapila_dir "+ this.tablaSim.getDir(id));
+			}
 			this.declaracionesR();
 		}
 	}
 	
 	private Tupla declaracion() throws Exception{
-		Tupla dec = new Tupla(4);
+		Tupla dec = new Tupla(5);
 		this.anaLex.predice();
 		if(this.anaLex.getLex().compareTo("var")==0){
 			Tupla var = this.variable(); // Devuelve listaID, tipo
@@ -60,27 +78,32 @@ public class AnalizadorSintactico {
 			dec.setnTupla(1, "const");
 			dec.setnTupla(2, cons.getnTupla(1));
 			dec.setnTupla(3, cons.getnTupla(2));
+			dec.setnTupla(4, cons.getnTupla(3));
 		}else{
-			throw new Exception("Error sintaxis: No hay declaraciones.");
+			throw new Exception("Error sintaxis: No hay declaraciones" 
+					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 		}
 		return dec;
 	}
 	
 	private Tupla constante() throws Exception{
-		Tupla t = new Tupla(3);
+		Tupla t = new Tupla(4);
 		this.compara("const");
 		this.id();
 		String lex0=this.anaLex.getLex();
-		if (this.tablaSim.existeID(lex0)) throw new Exception("Error sintaxis: ID ya existente.");
+		if (this.tablaSim.existeID(lex0)) 
+			throw new Exception("Error sintaxis: ID ya existente"
+					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');		
 		this.compara(":");
 		String tipo1 = this.tipo();
 		this.compara("=");
-		String valor = this.valor(tipo1); 
+		String valor = this.valor(tipo1);
 		ListaID listaID = new ListaID();
 		listaID.añadeID(lex0);
 		t.setnTupla(0, listaID);
 		t.setnTupla(1, tipo1);
 		t.setnTupla(2, valor);
+		t.setnTupla(3, lex0);
 		return t;
 	}
 	
@@ -98,7 +121,9 @@ public class AnalizadorSintactico {
 	private ListaID lista_id() throws Exception{
 		this.id();
 		String lex = this.anaLex.getLex();
-		if (this.tablaSim.existeID(lex)) throw new Exception("Error sintaxis: ID ya existente.");
+		if (this.tablaSim.existeID(lex)) 
+			throw new Exception("Error sintaxis: ID ya existente"
+					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 		ListaID listaID = new ListaID();
 		listaID.añadeID(lex);
 		return this.lista_idR(listaID);
@@ -112,7 +137,9 @@ public class AnalizadorSintactico {
 			this.compara(",");
 			this.id();
 			lex = this.anaLex.getLex();
-			if (this.tablaSim.existeID(lex)) throw new Exception("Error sintaxis: ID ya existente.");
+			if (this.tablaSim.existeID(lex)) 
+				throw new Exception("Error sintaxis: ID ya existente"
+						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			listaIDh0.añadeID(lex);
 			return this.lista_idR(listaIDh0);
 		}else{
@@ -133,7 +160,8 @@ public class AnalizadorSintactico {
 		}else if(lexTipo.compareTo("char")==0){
 			tipo = "char";
 		}else{
-			throw new Exception("Error sintaxis: Tipo incorrecto.");
+			//throw new Exception("Error sintaxis: Tipo incorrecto.");
+			Global.setErrorMsg("Violación restricciones. Tipo incorrecto");
 		}
 		return tipo;
 	}
@@ -152,12 +180,13 @@ public class AnalizadorSintactico {
 		}else if(token.compareTo("char")==0 && tipo.compareTo("char")==0){
 			return lex;
 		}else{
-			throw new Exception("Error sintaxis: valor no corresponde con tipo.");
+			//throw new Exception("Error sintaxis: valor no corresponde con tipo.");
+			Global.setErrorMsg("Violación restricciones. Valor y Tipo incompatibles");
+			return tipo;
 		}
 	}
 
 // FIN PARTE DECLARACIONES
-// HASTA AQUÍ ESTÁ BIEN COMPLETO
 	
 	private void proposicion_compuesta() throws Exception{
 		this.compara("begin");
@@ -201,16 +230,20 @@ public class AnalizadorSintactico {
 			if (!this.tablaSim.existeID(lex) 
 					|| !this.compatibles(this.tablaSim.devuelveTipo(lex), tipo) 
 					|| this.tablaSim.tipoDecl(lex)!= "var"){
-				throw new Exception("Error sintaxis: Asignación incorrecta.");
+				//throw new Exception("Error sintaxis: Asignación incorrecta.");
+				Global.setErrorMsg("Violación restricciones. Asignación incorrecta");
 			}
-			this.emite("asig");
+			this.emite("desapila_dir "+this.tablaSim.getDir(lex));
 		}else if(lexTipo.compareTo("read")==0){
 			this.compara("read");
 			this.compara("(");
 			this.id();
 			String lex = this.anaLex.getLex();
-			if (!this.tablaSim.existeID(lex)) throw new Exception("Error sintaxis: ID no declarado.");
+			if (!this.tablaSim.existeID(lex)) 
+				throw new Exception("Error sintaxis: ID no declarado"
+						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			this.compara(")");
+			this.emite("apila_dir "+ this.tablaSim.getDir(lex));
 			this.emite("read");
 		}else if(lexTipo.compareTo("write")==0){
 			this.compara("write");
@@ -231,7 +264,7 @@ public class AnalizadorSintactico {
 		if(lexToken.compareTo("char")==0){
 			t = "char";
 			this.anaLex.scanner();
-			this.emite(anaLex.getLex());
+			this.emite("apila " + anaLex.getLex());
 		}else{
 			t=this.exp_simple();
 			t=this.expresionR(t);
@@ -242,11 +275,14 @@ public class AnalizadorSintactico {
 	private String expresionR(String tipo) throws Exception {
 		this.anaLex.predice();
 		String lexToken= anaLex.getToken();
-		if(lexToken.compareTo("eq")==0 || lexToken.compareTo("ne")==0 || lexToken.compareTo("gt")==0
-			|| lexToken.compareTo("ge")==0 || lexToken.compareTo("lt")==0 || lexToken.compareTo("le")==0){
+		if(lexToken.compareTo("igual")==0 || lexToken.compareTo("distinto")==0 || lexToken.compareTo("mayor")==0
+			|| lexToken.compareTo("mayor_igual")==0 || lexToken.compareTo("menor")==0 || lexToken.compareTo("menor_igual")==0){
 				String op = this.operador();
 				String t1 = this.exp_simple();
-				if (!compatibles(tipo,t1)) throw new Exception("Error sintaxis: Tipos no compatibles.");
+				if (!compatibles(tipo,t1)) {
+					//throw new Exception("Error sintaxis: tipos no compatibles.");
+					Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
+				}
 				this.emite(op);
 				// Si todo va bien, el tipo cambia a boolean por ser relaccional.
 				return "boolean";
@@ -259,9 +295,9 @@ public class AnalizadorSintactico {
 		this.anaLex.predice();
 		String lexToken = anaLex.getToken();
 		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0){
-			String op = this.operador();
+			this.operador();
 			tipo = this.termino();
-			this.emite(op);
+			if (lexToken.compareTo("resta")==0) this.emite("negativo");
 		} else {
 			tipo = this.termino();
 			this.exp_simpleR(tipo);
@@ -284,8 +320,11 @@ public class AnalizadorSintactico {
 		if (token.compareTo("identificador")==0){
 			this.id();
 			lex = this.anaLex.getLex(); 
-			if (!tablaSim.existeID(lex)) throw new Exception("Error sintaxis: ID no declarado.");
+			if (!tablaSim.existeID(lex)) 
+				throw new Exception("Error sintaxis: ID no declarado"
+						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			tipo = this.tablaSim.devuelveTipo(lex);
+			this.emite("apila_dir "+ this.tablaSim.getDir(lex));
 		} else if (token.compareTo("lparen")==0){
 			this.compara("(");
 			tipo = this.expresion();
@@ -298,15 +337,15 @@ public class AnalizadorSintactico {
 		} else if (lex.compareTo("true")==0 || lex.compareTo("false")==0){
 			this.anaLex.scanner();
 			tipo = "boolean";
-			this.emite(this.anaLex.getLex());
+			this.emite("apila "+ this.anaLex.getLex());
 		} else if (token.compareTo("num")==0){
 			this.anaLex.scanner();
 			tipo = "integer";
-			this.emite(this.anaLex.getLex());
+			this.emite("apila "+ this.anaLex.getLex());
 		} else if (token.compareTo("numReal")==0){
 			this.anaLex.scanner();
 			tipo = "real";
-			this.emite(this.anaLex.getLex());
+			this.emite("apila "+ this.anaLex.getLex());
 		}
 		return tipo;
 	}
@@ -314,14 +353,16 @@ public class AnalizadorSintactico {
 
 	private void terminoR(String tipo) throws Exception {
 		this.anaLex.predice();
-		String lexTipo = this.anaLex.getLex();
 		String lexToken = this.anaLex.getToken();
-		if (lexToken.compareTo("prod")==0 || lexTipo.compareTo("div")==0
-				|| lexTipo.compareTo("mod")==0 || lexToken.compareTo("DivReal")==0
-				|| lexTipo.compareTo("and")==0){
+		if (lexToken.compareTo("multiplica")==0 || lexToken.compareTo("divide")==0
+				|| lexToken.compareTo("modulo")==0 || lexToken.compareTo("divide_real")==0
+				|| lexToken.compareTo("ylogica")==0){
 			String op =this.operador();
 			String t= this.termino();
-			if (!compatibles(tipo,t)) throw new Exception("Error sintaxis: Tipos no compatibles.");
+			if (!compatibles(tipo,t)) {
+				//throw new Exception("Error sintaxis: tipos no compatibles.");
+				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
+			}
 			emite(op);
 		}
 	}
@@ -329,19 +370,21 @@ public class AnalizadorSintactico {
 	private void exp_simpleR(String tipo0) throws Exception {
 		this.anaLex.predice();
 		String lexToken=this.anaLex.getToken();
-		String lexTipo= this.anaLex.getLex();
 		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0
-				|| lexTipo.compareTo("or")==0){
+				|| lexToken.compareTo("ologica")==0){
 			String op = this.operador();
 			String t1 = this.exp_simple();
-			if (!compatibles(tipo0,t1)) throw new Exception("Error sintaxis: tipos no compatibles.");
+			if (!compatibles(tipo0,t1)){
+				//throw new Exception("Error sintaxis: tipos no compatibles.");
+				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
+			}
 			this.emite(op);
 		}
 	}
 
 	private String operador() {
 		this.anaLex.scanner();
-		return anaLex.getLex();	
+		return anaLex.getToken();	
 	}
 	
 //*************************************************************************************************
@@ -359,7 +402,8 @@ public class AnalizadorSintactico {
 		anaLex.scanner();
 		String lexema = anaLex.getLex();
 		if(lexema.compareTo(tok)!=0){
-			throw new Exception("Error sintaxis: Programa mal formado.");
+			throw new Exception("Error sintaxis: Programa mal formado"
+					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 		}
 	}
 	
@@ -371,11 +415,13 @@ public class AnalizadorSintactico {
 	private void id() throws Exception{
 		this.anaLex.scanner();
 		if(anaLex.getToken().compareTo("identificador")!=0){
-			throw new Exception("Error sintaxis: identificador no válido.");
+			throw new Exception("Error sintaxis: identificador no válido"
+					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 		}
 	}
 	
 	private void emite(String a){
+		// TODO Escribir en archivo
 		System.out.println(a);
 	}
 
@@ -383,9 +429,12 @@ public class AnalizadorSintactico {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		// TODO Pedir fichero fuente y destino
 		AnalizadorSintactico anaSin = new AnalizadorSintactico("c:/prueba.txt");
 		try {
 			anaSin.programa();
+			// TODO Si Global.getError()==true ---> No generar fichero. Borrarlo.
+			System.out.println(Global.getErrorMsg());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

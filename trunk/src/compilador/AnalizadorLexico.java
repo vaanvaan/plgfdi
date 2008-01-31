@@ -21,10 +21,6 @@ public class AnalizadorLexico {
 	 */
 	private int estado;
 	/**
-	 * Posiciï¿½n en la que se encuentra el analizador lï¿½xico dentro de la cadena a analizar.
-	 */
-	private int pos;
-	/**
 	 * Codigo asignado al lexema si se ha reconocido como vï¿½lido. P.E. asig para la cadena ':='.
 	 */
 	private String token;
@@ -40,7 +36,6 @@ public class AnalizadorLexico {
 		this.lex = "";
 		this.token = "";
 		this.estado = 0;
-		this.pos = 0;
 	}
 	
 	/** Funciï¿½n que cambia el estado del analizador lexico, ademas de actualizar el lexema y la posicion
@@ -49,26 +44,12 @@ public class AnalizadorLexico {
 	 * @param state Nuevo estado al que pasa el analizador lï¿½xico.
 	 */
 	public void transita(int state){
-		this.lex = lex + archivo.charAt(pos); 
-		this.pos++;
+		this.lex = lex + archivo.charAt(Global.getGlobalPos()); 
+		Global.aumentaCol();
+		Global.aumenteGlobalPos();
 		this.estado = state;
-		
 	}
-	public void esReservada(String lexema){
-		if(lexema.compareTo("boolean")==0||lexema.compareTo("integer")==0||
-				lexema.compareTo("false")==0||lexema.compareTo("true")==0||
-				lexema.compareTo("begin")==0||lexema.compareTo("end")==0||
-				lexema.compareTo("program")==0||lexema.compareTo("read")==0||
-				lexema.compareTo("write")==0||lexema.compareTo("var")==0||
-				lexema.compareTo("and")==0||lexema.compareTo("or")==0||
-				lexema.compareTo("not")==0||lexema.compareTo("div")==0||
-				lexema.compareTo("mod")==0||lexema.compareTo("real")==0||
-				lexema.compareTo("char")==0||lexema.compareTo("const")==0){
-			this.token = "reserved";
-		}else{
-			this.token = "identificador";
-		}
-	}
+	
 	/** Funciï¿½n que a partir de un lexema dado, devuelve el token asociado.
 	 * 
 	 * @param lexema Lexema a partir del cual se obtiene el token.
@@ -87,30 +68,62 @@ public class AnalizadorLexico {
 		}else if(lexema.compareTo("-")==0){
 			this.token = "resta";
 		}else if(lexema.compareTo("*")==0){
-			this.token = "prod";
+			this.token = "multiplica";
 		}else if(lexema.compareTo("div")==0){
-			this.token = "div";
+			this.token = "divide";
 		}else if(lexema.compareTo("mod")==0){
-			this.token = "mod";
+			this.token = "modulo";
 		}else if(lexema.compareTo("/")==0){
-			this.token = "DivReal";
+			this.token = "divide_real";
 		}else if(lexema.compareTo("=")==0){
-			this.token = "eq";
+			this.token = "igual";
 		}else if(lexema.compareTo("<>")==0){
-			this.token = "ne";
+			this.token = "distinto";
 		}else if(lexema.compareTo(">")==0){
-			this.token = "gt";
+			this.token = "mayor";
 		}else if(lexema.compareTo(">=")==0){
-			this.token = "ge";
+			this.token = "mayor_igual";
 		}else if(lexema.compareTo("<")==0){
-			this.token = "lt";
+			this.token = "menor";
 		}else if(lexema.compareTo("<=")==0){
-			this.token = "le";
+			this.token = "menor_igual";
 		}else if(lexema.compareTo(".")==0){
 			this.token = "punto";
 		}else if(lexema.compareTo(",")==0){
 			this.token = "coma";
-		}
+		}else if(lexema.compareTo("and")==0){
+			this.token = "ylogica";
+		}else if(lexema.compareTo("or")==0){
+			this.token = "ologica";
+		}else if(lexema.compareTo("boolean")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("integer")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("false")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("true")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("begin")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("end")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("program")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("read")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("write")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("var")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("not")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("real")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("char")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("const")==0){
+			this.token = lexema;
+		} else this.token = "identificador";
 	}
 	
 	/**
@@ -127,13 +140,14 @@ public class AnalizadorLexico {
 		 */
 		while(!encontrado){
  			char buf=' ';
-			if(pos<this.archivo.length()){
-				buf = this.archivo.charAt(pos);
+			if(Global.getGlobalPos()<this.archivo.length()){
+				buf = this.archivo.charAt(Global.getGlobalPos());
 			}
 			switch(this.estado){
 				case 0:
 					if(buf=='\n'){
 						Global.aumentaNumLinea();
+						Global.setColumna(0);
 						this.transita(0);
 						this.lex = "";
 					}else if(buf== '\r' || buf == '\t' || buf == ' '){
@@ -158,7 +172,7 @@ public class AnalizadorLexico {
 					}else if(buf=='\0'){
 						this.transita(13);
 					}else{
-						Error.error("Error léxico");
+						Global.setErrorMsg("Error léxico");
 					}
 					break;
 				case 1:
@@ -166,21 +180,21 @@ public class AnalizadorLexico {
 						this.transita(1);
 					}else{
 						encontrado=true;
-						this.esReservada(this.lex);
+						this.token(this.lex);
 					}
 					break;
 				case 2:
 					if((buf>='a'&&buf<='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
 						this.transita(3);
 					}else{
-						Error.error("Error léxico");
+						Global.setErrorMsg("Error léxico");
 					}
 					break;
 				case 3:
 					if(buf=='\''){
 						this.transita(4);
 					}else{
-						Error.error("Error léxico");
+						Global.setErrorMsg("Error léxico");
 					}
 					break;
 				case 4:
@@ -209,7 +223,7 @@ public class AnalizadorLexico {
 					if(buf>='0'&&buf<='9'){
 						this.transita(8);
 					}else{
-						Error.error("Error léxico");
+						Global.setErrorMsg("Error léxico");
 					}
 					break;
 				case 8:
@@ -250,8 +264,7 @@ public class AnalizadorLexico {
 					break;
 				case 13:
 					encontrado = true;
-					this.token = "fin";
-					System.exit(0);
+					this.token = "stop";
 			}
 		}
 	}
@@ -260,7 +273,8 @@ public class AnalizadorLexico {
 		this.lex ="";
 		this.token="";
 		this.estado = 0;
-		int posAux = this.pos;
+		int posAux = Global.getGlobalPos();
+		int colAux = Global.getColumna();
 		
 		boolean encontrado = false;
 		/**
@@ -269,8 +283,8 @@ public class AnalizadorLexico {
 		 */
 		while(!encontrado){
  			char buf=' ';
-			if(pos<this.archivo.length()){
-				buf = this.archivo.charAt(pos);
+			if(Global.getGlobalPos()<this.archivo.length()){
+				buf = this.archivo.charAt(Global.getGlobalPos());
 			}
 			switch(this.estado){
 				case 0:
@@ -299,7 +313,7 @@ public class AnalizadorLexico {
 					}else if(buf=='\0'){
 						this.transita(13);
 					}else{
-						Error.error("Error léxico");
+						Global.setErrorMsg("Error léxico");
 					}
 					break;
 				case 1:
@@ -307,27 +321,29 @@ public class AnalizadorLexico {
 						this.transita(1);
 					}else{
 						encontrado=true;
-						this.pos = posAux;
-						this.esReservada(this.lex);
+						Global.setGlobalPos(posAux);
+						Global.setColumna(colAux);
+						this.token(this.lex);
 					}
 					break;
 				case 2:
 					if((buf>='a'&&buf<='z')||buf=='ñ'||(buf>='0'&&buf<='9')){
 						this.transita(3);
 					}else{
-						Error.error("Error léxico");
+						Global.setErrorMsg("Error léxico");
 					}
 					break;
 				case 3:
 					if(buf=='\''){
 						this.transita(4);
 					}else{
-						Error.error("Error léxico");
+						Global.setErrorMsg("Error léxico");
 					}
 					break;
 				case 4:
 					encontrado=true;
-					this.pos = posAux;
+					Global.setGlobalPos(posAux);
+					Global.setColumna(colAux);
 					this.token = "char";
 					break;
 				case 5:
@@ -335,7 +351,8 @@ public class AnalizadorLexico {
 						this.transita(7);
 					}else{
 						encontrado = true;
-						this.pos = posAux;
+						Global.setGlobalPos(posAux);
+						Global.setColumna(colAux);
 						this.token = "num";
 					}
 					break;
@@ -346,7 +363,8 @@ public class AnalizadorLexico {
 						this.transita(7);
 					}else{
 						encontrado = true;
-						this.pos = posAux;
+						Global.setGlobalPos(posAux);
+						Global.setColumna(colAux);
 						this.token = "num";
 					}
 					break;
@@ -354,7 +372,7 @@ public class AnalizadorLexico {
 					if(buf>='0'&&buf<='9'){
 						this.transita(8);
 					}else{
-						Error.error("Error léxico");
+						Global.setErrorMsg("Error léxico");
 					}
 					break;
 				case 8:
@@ -362,7 +380,8 @@ public class AnalizadorLexico {
 						this.transita(8);
 					}else{
 						encontrado = true;
-						this.pos = posAux;
+						Global.setGlobalPos(posAux);
+						Global.setColumna(colAux);
 						this.token = "numReal";
 					}
 					break;
@@ -371,13 +390,15 @@ public class AnalizadorLexico {
 						this.transita(10);
 					}else{
 						encontrado = true;
-						this.pos = posAux;
+						Global.setGlobalPos(posAux);
+						Global.setColumna(colAux);
 						this.token(this.lex);
 					}
 					break;
 				case 10:
 					encontrado = true;
-					this.pos = posAux;
+					Global.setGlobalPos(posAux);
+					Global.setColumna(colAux);
 					this.token(this.lex);
 					break;
 				case 11:
@@ -385,7 +406,8 @@ public class AnalizadorLexico {
 						this.transita(10);
 					}else{
 						encontrado = true;
-						this.pos = posAux;
+						Global.setGlobalPos(posAux);
+						Global.setColumna(colAux);
 						this.token(this.lex);
 					}
 					break;
@@ -394,15 +416,16 @@ public class AnalizadorLexico {
 						this.transita(10);
 					}else{
 						encontrado = true;
-						this.pos = posAux;
+						Global.setGlobalPos(posAux);
+						Global.setColumna(colAux);
 						this.token(this.lex);
 					}
 					break;
 				case 13:
 					encontrado = true;
-					this.pos = posAux;
+					Global.setGlobalPos(posAux);
+					Global.setColumna(colAux);
 					this.token = "fin";
-					System.exit(0);
 			}
 		}
 	}
