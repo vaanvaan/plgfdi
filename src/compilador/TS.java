@@ -119,4 +119,9 @@ public class TS {
 	}
 	**/
 	
+	public int getDir(String id){
+		entradaTS aux = (entradaTS) getEntrada(id);
+		return aux.getDir();
+	}
+	
 }
