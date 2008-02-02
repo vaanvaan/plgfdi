@@ -4,6 +4,8 @@
 package compilador;
 
 /**
+ * Clase que se encarga de analizar los tokens de un archivo y proporcionarselos al analizador sintactico.
+ * 
  * @author DaNieLooP
  *
  */
@@ -38,7 +40,7 @@ public class AnalizadorLexico {
 		this.estado = 0;
 	}
 	
-	/** Funci�n que cambia el estado del analizador lexico, ademas de actualizar el lexema y la posicion
+	/** Funcion que cambia el estado del analizador lexico, ademas de actualizar el lexema y la posicion
 	 * de lectura del fichero.
 	 * 
 	 * @param state Nuevo estado al que pasa el analizador l�xico.
@@ -50,7 +52,7 @@ public class AnalizadorLexico {
 		this.estado = state;
 	}
 	
-	/** Funci�n que a partir de un lexema dado, devuelve el token asociado.
+	/** Funcion que a partir de un lexema dado, devuelve el token asociado.
 	 * 
 	 * @param lexema Lexema a partir del cual se obtiene el token.
 	 */
@@ -269,6 +271,9 @@ public class AnalizadorLexico {
 		}
 	}
 	
+	/**
+	 * Realiza la misma funcion que scanner() pero no avanza, permitiendo predecir el siguiente token sin consumirlo.
+	 */
 	public void predice(){
 		this.lex ="";
 		this.token="";
