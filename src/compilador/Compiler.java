@@ -16,7 +16,6 @@ public class Compiler {
 			// TODO Si Global.getError()==true ---> No generar fichero. Borrarlo.
 			System.out.println(Global.getErrorMsg());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
