@@ -15,7 +15,7 @@ public class ListaID {
 	 * puesto que no vamos a crear programas muy grandes.
 	 */
 	public ListaID(){
-		listaID = new Vector(100);
+		listaID = new Vector(0,1);
 	}
 	
 	public void añadeID(String lex){

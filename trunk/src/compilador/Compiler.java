@@ -9,8 +9,8 @@ package compilador;
  */
 public class Compiler {
 
-	public void compile(String path){
-		AnalizadorSintactico anaSin = new AnalizadorSintactico(path);
+	public void compile(String path,String path2){
+		AnalizadorSintactico anaSin = new AnalizadorSintactico(path,path2);
 		try {
 			anaSin.programa();
 			// TODO Si Global.getError()==true ---> No generar fichero. Borrarlo.
@@ -26,7 +26,7 @@ public class Compiler {
 		 */
 		if(args.length==2){
 			// TODO pillar 2º path para generar el codigo
-			compilador.compile(args[0].toString());
+			compilador.compile(args[0].toString(),args[1].toString());
 		}else{
 			System.out.println("Se necesitan dos paths como argumento, 1 con el path del fuente y otro con el destino" +
 					"para la creación del bytecode.");
