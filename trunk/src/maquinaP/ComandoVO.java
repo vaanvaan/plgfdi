@@ -1,4 +1,4 @@
-package compilador;
+package maquinaP;
 
 public class ComandoVO {
 	private String accion;
