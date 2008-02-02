@@ -1,4 +1,4 @@
-package compilador;
+package maquinaP;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,6 +7,8 @@ import java.util.Scanner;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
+
+import compilador.AuxFun;
 /**
  * Intérprete / simulador de la máquina P. 
  * Este intérprete también funcionará en modo línea de comandos,
