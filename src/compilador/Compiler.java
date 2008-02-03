@@ -5,6 +5,8 @@ package compilador;
 
 import java.util.Scanner;
 
+import maquinaP.*;
+
 /**
  * @author DaNieLooP
  *
@@ -15,7 +17,6 @@ public class Compiler {
 		AnalizadorSintactico anaSin = new AnalizadorSintactico(path,path2);
 		try {
 			anaSin.programa();
-			// TODO Si Global.getError()==true ---> No generar fichero. Borrarlo.
 			System.out.println(Global.getErrorMsg());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -31,6 +32,28 @@ public class Compiler {
 		System.out.print("Ruta de salida> ");
 		r2 = scanEntrada.nextLine();
 		compilador.compile(r1, r2);
+		String orden;
+		do{
+			System.out.println("Desea ejecutar la maquina-P ahora?");
+			orden = scanEntrada.nextLine();
+		}while(orden.toLowerCase().compareTo("si")!=0&&orden.toLowerCase().compareTo("no")!=0);
+		if(orden.toLowerCase().compareTo("si")==0){
+			String ord;
+			boolean debug=false;
+			do{
+				System.out.print("Modo debug si/no> ");
+				ord = scanEntrada.nextLine();
+			}while(ord.toLowerCase().compareTo("si")!=0&&ord.toLowerCase().compareTo("no")!=0);
+			if(ord.toLowerCase().compareTo("si")==0){
+				debug = true;
+			}
+			Maquina_P maq = new Maquina_P();
+			maq.setPath(r2);
+			maq.inicializa_mem_pru();
+			maq.setDebug(debug); // <--- modo debug
+			maq.procesa_programa();
+		}
+		
 	}
 
 }
