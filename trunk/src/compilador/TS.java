@@ -3,7 +3,8 @@
  */
 package compilador;
 import java.util.Hashtable;
-/**
+
+/**Clase que representa una tabla de simbolos.
  * 
  * @author yiropa
  *

@@ -7,12 +7,18 @@ import java.util.Scanner;
 
 import maquinaP.*;
 
-/**
+/**Clase principal desde donde se ejecuta el compilador.
+ * 
  * @author DaNieLooP
  *
  */
 public class Compiler {
 
+	/**Funcion que compila el archivo especificado.
+	 * 
+	 * @param path Path del archivo a compilar.
+	 * @param path2 Path del archivo intermedio que se crea despues de la compilacion.
+	 */
 	public void compile(String path,String path2){
 		AnalizadorSintactico anaSin = new AnalizadorSintactico(path,path2);
 		try {

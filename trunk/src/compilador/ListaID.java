@@ -3,7 +3,9 @@
  */
 package compilador;
 import java.util.Vector;
-/**
+
+/**Clase que representa la estructura de una lista de identificadores.
+ * 
  * @author DaNieLooP
  *
  */
@@ -11,8 +13,7 @@ public class ListaID {
 	private Vector listaID;
 	
 	/**
-	 * Generamos una lista con una capacidad inicial de 100 elementos. De momento vamos a hacer esta lista estatica
-	 * puesto que no vamos a crear programas muy grandes.
+	 * Generamos una lista con un tamaño creciente de 1 elemento cada vez que se añade otro.
 	 */
 	public ListaID(){
 		listaID = new Vector(0,1);
