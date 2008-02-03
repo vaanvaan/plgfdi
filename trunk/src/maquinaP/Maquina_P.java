@@ -206,9 +206,9 @@ public class Maquina_P {
 			}else if(accion.equalsIgnoreCase("ologica")){
 				ologica();
 				print_state("ologica","");
-			}else if(accion.equalsIgnoreCase("notlogico")){
+			}else if(accion.equalsIgnoreCase("not")){
 				notlogico();
-				print_state("notlogico","");
+				print_state("not","");
 			}else if(accion.equalsIgnoreCase("read")){
 				reed();
 				print_state("read","");
@@ -706,7 +706,7 @@ public class Maquina_P {
 			if (esEntero(cima)){
 				Integer i = Integer.parseInt(cima);
 				if (i < 0){
-					i = -1 * i;
+					i = 1 * i;
 				}
 				pila.push(i);
 				pc++;
@@ -714,7 +714,7 @@ public class Maquina_P {
 				if(esReal(cima)){
 					Float f = Float.valueOf(cima);
 					if (f < 0){
-						f = -1*f;
+						f = 1*f;
 					}
 					pila.push(f);
 					pc++;

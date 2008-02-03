@@ -408,7 +408,7 @@ public class AnalizadorSintactico {
 	private String expresionR(String tipo) throws Exception {
 		this.anaLex.predice();
 		String lexToken= anaLex.getToken();
-		if(lexToken.compareTo("igual")==0 || lexToken.compareTo("distinto")==0 || lexToken.compareTo("mayor")==0
+		if(lexToken.compareTo("igual")==0 || lexToken.compareTo("distintos")==0 || lexToken.compareTo("mayor")==0
 			|| lexToken.compareTo("mayor_igual")==0 || lexToken.compareTo("menor")==0 || lexToken.compareTo("menor_igual")==0){
 				String op = this.operador();
 				String t1 = this.exp_simple();
