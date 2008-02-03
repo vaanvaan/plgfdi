@@ -80,7 +80,7 @@ public class AnalizadorLexico {
 		}else if(lexema.compareTo("=")==0){
 			this.token = "igual";
 		}else if(lexema.compareTo("<>")==0){
-			this.token = "distinto";
+			this.token = "distintos";
 		}else if(lexema.compareTo(">")==0){
 			this.token = "mayor";
 		}else if(lexema.compareTo(">=")==0){
