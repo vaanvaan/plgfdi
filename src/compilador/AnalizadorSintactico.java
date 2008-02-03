@@ -56,9 +56,7 @@ public class AnalizadorSintactico {
 		this.compara(".");
 		this.anaLex.scanner();
 		this.emite(this.anaLex.getToken());
-		if(Global.getError()){
-			// TODO ha habido error
-		}else{
+		if(!Global.getError()){
 			try
 	        {
 	            FileWriter fichero = new FileWriter(pathDestino);
@@ -367,6 +365,7 @@ public class AnalizadorSintactico {
 			this.compara(")");
 			this.emite("apila_dir "+ this.tablaSim.getDir(lex));
 			this.emite("read");
+			this.emite("desapila_dir "+ this.tablaSim.getDir(lex));
 		}else if(lexTipo.compareTo("write")==0){
 			this.compara("write");
 			this.compara("(");
