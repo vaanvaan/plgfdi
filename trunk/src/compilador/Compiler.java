@@ -3,6 +3,8 @@
  */
 package compilador;
 
+import java.util.Scanner;
+
 /**
  * @author DaNieLooP
  *
@@ -21,16 +23,14 @@ public class Compiler {
 	}
 	public static void main(String[] args) {
 		Compiler compilador = new Compiler();
-		/**
-		 * Para que funcione se necesita pasar un argumento por parametro al llamar a compilar.
-		 */
-		if(args.length==2){
-			// TODO pillar 2º path para generar el codigo
-			compilador.compile(args[0].toString(),args[1].toString());
-		}else{
-			System.out.println("Se necesitan dos paths como argumento, 1 con el path del fuente y otro con el destino" +
-					"para la creación del bytecode.");
-		}
+		String r1;
+		String r2;
+		Scanner scanEntrada = new Scanner(System.in);
+		System.out.print("Ruta de entrada> ");
+		r1 = scanEntrada.nextLine();
+		System.out.print("Ruta de salida> ");
+		r2 = scanEntrada.nextLine();
+		compilador.compile(r1, r2);
 	}
 
 }

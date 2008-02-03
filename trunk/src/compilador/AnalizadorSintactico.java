@@ -66,6 +66,7 @@ public class AnalizadorSintactico {
 	            for (int i = 0; i < instrucciones.size(); i++)
 	                pw.println(instrucciones.elementAt(i));
 	            pw.close();
+	            System.out.println("Compilado satisfactoriamente.");
 	        } catch (Exception e)
 	        {
 	            e.printStackTrace();
