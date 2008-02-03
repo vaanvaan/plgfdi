@@ -862,4 +862,25 @@ public class Maquina_P {
 			return false;
 		}
 	}
+	
+	public static void main(String[] args) {
+		String orden;
+		boolean debug=false;
+		Scanner scanEntrada = new Scanner(System.in);
+		do{
+			System.out.print("Modo debug si/no> ");
+			orden = scanEntrada.nextLine();
+		}while(orden.toLowerCase().compareTo("si")!=0&&orden.toLowerCase().compareTo("no")!=0);
+		if(orden.toLowerCase().compareTo("si")==0){
+			debug = true;
+		}
+		System.out.print("Path del bytecode> ");
+		orden = scanEntrada.nextLine();
+		Maquina_P maq = new Maquina_P();
+		maq.setPath(orden);
+		maq.inicializa_mem_pru();
+		maq.setDebug(debug); // <--- modo debug
+		maq.procesa_programa();
+	}
+	
 }
