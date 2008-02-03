@@ -31,6 +31,8 @@ import compilador.AuxFun;
  * 
  */
 public class Maquina_P {
+	
+	
 	private Stack pila = new Stack();
 	/*
 	 * Habbrá que iicializar la memoria
@@ -79,7 +81,7 @@ public class Maquina_P {
 	 */
 	public void inicializa_mem_pru(){
 		for(int i=0;i<100;i++){
-			int a = 0;
+			String a = "#";
 			memoria.add(a);
 		}
 	}
@@ -210,7 +212,7 @@ public class Maquina_P {
 				notlogico();
 				print_state("not","");
 			}else if(accion.equalsIgnoreCase("read")){
-				reed();
+				read();
 				print_state("read","");
 			}else if(accion.equalsIgnoreCase("masN")){
 				masN();
@@ -257,10 +259,18 @@ public class Maquina_P {
 			System.out.println("Out of memory!");
 		}else{
 			Object o = memoria.get(dir);
-			pila.push(o);
-			pc++;
+			if(o.toString().equals("#")){
+				halt = true;
+				error = true;
+				System.out.println("MQ_P/> Memory access vioaltion! Posicion de memoria inválida.");
+				System.out.println("MQ_P/> Instrucción:"+ pc);
+				System.out.println("MQ_P/> Posición referneciada:" + dir);
+				System.out.println("MQ_P/> Operación que produjo el error:"+" apila_dir("+dir+")");
+			}else{
+				pila.push(o);
+				pc++;
+			}
 		}
-		
 	}
 	/**
 	 * Método que elimina el elemento situado en la cima de la pila, quedando en la cima
@@ -689,8 +699,8 @@ public class Maquina_P {
 	 * Se encarga de leer toda la linea que se le introduce por entrada y la almacena en
 	 * la cima de la pila.
 	 */
-	public void reed(){
-			System.out.println("MAQ_P/>");
+	public void read(){
+			System.out.print("MAQ_P/>");
 			Scanner scan = new Scanner(System.in);
 			String linea = scan.nextLine();
 			pila.push(linea);
@@ -706,7 +716,7 @@ public class Maquina_P {
 			if (esEntero(cima)){
 				Integer i = Integer.parseInt(cima);
 				if (i < 0){
-					i = 1 * i;
+					i = -1 * i;
 				}
 				pila.push(i);
 				pc++;
@@ -714,7 +724,7 @@ public class Maquina_P {
 				if(esReal(cima)){
 					Float f = Float.valueOf(cima);
 					if (f < 0){
-						f = 1*f;
+						f = -1*f;
 					}
 					pila.push(f);
 					pc++;
@@ -761,7 +771,7 @@ public class Maquina_P {
 	public void escribir(){
 		if (!pila.empty()){
 			String cima = pila.peek().toString();
-			System.out.println(cima);
+			System.out.println("MQ_P/>"+cima);
 			pc++;
 		}else{
 			error = true;
@@ -868,13 +878,13 @@ public class Maquina_P {
 		boolean debug=false;
 		Scanner scanEntrada = new Scanner(System.in);
 		do{
-			System.out.print("Modo debug si/no> ");
+			System.out.print("MQ_P/> Modo debug si/no : ");
 			orden = scanEntrada.nextLine();
 		}while(orden.toLowerCase().compareTo("si")!=0&&orden.toLowerCase().compareTo("no")!=0);
 		if(orden.toLowerCase().compareTo("si")==0){
 			debug = true;
 		}
-		System.out.print("Path del bytecode> ");
+		System.out.print("MQ_P/> Path del bytecode: ");
 		orden = scanEntrada.nextLine();
 		Maquina_P maq = new Maquina_P();
 		maq.setPath(orden);
@@ -882,5 +892,4 @@ public class Maquina_P {
 		maq.setDebug(debug); // <--- modo debug
 		maq.procesa_programa();
 	}
-	
 }

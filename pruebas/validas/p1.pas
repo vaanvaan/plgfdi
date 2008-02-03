@@ -1,0 +1,14 @@
+program p1;
+var x,y: integer;
+var z: boolean;
+const v: boolean = true;
+var c: char;
+begin
+c:='a';
+x:=123;
+y:=x+12;
+z:=-4>-3;
+write(y);
+write(z);
+end
+.
