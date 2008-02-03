@@ -3,7 +3,7 @@
  */
 package compilador;
 
-/**
+/**Clase que representa a cada entrada de la tabla de simbolos.
  * 
  * @author yiropa
  *

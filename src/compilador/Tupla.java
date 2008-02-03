@@ -1,5 +1,10 @@
 package compilador;
 
+/**Clase que representa una tupla a devolver por cualquier tipo de funcion del analizador sintatico.
+ * 
+ * @author DaNieLooP
+ *
+ */
 public class Tupla {
 	private Object[] tupla;
 	public Tupla(int n){

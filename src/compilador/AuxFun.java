@@ -2,7 +2,8 @@ package compilador;
 
 import  java.io.*;
 
-/**
+/**Funciones auxiliares para leer archivos.
+ * 
  * @author DaNieLooP
  *
  */

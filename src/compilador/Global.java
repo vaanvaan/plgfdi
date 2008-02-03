@@ -3,7 +3,8 @@
  */
 package compilador;
 
-/**
+/**Clase que contiene variables globales tales como el numero de linea y de columna.
+ * 
  * @author DaNieLooP
  *
  */
