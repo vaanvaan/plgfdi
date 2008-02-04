@@ -679,7 +679,7 @@ public class Maquina_P {
 	 * en la cima de la pila.
 	 */
 	public void notlogico(){
-		if (pila.size() > 1){
+		if (pila.size() > 0){
 			String cima = pila.pop().toString();;
 			if(esBooleano(cima)){
 				Boolean a = Boolean.valueOf(cima);

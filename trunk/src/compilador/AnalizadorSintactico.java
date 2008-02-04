@@ -48,14 +48,19 @@ public class AnalizadorSintactico {
 	 * @throws Exception Se recoge el error de cualquiera de las funciones que componen el programa.
 	 */
 	public void programa() throws Exception{
-		this.compara("program");
-		this.id(); 
-		this.compara(";");
-		this.declaraciones();
-		this.proposicion_compuesta(); 
-		this.compara(".");
-		this.anaLex.scanner();
-		this.emite(this.anaLex.getToken());
+		try{
+			this.compara("program");
+			this.id(); 
+			this.compara(";");
+			this.declaraciones();
+			this.proposicion_compuesta(); 
+			this.compara(".");
+			this.anaLex.scanner();
+			this.emite(this.anaLex.getToken());
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+			System.exit(-1);
+		}
 		if(!Global.getError()){
 			try
 	        {
@@ -67,7 +72,7 @@ public class AnalizadorSintactico {
 	            System.out.println("Compilado satisfactoriamente.");
 	        } catch (Exception e)
 	        {
-	            e.printStackTrace();
+	        	System.out.println(e.getMessage());
 	        }
 		}
 	}
