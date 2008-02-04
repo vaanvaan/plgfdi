@@ -262,7 +262,7 @@ public class Maquina_P {
 			if(o.toString().equals("#")){
 				halt = true;
 				error = true;
-				System.out.println("MQ_P/> Memory access vioaltion! Posicion de memoria inválida.");
+				System.out.println("MQ_P/> Memory access violation! Posicion de memoria inválida.");
 				System.out.println("MQ_P/> Instrucción:"+ pc);
 				System.out.println("MQ_P/> Posición referneciada:" + dir);
 				System.out.println("MQ_P/> Operación que produjo el error:"+" apila_dir("+dir+")");
