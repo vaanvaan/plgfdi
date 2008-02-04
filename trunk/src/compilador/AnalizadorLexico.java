@@ -135,7 +135,7 @@ public class AnalizadorLexico {
 	/**
 	 * Funcion que analiza un componente lexico del texto dado y devuelve su lexema.
 	 */
-	public void scanner(){
+	public void scanner()throws Exception{
 		this.lex ="";
 		this.token="";
 		this.estado = 0;
@@ -179,6 +179,8 @@ public class AnalizadorLexico {
 						this.transita(13);
 					}else{
 						Global.setErrorMsg("Error léxico");
+						throw new Exception("Error lexico" 
+								+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 					}
 					break;
 				case 1:
@@ -194,6 +196,8 @@ public class AnalizadorLexico {
 						this.transita(3);
 					}else{
 						Global.setErrorMsg("Error léxico");
+						throw new Exception("Error lexico" 
+								+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 					}
 					break;
 				case 3:
@@ -201,6 +205,8 @@ public class AnalizadorLexico {
 						this.transita(4);
 					}else{
 						Global.setErrorMsg("Error léxico");
+						throw new Exception("Error lexico" 
+								+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 					}
 					break;
 				case 4:
@@ -230,6 +236,8 @@ public class AnalizadorLexico {
 						this.transita(8);
 					}else{
 						Global.setErrorMsg("Error léxico");
+						throw new Exception("Error lexico" 
+								+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 					}
 					break;
 				case 8:
@@ -278,7 +286,7 @@ public class AnalizadorLexico {
 	/**
 	 * Realiza la misma funcion que scanner() pero no avanza, permitiendo predecir el siguiente token sin consumirlo.
 	 */
-	public void predice(){
+	public void predice() throws Exception{
 		this.lex ="";
 		this.token="";
 		this.estado = 0;
@@ -323,6 +331,8 @@ public class AnalizadorLexico {
 						this.transita(13);
 					}else{
 						Global.setErrorMsg("Error léxico");
+						throw new Exception("Error lexico" 
+								+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 					}
 					break;
 				case 1:
@@ -340,6 +350,8 @@ public class AnalizadorLexico {
 						this.transita(3);
 					}else{
 						Global.setErrorMsg("Error léxico");
+						throw new Exception("Error lexico" 
+								+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 					}
 					break;
 				case 3:
@@ -347,6 +359,8 @@ public class AnalizadorLexico {
 						this.transita(4);
 					}else{
 						Global.setErrorMsg("Error léxico");
+						throw new Exception("Error lexico" 
+								+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 					}
 					break;
 				case 4:
@@ -382,6 +396,8 @@ public class AnalizadorLexico {
 						this.transita(8);
 					}else{
 						Global.setErrorMsg("Error léxico");
+						throw new Exception("Error lexico" 
+								+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 					}
 					break;
 				case 8:
@@ -461,13 +477,13 @@ public class AnalizadorLexico {
 	public static void main(String[] args) {
 			AnalizadorLexico analizer = new AnalizadorLexico("c:/prueba.txt");
 			for(;;){
-				analizer.scanner();
+				//analizer.scanner();
 				System.out.println("SCANNER");
 				System.out.print("Lexema: ");
 				System.out.print(analizer.lex);
 				System.out.print("  token: ");
 				System.out.println(analizer.token);
-				analizer.predice();
+				//analizer.predice();
 				System.out.println("PREDICE");
 				System.out.print("Lexema: ");
 				System.out.print(analizer.lex);

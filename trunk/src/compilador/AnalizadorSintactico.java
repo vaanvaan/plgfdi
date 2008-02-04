@@ -549,9 +549,14 @@ public class AnalizadorSintactico {
 	 * @return Se devuelve un string con el lexema del operador.
 	 */
 	private String operador() {
+		try{
 		this.anaLex.scanner();
-		return anaLex.getToken();	
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+		return anaLex.getToken();
 	}
+	
 	
 	/** Método que reconoce un identificador.
 	 * 
