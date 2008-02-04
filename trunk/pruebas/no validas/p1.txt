@@ -1,0 +1,16 @@
+program p1;
+var b1,b2,b3,b4,b5:boolean;
+var i1,i2,i3,i4,i5:integer;
+begin
+b1:=true;
+b2:=4>=5;
+b3:=false or true;
+b4:=true-i3;
+b5:=(b3 or b2);
+i1:=2;
+i2:=4*i1;
+i3:=(i1+i2);
+i4:=i3 div 5;
+i5:=0-10;
+fin
+.
