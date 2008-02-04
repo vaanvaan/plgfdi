@@ -262,7 +262,7 @@ public class Maquina_P {
 			if(o.toString().equals("#")){
 				halt = true;
 				error = true;
-				System.out.println("MQ_P/> Memory access violation! Posicion de memoria inválida.");
+				System.out.println("MQ_P/> Memory access vioaltion! Posicion de memoria inválida.");
 				System.out.println("MQ_P/> Instrucción:"+ pc);
 				System.out.println("MQ_P/> Posición referneciada:" + dir);
 				System.out.println("MQ_P/> Operación que produjo el error:"+" apila_dir("+dir+")");
@@ -420,7 +420,7 @@ public class Maquina_P {
 				pc++;
 			}else{
 					error = true; 
-					System.out.println("Elemento no numerico");
+					System.out.println("Elemento no entero");
 			}
 		}else{
 			error = true;
@@ -679,7 +679,7 @@ public class Maquina_P {
 	 * en la cima de la pila.
 	 */
 	public void notlogico(){
-		if (pila.size() > 0){
+		if (pila.size() > 1){
 			String cima = pila.pop().toString();;
 			if(esBooleano(cima)){
 				Boolean a = Boolean.valueOf(cima);
@@ -700,11 +700,22 @@ public class Maquina_P {
 	 * la cima de la pila.
 	 */
 	public void read(){
+		System.out.print("MAQ_P/>");
+		Scanner scan = new Scanner(System.in);
+		String linea = scan.nextLine();
+		//chequeo de si es un dato aceptable
+		boolean aceptable = esBooleano(linea) || esEntero(linea) || esReal(linea) || linea.length()==1;
+		while (!aceptable){
+			System.out.println("MAQ_P/> Dato introducido incompatible. Datos aceptados: Eteros, Reales, Booleanos y Caracteres.");
 			System.out.print("MAQ_P/>");
-			Scanner scan = new Scanner(System.in);
-			String linea = scan.nextLine();
-			pila.push(linea);
-			pc++;
+			linea = scan.nextLine();
+			aceptable = esBooleano(linea) || esEntero(linea) || esReal(linea) || linea.length()==1;
+		}
+		if(linea.length()==1){
+			if(!esEntero(linea)&& !esReal(linea)) linea = "'"+linea+"'";
+		}
+		pila.push(linea);
+		pc++;
 	}
 	/**
 	 * Método que se encarga de convertir un número en un número de signo positivo.
@@ -866,6 +877,9 @@ public class Maquina_P {
 	
 	private boolean esBooleano(String o){
 		try{
+			if(!o.toString().equalsIgnoreCase("true") && !o.toString().equalsIgnoreCase("false")){
+				return false;
+			}
 			Boolean b = Boolean.valueOf(o.toString());
 			return true;
 		}catch (NumberFormatException e) {
