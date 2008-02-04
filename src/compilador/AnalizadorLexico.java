@@ -31,13 +31,17 @@ public class AnalizadorLexico {
 	 * @param file Nombre del fichero cuyo lexico va a ser analizado.
 	 */
 	public AnalizadorLexico(String file){
-		this.archivo = AuxFun.getTextoFichero(file);
-		// FIXME hay que cambiar el lower case y hacerlo en otro sitio para que funcione char
-		this.archivo = this.archivo.toLowerCase()+'\0';
-		Global.inicializa();
-		this.lex = "";
-		this.token = "";
-		this.estado = 0;
+		try{
+			this.archivo = AuxFun.getTextoFichero(file);
+			// FIXME hay que cambiar el lower case y hacerlo en otro sitio para que funcione char
+			this.archivo = this.archivo.toLowerCase()+'\0';
+			Global.inicializa();
+			this.lex = "";
+			this.token = "";
+			this.estado = 0;
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+		}
 	}
 	
 	/** Funcion que cambia el estado del analizador lexico, ademas de actualizar el lexema y la posicion

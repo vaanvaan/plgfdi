@@ -55,6 +55,8 @@ public class AuxFun {
         }
         catch(IOException e){
                 System.out.println("Error en la apertura de: "+ nombreFichero);
+                System.exit(-1);
+                System.out.print("paso");
                 return null;
         }
 }
