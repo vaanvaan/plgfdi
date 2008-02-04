@@ -706,7 +706,7 @@ public class Maquina_P {
 		//chequeo de si es un dato aceptable
 		boolean aceptable = esBooleano(linea) || esEntero(linea) || esReal(linea) || linea.length()==1;
 		while (!aceptable){
-			System.out.println("MAQ_P/> Dato introducido incompatible. Datos aceptados: Eteros, Reales, Booleanos y Caracteres.");
+			System.out.println("MAQ_P/> Dato introducido incompatible. Datos aceptados: Enteros, Reales, Booleanos y Caracteres.");
 			System.out.print("MAQ_P/>");
 			linea = scan.nextLine();
 			aceptable = esBooleano(linea) || esEntero(linea) || esReal(linea) || linea.length()==1;
