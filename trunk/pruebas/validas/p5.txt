@@ -1,6 +1,7 @@
 program p5;
 var b:boolean;
 begin
+b:=true;
 write(b);
 end
 .
