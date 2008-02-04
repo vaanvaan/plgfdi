@@ -747,7 +747,7 @@ public class Maquina_P {
 	}
 	
 	/**
-	 * Método que se encarga de convertir un número en un número de signo negativo.
+	 * Método que se encarga del cambio de signo de un número.
 	 * Esta operación se aplica sobre el elemento situado en la cima de la pila.
 	 */
 	public void menosN(){
@@ -755,17 +755,13 @@ public class Maquina_P {
 			String cima = pila.pop().toString();;
 			if (esEntero(cima)){
 				Integer i = Integer.parseInt(cima);
-				if (i > 0){
-					i = -1 * i;
-				}
+				i = -1 * i;
 				pila.push(i);
 				pc++;
 			}else{
 				if(esReal(cima)){
 					Float f = Float.valueOf(cima);
-					if (f > 0){
-						f = -1*f;
-					}
+					f = -1*f;
 					pila.push(f);
 					pc++;
 				}
