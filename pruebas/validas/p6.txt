@@ -1,0 +1,14 @@
+program p6;
+var v,x,y,z:boolean;
+var a,b,c:integer;
+begin
+a:=4;
+b:=3;
+c:=5;
+v:=a>b;
+x:=c<b;
+z:=not(x);
+y:=(v and x) or z;
+write(y);
+end
+.

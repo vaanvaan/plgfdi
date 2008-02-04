@@ -1,0 +1,12 @@
+program p11;
+var a,b,c,d:integer;
+begin
+a:=13;
+b:=3;
+c:=13 div 3;
+d:=13 mod 3;
+d:= -d;
+write(c);
+write(d);
+end
+.

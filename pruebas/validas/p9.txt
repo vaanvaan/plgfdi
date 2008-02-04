@@ -1,0 +1,9 @@
+program p9;
+var a,b:char;
+begin
+a:='a';
+b:='b';
+write(a);
+write(b);
+end
+.
