@@ -1,0 +1,13 @@
+program p7;
+var b:boolean;
+var x,y,z,h:real;
+begin
+x:=2;
+y:=3;
+z:=6;
+h:=123;
+b:=x<=y;
+b:= (x<=y) and (y<=z) and (z<=123);
+write(b);
+end
+.
