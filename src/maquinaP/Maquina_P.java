@@ -24,10 +24,10 @@ import compilador.AuxFun;
  *		En cualquier caso, la traza se mostrará siempre por la consola de la línea de comandos. 
  */
 /**
+ * Clase principal de la máquina P
  * 
  * @author GRUPO PLG Nº13
  *
- * Clase principal de la máquina P
  * 
  */
 public class Maquina_P {

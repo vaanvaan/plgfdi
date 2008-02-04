@@ -1,11 +1,11 @@
 package maquinaP;
 
-/**
+/**Clase que nos proporciona Value Objects para poder procesar las instrucciones
+ * de la maquina P.
  * 
  * @author PLG GRUPO Nº13
  * 
- * Clase que nos proporciona Value Objects para poder procesar las instrucciones
- * de la maquina P.
+ * 
  * 
  */
 public class ComandoVO {
