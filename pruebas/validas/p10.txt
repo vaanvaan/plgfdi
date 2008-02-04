@@ -1,6 +1,6 @@
 program p10;
 var a,b,c:real;
-const j:real 3e10;
+const j:real = 3e10;
 begin
 a:=2.3;
 b:=4e2;

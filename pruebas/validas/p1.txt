@@ -7,7 +7,7 @@ begin
 c:='a';
 x:=123;
 y:=x+12;
-z:=-4>-3;
+z:=(-4>-3)<>true;
 write(y);
 write(z);
 end

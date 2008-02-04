@@ -2,12 +2,12 @@ program p7;
 var b:boolean;
 var x,y,z,h:real;
 begin
-x:=2;
-y:=3;
-z:=6;
-h:=123;
+x:=2.0;
+y:=3.0;
+z:=6.0;
+h:=123.0;
 b:=x<=y;
-b:= (x<=y) and (y<=z) and (z<=123);
+b:= (x<=y) and (y<=z) and (z<=123.0);
 write(b);
 end
 .
