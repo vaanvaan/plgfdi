@@ -369,7 +369,7 @@ public class AnalizadorSintactico {
 				throw new Exception("Error sintaxis: ID no declarado"
 						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			this.compara(")");
-			this.emite("apila_dir "+ this.tablaSim.getDir(lex));
+			//this.emite("apila_dir "+ this.tablaSim.getDir(lex));
 			this.emite("read");
 			this.emite("desapila_dir "+ this.tablaSim.getDir(lex));
 		}else if(lexTipo.compareTo("write")==0){
