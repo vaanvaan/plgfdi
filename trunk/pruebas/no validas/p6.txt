@@ -1,0 +1,12 @@
+program p3;
+var b1,b2,b3,b4,b5:boolean;
+var i1,i2,i3,i4,i5:integer;
+begin
+b1:=cierto;
+b2:=4>=5;
+b3:=false or true;
+b4:=true;
+b5:= b3 or b2;
+x:=2;
+end
+.

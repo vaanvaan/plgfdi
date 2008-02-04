@@ -1,0 +1,11 @@
+program p3;
+var b1,b2,b3,b4,b5:wally;
+var i1,i2,i3,i4,i5:integer;
+begin
+b1:=cierto;
+b3:=false or true;
+b4:=true;
+b5:= b3 or b2;
+i1:=2;
+end
+.
