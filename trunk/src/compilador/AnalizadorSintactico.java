@@ -356,8 +356,8 @@ public class AnalizadorSintactico {
 			if (!this.tablaSim.existeID(lex) 
 					|| !this.compatibles(this.tablaSim.devuelveTipo(lex), tipo) 
 					|| this.tablaSim.tipoDecl(lex)!= "var"){
-				//throw new Exception("Error sintaxis: Asignación incorrecta.");
 				Global.setErrorMsg("Violación restricciones. Asignación incorrecta");
+				throw new Exception("Error sintaxis: Asignación incorrecta"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			}
 			this.emite("desapila_dir "+this.tablaSim.getDir(lex));
 		}else if(lexTipo.compareTo("read")==0){
