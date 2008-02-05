@@ -1,0 +1,17 @@
+program p13;
+var a,b:integer;
+var c,d,e:boolean;
+
+begin
+a:=12;
+read(b);
+c:= true;
+read(d);
+e:= a > b;
+write(e);
+c:=c and d;
+write(c);
+e:=d or e;
+write (e);
+end
+.
