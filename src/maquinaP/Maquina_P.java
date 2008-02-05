@@ -620,7 +620,7 @@ public class Maquina_P {
 	 * 		RESULTADO = SUBCIMA <> CIMA
 	 */
 	public void distintos(){
-		if (pila.size() > 0){
+		if (pila.size() > 1){
 			String cima = pila.pop().toString();;
 			String subcima = pila.pop().toString();;
 			Boolean res = !subcima.equals(cima);
@@ -747,7 +747,7 @@ public class Maquina_P {
 	}
 	
 	/**
-	 * Método que se encarga del cambio de signo de un número.
+	 * Método que se encarga de convertir un número en un número de signo negativo.
 	 * Esta operación se aplica sobre el elemento situado en la cima de la pila.
 	 */
 	public void menosN(){
@@ -755,13 +755,17 @@ public class Maquina_P {
 			String cima = pila.pop().toString();;
 			if (esEntero(cima)){
 				Integer i = Integer.parseInt(cima);
-				i = -1 * i;
+				if (i > 0){
+					i = -1 * i;
+				}
 				pila.push(i);
 				pc++;
 			}else{
 				if(esReal(cima)){
 					Float f = Float.valueOf(cima);
-					f = -1*f;
+					if (f > 0){
+						f = -1*f;
+					}
 					pila.push(f);
 					pc++;
 				}
