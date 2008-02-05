@@ -1,0 +1,19 @@
+program p14;
+var a,b:integer;
+var c,d,e:boolean;
+
+begin
+a:=-12;
+b:=5;
+a:= (a div 2) + b;
+c:= true;
+d:= false;
+e:= (c and d) or (c or d);
+c:= ((c and d) or false);
+write(a);
+write(e);
+write(c);
+c:= not c;
+write(c);
+end
+.

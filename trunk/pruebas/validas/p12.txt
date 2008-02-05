@@ -1,0 +1,10 @@
+program p11;
+var a,b,c:real;
+begin
+a:=12.5;
+b:=0.5;
+c:=a / b;
+write(a);
+write(c);
+end
+.
