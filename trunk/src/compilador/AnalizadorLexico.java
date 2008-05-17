@@ -129,7 +129,42 @@ public class AnalizadorLexico {
 			this.token = lexema;
 		}else if(lexema.compareTo("const")==0){
 			this.token = lexema;
-		} else this.token = "identificador";
+		}else if(lexema.compareTo("if")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("then")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("else")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("while")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("do")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("new")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("dispose")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("array")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("of")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("record")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("nil")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("function")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("result")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("procedure")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("^")==0){
+			this.token = lexema;
+		}else if(lexema.compareTo("[")==0){
+			this.token = "lcorch";
+		}else if(lexema.compareTo("]")==0){
+			this.token = "rcorch";
+		}
+		else this.token = "identificador";
 	}
 	
 	/**
@@ -169,7 +204,7 @@ public class AnalizadorLexico {
 						this.transita(6);
 					}else if(buf==':'){
 						this.transita(9);
-					}else if(buf==','||buf=='.'||buf=='+' || buf == '-' || buf =='*' || buf == '/'||buf=='('||buf==')'||buf==';'||buf=='='){
+					}else if(buf==','||buf=='.'||buf=='+' || buf == '-' || buf =='*' || buf == '/'||buf=='('||buf==')'||buf==';'||buf=='='||buf=='^'||buf=='['||buf==']'){
 						this.transita(10);
 					}else if(buf=='>'){
 						this.transita(11);
