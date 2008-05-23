@@ -24,10 +24,10 @@ import compilador.AuxFun;
  *		En cualquier caso, la traza se mostrará siempre por la consola de la línea de comandos. 
  */
 /**
- * Clase principal de la máquina P
  * 
  * @author GRUPO PLG Nº13
  *
+ * Clase principal de la máquina P
  * 
  */
 public class Maquina_P {
@@ -44,6 +44,10 @@ public class Maquina_P {
 	private boolean error = false;
 	private boolean debug = false;
 	private String path;
+	private int TAM_MEM_ESTATICA = 100;
+	private int TAM_HEAP = 300;
+	private ArrayList heap;
+	private ArrayList displays;
 	
 	
 	/**
@@ -72,7 +76,7 @@ public class Maquina_P {
 				}
 			}
 			System.out.println("MEMORY: " + mapmem);	
-			System.out.println("PC = "+pc);
+			System.out.println("PC = "+(pc-1));
 		}
 	}
 	
@@ -80,10 +84,14 @@ public class Maquina_P {
 	 * Este método se encarga de inicializar las posiciones dememoria.
 	 */
 	public void inicializa_mem_pru(){
-		for(int i=0;i<100;i++){
+		for(int i=0; i<TAM_MEM_ESTATICA; i++){
 			String a = "#";
 			memoria.add(a);
 		}
+//		for(int i=0; i<TAM_HEAP; i++){
+//			String a = "#";
+//			heap.add(a);
+//		}
 	}
 	
 	/**
@@ -121,10 +129,15 @@ public class Maquina_P {
 			}
 		}
 		//	Procesando los comandos
-		Iterator itcomandos = comandos.iterator();
-		while(itcomandos.hasNext() && !halt && !error){
-			ComandoVO com = (ComandoVO) itcomandos.next();
+//		Iterator itcomandos = comandos.iterator();
+//		while(itcomandos.hasNext() && !halt && !error){
+		boolean fin = pc >= comandos.size();
+		while(!fin && !halt && !error){
+//			ComandoVO com = (ComandoVO) itcomandos.next();
+			ComandoVO com = (ComandoVO) comandos.get(pc.intValue());
 			String accion = com.getAccion();
+			pc++;
+			fin = pc >= comandos.size();
 			if(debug){
 				//esperamos a que nos digan que ejecutemos:
 				if(com.getOperando() != null){
@@ -244,7 +257,6 @@ public class Maquina_P {
 	 */
 	public void apilar(Object o){
 		pila.push(o);
-		pc++;
 	}
 	/**
 	 * Método que realiza la operación de apilar un elemento almacenado en memoria
@@ -263,12 +275,45 @@ public class Maquina_P {
 				halt = true;
 				error = true;
 				System.out.println("MQ_P/> Memory access vioaltion! Posicion de memoria inválida.");
-				System.out.println("MQ_P/> Instrucción:"+ pc);
+				System.out.println("MQ_P/> Instrucción:"+ (pc-1));
 				System.out.println("MQ_P/> Posición referneciada:" + dir);
 				System.out.println("MQ_P/> Operación que produjo el error:"+" apila_dir("+dir+")");
 			}else{
 				pila.push(o);
-				pc++;
+			}
+		}
+	}
+	/**
+	 * Interpreta el valor d en la cima de la pila como un número
+	 * de celda en la memoria, y substituye dicho valor por el almacenado en dicha
+	 * celda.
+	 * Pila[ST] <- Mem[Pila[ST]]
+	 * PC <- PC+1
+	 */
+	public void apila_ind(){
+		if ((pila.isEmpty()) || (pila.size() < 2)){
+			error=true;
+			System.out.println("Pila vacia!");
+		}else{
+			//tomamos el valor de la cima como la dirección
+			String cima = pila.pop().toString();
+			if (esEntero(cima)){
+				Integer dir_mem = Integer.parseInt(cima);
+				String valor = memoria.get(dir_mem).toString();
+				if(valor.equals("#")){
+					halt = true;
+					error = true;
+					System.out.println("MQ_P/> Memory access vioaltion! Posicion de memoria inválida.");
+					System.out.println("MQ_P/> Instrucción:"+ (pc-1));
+					System.out.println("MQ_P/> Posición referneciada:" + dir_mem);
+					System.out.println("MQ_P/> Operación que produjo el error:"+" apila_dir("+dir_mem+")");
+				}else{
+					pila.push(valor);
+				}
+			}else{
+				halt = true;
+				error = true;
+				System.out.println("Out of memory! OR Pila vacia!");
 			}
 		}
 	}
@@ -282,7 +327,6 @@ public class Maquina_P {
 			System.out.println("Pila vaciay!");
 		}
 		pila.pop();
-		pc++;
 	}
 	
 	/**
@@ -299,10 +343,247 @@ public class Maquina_P {
 		}else{
 			String o = pila.pop().toString();
 			memoria.set(dir, o);
-			pc++;
 		}
 	}
 	
+	/**
+	 * Desapila el valor de la cima v y la subcima d, interpreta d
+	 * como un número de celda en la memoria, y almacena v en dicha celda.
+	 * Mem[Pila[ST-1]] <- Pila[ST]
+	 * ST<-ST-2  (la pilase queda sin 2 elementos)
+	 * PC <-PC+1
+	 */
+	public void desapila_ind(){
+		if (pila.size() < 2) {
+			halt = true;
+			error = true;
+			System.out.println("Out of memory! OR Pila vacia!");
+		}else{
+			String cima = pila.pop().toString();
+			String subcima = pila.pop().toString();
+			if (esEntero(subcima)) {
+				Integer dir = Integer.parseInt(subcima);
+				if(dir > memoria.size()){
+					System.out.println("MQ_P/> Memory access vioaltion! Posicion de memoria inválida.");
+					System.out.println("MQ_P/> Instrucción:"+ (pc-1));
+					System.out.println("MQ_P/> Posición referneciada:" + dir);
+					System.out.println("MQ_P/> Operación que produjo el error:"+" apila_ind()");
+				}else{
+					memoria.set(dir, cima);
+				}
+			} else {
+				halt = true;
+				error = true;
+				System.out.println("Dato no numerico!");
+			}
+		}
+	}
+	
+	/**
+	 * Dicha instrucción encuentra en la cima la dirección origen o y en la
+	 * subcima la dirección destino d, y realiza el movimiento de s celdas desde o a s.
+	 * para i<-0 hasta s-1 hacer
+	 * Mem[Pila[ST-1]+i] <- Mem[Pila[ST]+i]
+	 * ST<-ST-2
+	 * PC <- PC+1
+	 * 
+	 * @param num_celdas	Numero de celdas a desplazar
+	 */
+	public void mueve(int num_celdas){
+		if (pila.size() < 2) {
+			halt = true;
+			error = true;
+			System.out.println("La pila se queda vacia!");
+		} else {
+			String cima = pila.pop().toString();
+			String subcima = pila.pop().toString();
+			if (esEntero(cima) && esEntero(subcima)){
+				Integer origen = Integer.parseInt(cima);
+				Integer destino = Integer.parseInt(subcima);
+				// habra q comprobar q son positivos...(o no?)
+				if((origen < memoria.size())&&(destino < memoria.size())){
+					for (int i = 0; i < num_celdas; i++) {
+						String obj = memoria.get(origen+i).toString();
+						memoria.set((destino+i), obj);
+					}
+				}
+			}else{
+				halt = true;
+				error = true;
+				System.out.println("La pila se queda vacia!");
+			}
+		}
+	}
+	
+	/**
+	 * Salto incondicional a la instrucción i.
+	 * 
+	 * @param ci el nuevo valor del contador de instrucciones
+	 */
+	public void ir_a(Long ci){
+		pc = ci;
+	}
+	
+	/**
+	 * Desapila el valor de la cima de la pila. Si es 0
+	 * (falso), salta a la instrucción i. En otro caso, sigue la
+	 * ejecución en secuencia.
+	 * 
+	 * @param ci	nuevo contador de instrucciones
+	 */
+	public void ir_f(Long ci){
+		if(ci >0){
+			String cima = pila.pop().toString();
+			if(esBooleano(cima)){
+				Boolean cond = Boolean.getBoolean(cima);
+				if(!cond){
+					pc = ci;
+				}
+			}else{
+				halt = true;
+				error = true;
+				System.out.println("Cima no numerica!");
+			}
+		}
+	}
+	
+	/**
+	 * Desapila el valor de la cima de la pila. Si es 1
+	 * (verdadero), salta a la instrucción i. En otro caso, sigue la
+	 * ejecución en secuencia.
+	 * 
+	 * @param ci		nuevo contador de instrucciones
+	 */
+	public void ir_v(Long ci){
+		if(ci >0){
+			String cima = pila.pop().toString();
+			if(esBooleano(cima)){
+				Boolean cond = Boolean.getBoolean(cima);
+				if(cond){
+					pc = ci;
+				}
+			}else{
+				halt = true;
+				error = true;
+				System.out.println("Cima no numerica!");
+			}
+		}
+	}
+	/**
+	 * Copia el vlor de la cima
+	 */
+	public void copia_cima(){
+		if (!pila.isEmpty()) {
+			String obj1 = pila.pop().toString();
+			String obj2 = obj1;
+			pila.push(obj1);
+			pila.push(obj2);
+		}else{
+			halt = true;
+			error = true;
+			System.out.println("Pila vacia");
+		}
+	}
+	
+	/**
+	 * Método que se encarga de actualizar el tamaño de segmento de memoria estatica.
+	 * El valor por defecto es 100
+	 * 
+	 * @param tam		tamaño deseado de segmento
+	 */
+	public void seg(int tam){
+		TAM_MEM_ESTATICA = tam;
+		if(tam < TAM_MEM_ESTATICA){
+			memoria = (ArrayList) memoria.subList(0, TAM_MEM_ESTATICA-1);
+		}else if (tam > TAM_MEM_ESTATICA) {
+			while(TAM_MEM_ESTATICA < tam){
+				String a = "#";
+				memoria.add(a);
+				TAM_MEM_ESTATICA++;
+			}
+		}
+		
+	}
+	
+	/**
+	 * Reserva espacio en el heap para t celdas consecutivas y apila
+	 * en la cima de la pila la dirección de comienzo.
+	 * Direccion de comienzo:
+	 * 
+	 * 		|base|...|elem1|elem2| ....
+	 * 					^inicio
+	 * 
+	 * @param nceldas		numero de celdas
+	 */
+	public void heap_new(int nceldas){
+		int ini = heap.size();
+		pila.push(String.valueOf(ini));
+		for (int i = 0; i < nceldas; i++) {
+			String a = "#";
+			heap.add(a);
+		}
+	}
+	
+	/**
+	 * Desapila una dirección de comienzo d de la cima de la pila, y
+	 * libera en el heap t celdas consecutivas a partir de d.
+	 * 
+	 * @param nceldas		numero de celdas
+	 */
+	public void heap_del(int nceldas){
+		if (heap.isEmpty() || (nceldas > heap.size()) || pila.isEmpty()) {
+			halt = true;
+			error = true;
+			System.out.println("Heap/Pila vacio/a!");
+		} else {
+			String cima = pila.pop().toString();
+			if(esEntero(cima)){
+				Integer dir = Integer.parseInt(cima);
+				try{
+					for (int i = 0; i < nceldas; i++) {
+						heap.remove((dir+i));
+					}
+				}catch (Exception e) {
+					halt = true;
+					error = true;
+					System.out.println("Out of bounds access HEAP!");
+				}
+			}else{
+				halt = true;
+				error = true;
+				System.out.println("Cima no numerica!");
+			}
+		}
+	}
+	
+	/**
+	 * Determina el numero de displays que va a gestionar la maquina
+	 * @param ndisplays		el numero de displays
+	 */
+	public void set_num_displays(String ndisplays){
+		if(esEntero(ndisplays)){
+			displays = new ArrayList(Integer.parseInt(ndisplays));
+		}else{
+			System.out.println("Se esperaba dato numerico!");
+		}
+	}
+	
+	/**
+	 * Metodo que genera un RA, registro de activación.
+	 * Se hará uso de un array de RA's, en vez de usar indices altos del heap
+	 * que supondria el crecimiento opuesto a los tipos declarados, 
+	 * usaremos un array nuevo, para simplificar el movimiento.
+	 * El límite de la memoria dinamica, controlará el máximo numero de celdas
+	 * que componen el heap y el array de RA's
+	 * El display apuntará a la primera posición de los datos -> pos i.
+	 * En la pos i-1 estará el valor antiguo del display.
+	 * En la pos i-2 estará la dirección de retorno.
+	 * @param display	numero del display al que hay que engancharlo
+	 */
+	public void new_ra(int display){
+		ArrayList ra = new ArrayList(2);
+		
+	}
 	/**
 	 * Método que se encarga de realizar la suma, si procede, de los elementos situados
 	 * en la cima y subcima de la pila.
@@ -310,20 +591,18 @@ public class Maquina_P {
 	public void suma(){
 		if (pila.size() > 1){
 			String cima = pila.pop().toString();
-			String subcima = pila.pop().toString();;
+			String subcima = pila.pop().toString();
 			if (esEntero(cima) && esEntero(subcima)){
 				Integer a = Integer.parseInt(cima);
 				Integer b = Integer.parseInt(subcima);
 				a = a + b;
 				pila.push(a);
-				pc++;
 			}else{
 				if (esReal(cima) && esReal(subcima)){
 					Float a = Float.valueOf(cima);
 					Float b = Float.valueOf(subcima);
 					a = a + b;
 					pila.push(a);
-					pc++;
 				}else{
 					error = true; 
 					System.out.println("Elemento no numerico");
@@ -351,14 +630,12 @@ public class Maquina_P {
 				Integer b = Integer.parseInt(subcima);
 				a = b - a;
 				pila.push(a);
-				pc++;
 			}else{
 				if (esReal(cima) && esReal(subcima)){
 					Float a = Float.valueOf(cima);
 					Float b = Float.valueOf(subcima);
 					a = b - a;
 					pila.push(a);
-					pc++;
 				}else{
 					error = true; 
 					System.out.println("Elemento no numerico");
@@ -383,14 +660,12 @@ public class Maquina_P {
 				Integer b = Integer.parseInt(subcima);
 				a = a * b;
 				pila.push(a);
-				pc++;
 			}else{
 				if (esReal(cima) && esReal(subcima)){
 					Float a = Float.valueOf(cima);
 					Float b = Float.valueOf(subcima);
 					a = a * b;
 					pila.push(a);
-					pc++;
 				}else{
 					error = true; 
 					System.out.println("Elemento no numerico");
@@ -417,7 +692,6 @@ public class Maquina_P {
 				Integer b = Integer.parseInt(subcima);
 				a = b / a;
 				pila.push(a);
-				pc++;
 			}else{
 					error = true; 
 					System.out.println("Elemento no entero");
@@ -443,7 +717,6 @@ public class Maquina_P {
 				Float b = Float.valueOf(subcima);
 				a = b / a;
 				pila.push(a);
-				pc++;
 			}else{
 				error = true; 
 				System.out.println("Elemento no numerico");
@@ -469,7 +742,6 @@ public class Maquina_P {
 				Integer b = Integer.parseInt(subcima);
 				a = b % a;
 				pila.push(a);
-				pc++;
 			}else{
 					error = true; 
 					System.out.println("Elemento no numerico");
@@ -499,7 +771,6 @@ public class Maquina_P {
 				}
 				pila.push(a);
 			}
-			pc++;
 		}else{
 			error = true;
 		}
@@ -518,7 +789,6 @@ public class Maquina_P {
 				Float b = Float.valueOf(subcima);
 				boolean c  = b > a;
 				pila.push(c);
-				pc++;
 			}else{
 				error = true; 
 				System.out.println("Elemento no numerico");
@@ -541,7 +811,6 @@ public class Maquina_P {
 				Float b = Float.valueOf(subcima);
 				boolean c  = b >= a;
 				pila.push(c);
-				pc++;
 			}else{
 				error = true; 
 				System.out.println("Elemento no numerico");
@@ -564,7 +833,6 @@ public class Maquina_P {
 				Float b = Float.valueOf(subcima);
 				boolean c  = b < a;
 				pila.push(c);
-				pc++;
 			}else{
 				error = true; 
 				System.out.println("Elemento no numerico");
@@ -587,7 +855,6 @@ public class Maquina_P {
 				Float b = Float.valueOf(subcima);
 				boolean c  = b <= a;
 				pila.push(c);
-				pc++;
 			}else{
 				error = true; 
 				System.out.println("Elemento no numerico");
@@ -608,7 +875,6 @@ public class Maquina_P {
 			String subcima = pila.pop().toString();;
 			Boolean res = subcima.equals(cima);
 			pila.push(res);
-			pc++;
 		}else{
 			error = true;
 		}
@@ -625,7 +891,6 @@ public class Maquina_P {
 			String subcima = pila.pop().toString();;
 			Boolean res = !subcima.equals(cima);
 			pila.push(res);
-			pc++;
 		}else{
 			error = true;
 		}
@@ -643,7 +908,6 @@ public class Maquina_P {
 				Boolean b = Boolean.valueOf(subcima);
 				Boolean c = a && b;
 				pila.push(c);
-				pc++;
 			}else{
 				error = true;
 				System.out.println("Error no es booleano.");
@@ -665,7 +929,6 @@ public class Maquina_P {
 				Boolean b = Boolean.valueOf(subcima);
 				Boolean c = a || b;
 				pila.push(c);
-				pc++;
 			}else{
 				error = true;
 				System.out.println("Error no es booleano.");
@@ -679,12 +942,11 @@ public class Maquina_P {
 	 * en la cima de la pila.
 	 */
 	public void notlogico(){
-		if (pila.size() > 0){
+		if (pila.size() > 1){
 			String cima = pila.pop().toString();;
 			if(esBooleano(cima)){
 				Boolean a = Boolean.valueOf(cima);
 				pila.push(!a);
-				pc++;
 			}else{
 				error = true;
 				System.out.println("Error no es booleano.");
@@ -706,7 +968,7 @@ public class Maquina_P {
 		//chequeo de si es un dato aceptable
 		boolean aceptable = esBooleano(linea) || esEntero(linea) || esReal(linea) || linea.length()==1;
 		while (!aceptable){
-			System.out.println("MAQ_P/> Dato introducido incompatible. Datos aceptados: Enteros, Reales, Booleanos y Caracteres.");
+			System.out.println("MAQ_P/> Dato introducido incompatible. Datos aceptados: Eteros, Reales, Booleanos y Caracteres.");
 			System.out.print("MAQ_P/>");
 			linea = scan.nextLine();
 			aceptable = esBooleano(linea) || esEntero(linea) || esReal(linea) || linea.length()==1;
@@ -715,7 +977,6 @@ public class Maquina_P {
 			if(!esEntero(linea)&& !esReal(linea)) linea = "'"+linea+"'";
 		}
 		pila.push(linea);
-		pc++;
 	}
 	/**
 	 * Método que se encarga de convertir un número en un número de signo positivo.
@@ -730,7 +991,6 @@ public class Maquina_P {
 					i = -1 * i;
 				}
 				pila.push(i);
-				pc++;
 			}else{
 				if(esReal(cima)){
 					Float f = Float.valueOf(cima);
@@ -738,7 +998,6 @@ public class Maquina_P {
 						f = -1*f;
 					}
 					pila.push(f);
-					pc++;
 				}
 			}
 		}else{
@@ -759,7 +1018,6 @@ public class Maquina_P {
 					i = -1 * i;
 				}
 				pila.push(i);
-				pc++;
 			}else{
 				if(esReal(cima)){
 					Float f = Float.valueOf(cima);
@@ -767,7 +1025,6 @@ public class Maquina_P {
 						f = -1*f;
 					}
 					pila.push(f);
-					pc++;
 				}
 			}
 		}else{
@@ -783,7 +1040,6 @@ public class Maquina_P {
 		if (!pila.empty()){
 			String cima = pila.peek().toString();
 			System.out.println("MQ_P/>"+cima);
-			pc++;
 		}else{
 			error = true;
 		}
