@@ -41,7 +41,7 @@ public class TS {
 	 * @param props
 	 * @return
 	 */
-	private boolean añadeTS(String id, String clase, Propiedades props){
+	public boolean añadeTS(String id, String clase, Propiedades props){
 		entradaTS aux = new entradaTS(id, clase, props);
 		aux.getProps().setDir(dir);
 		ts.put(id,aux);
@@ -67,7 +67,7 @@ public class TS {
 	 * @param id Identificador cuya entrada en la tabla queremos obtener.
 	 * @return Entrada correspondiente. Null si no existe.
 	 */
-	private entradaTS getEntrada(String id){
+	public entradaTS getEntrada(String id){
 		return (entradaTS) ts.get(id);
 	}
 	
