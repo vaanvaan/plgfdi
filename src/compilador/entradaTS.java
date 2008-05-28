@@ -11,64 +11,41 @@ package compilador;
 public class entradaTS {
 	
 	private String id;
-	private String tipoDec;
-	private String tipo;
-	private String valor;
-	private int dir;
+	private String clase;
+	private Propiedades props;
 	
 	/**
-	 * Constructora. Pide los datos para rellenar la entrada.
-	 * @param id Identidicador.
-	 * @param tipoDec Variable (VAR) o Constante (CONST).
-	 * @param tipo Tipo del elemento (entero, booleano, real, caracter).
-	 * @param valor Valor del identificador.
-	 * @param dir Dirección de la memoria de datos donde se encuentra el valor del elemento. 
+	 * 
+	 * @param id Parte que identifica unívocamente a la variable, constante o procedimiento.
+	 * @param clase Define si se trata de una variable o parámetro por referencia(var),
+	 *  constante (const), un procedimiento (proc), o parámetro por valor (pvar).
+	 * @param props Contiene una tupla de propiedades referentes a la declaración.
 	 */
-	public entradaTS(String id, String tipoDec, String tipo,String valor, int dir){
+	public entradaTS(String id, String clase,Propiedades props){
 		this.id = id;
-		this.tipoDec = tipoDec;
-		this.tipo = tipo;
-		this.valor = valor;
-		this.dir = dir;
+		this.clase = clase;
+		this.props = props;
 	}
-	
+
 	/**
-	 * Acceso al identificador.
-	 * @return ID
+	 * @return the id
 	 */
-	public String getID(){
-		return this.id;
+	public String getId() {
+		return id;
 	}
-	
+
 	/**
-	 * Acceso al tipo de declaración.
-	 * @return VAR o CONST
+	 * @return the clase
 	 */
-	public String getTipoDec(){
-		return this.tipoDec;
+	public String getClase() {
+		return clase;
 	}
-	
+
 	/**
-	 * Acceso al tipo de datos.
-	 * @return entero, booleano, real, caracter.
+	 * @return the props
 	 */
-	public String getTipo(){
-		return this.tipo;
+	public Propiedades getProps() {
+		return props;
 	}
-	
-	/**
-	 * Acceso a la dirección de memoria.
-	 * @return dir
-	 */
-	public int getDir(){
-		return this.dir;
-		}
-	
-	
-	/** Acceso al valor del identificador.
-	 * @return valor
-	 */
-	public String getValor(){
-		return this.valor;
-	}
+
 }

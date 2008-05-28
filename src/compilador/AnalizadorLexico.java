@@ -151,10 +151,6 @@ public class AnalizadorLexico {
 			this.token = lexema;
 		}else if(lexema.compareTo("nil")==0){
 			this.token = lexema;
-		}else if(lexema.compareTo("function")==0){
-			this.token = lexema;
-		}else if(lexema.compareTo("result")==0){
-			this.token = lexema;
 		}else if(lexema.compareTo("procedure")==0){
 			this.token = lexema;
 		}else if(lexema.compareTo("^")==0){
