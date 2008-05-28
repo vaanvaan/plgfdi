@@ -21,7 +21,7 @@ public class AnalizadorSintactico {
 	/**
 	 * Tabla de dispersion que hace las veces de tabla de simbolos.
 	 */
-	private TS tablaSim;
+	private PilaTS pilaTablaSim;
 	/**
 	 * Vector que almacena el conjunto de instrucciones emitidas hasta el momento.
 	 */
@@ -31,6 +31,11 @@ public class AnalizadorSintactico {
 	 */
 	private String pathDestino;
 	
+	private int n;
+	
+	private int dir;
+	
+	private int etq;
 	/**Constructor del analizador sintactico, donde se crea el analizador lexico y la tabla de simbolos. 
 	 * 
 	 * @param path Ruta del archivo que se va a analizar.
@@ -52,8 +57,14 @@ public class AnalizadorSintactico {
 			this.compara("program");
 			this.id(); 
 			this.compara(";");
-			this.declaraciones();
+			this.pilaTablaSim.creaTS();
+			this.dir = 0;
+			this.n = 0;
+			this.etq = 0;
+			this.bloqueDecls();
 			this.proposicion_compuesta(); 
+			inicio(n,dir);
+			ir-a(etq);
 			this.compara(".");
 			this.anaLex.scanner();
 			this.emite(this.anaLex.getToken());
@@ -76,6 +87,11 @@ public class AnalizadorSintactico {
 	        }
 		}
 		
+	}
+	
+	private void bloqueDecls()throws Exception{
+		declaraciones();
+		dec_Procs();
 	}
 	
 	/**
