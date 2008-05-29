@@ -19,11 +19,29 @@ public class Propiedades {
 	private ArrayList<CParams> params;
 	private int dir;
 	private int tam;
+	private int inicio;
 	
 	public Propiedades(){
 		campos = new ArrayList<CCampos>();
 		params = new ArrayList<CParams>();
 	}
+
+	
+	/**
+	 * @return the inicio
+	 */
+	public int getInicio() {
+		return inicio;
+	}
+
+
+	/**
+	 * @param inicio the inicio to set
+	 */
+	public void setInicio(int inicio) {
+		this.inicio = inicio;
+	}
+
 
 	/**
 	 * @return the t

@@ -44,5 +44,13 @@ public class PilaTS {
 		TS aux = (TS)stackTS.get(level);
 		aux.añadeTS(id, clase, props);
 	}
+	
+	public TS getTSnivel(int level){
+		TS aux = null;
+		if (level<=cima){
+			aux = stackTS.get(level);
+		}
+		return aux;
+	}
 
 }
