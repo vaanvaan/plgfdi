@@ -6,7 +6,7 @@ package compilador;
  */
 public class CCampos {
 	private String id;
-	private String tipo;
+	private Propiedades tipo;
 	private int desp;
 	
 	/**
@@ -14,7 +14,7 @@ public class CCampos {
 	 * @param tipo
 	 * @param desp
 	 */
-	public CCampos(String id, String tipo, int desp) {
+	public CCampos(String id, Propiedades tipo, int desp) {
 		this.id = id;
 		this.tipo = tipo;
 		this.desp = desp;
@@ -37,14 +37,14 @@ public class CCampos {
 	/**
 	 * @return the tipo
 	 */
-	public String getTipo() {
+	public Propiedades getTipo() {
 		return tipo;
 	}
 
 	/**
 	 * @param tipo the tipo to set
 	 */
-	public void setTipo(String tipo) {
+	public void setTipo(Propiedades tipo) {
 		this.tipo = tipo;
 	}
 
