@@ -427,8 +427,119 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	private void dec_Proc(){
-		
+	private void dec_Proc()throws Exception{
+		int dirAnt = dir;
+		this.pilaTablaSim.creaTS();
+		dir = 0;
+		n = n+1;
+		this.compara("procedure");
+		String lex = this.id();
+		if(this.pilaTablaSim.getTSnivel(n).existeID(lex)){
+			throw new Exception("Error sintaxis: ID ya existente"
+					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+		}
+		ArrayList<CParams> params = this.parametros();
+		this.compara(";");
+		this.bloqueDecls();
+		int inicio = etq;
+		prologo(n,dir);
+		etq = etq + longPrologo;
+		Propiedades props = new Propiedades();
+		props.setT("proc");
+		props.setParams(params);
+		props.setNivel(n);
+		props.setInicio(inicio);
+		this.pilaTablaSim.añadeIDcima(lex, "proc", props);
+		epilogo(n);
+		etq = etq + longEpilogo+1;
+		//ir-ind
+		dir = dirAnt;
+		//desapila TS (solo -1 en la cima supongo)
+		n = n - 1;
+	}
+	
+	private ArrayList<CParams> parametros()throws Exception{
+		ArrayList<CParams> params = new ArrayList<CParams>();
+		anaLex.predice();
+		String lex = this.anaLex.getLex();
+		if(lex.compareTo("(")==0){
+			this.compara("(");
+			ArrayList<CParams> params = lista_Params();
+			this.compara(")");
+		}
+		return params;
+	}
+	
+	private ArrayList<CParams> lista_Params()throws Exception{
+		Tupla t = param();
+		//FIXME aqui el param tiene un parametro menos xD
+		this.pilaTablaSim.añadeIDcima((String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
+		dir = dir + ((Propiedades)t.getnTupla(2)).getTam();
+		ArrayList<CParams> params0 = new ArrayList<CParams>();
+		params0.add((CParams)t.getnTupla(4));
+		ArrayList<CParams> params1 = this.lista_ParamsR(params0);
+		return params1;
+	}
+	
+	private ArrayList<CParams> lista_ParamsR(ArrayList<CParams> params0)throws Exception{
+		anaLex.predice();
+		String lex = this.anaLex.getLex();
+		if(lex.compareTo(",")==0){
+			this.compara(",");
+			Tupla t = param();
+			params0.add((CParams)t.getnTupla(4));
+			this.pilaTablaSim.añadeIDcima((String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
+			dir = dir + Integer.parseInt(t.getnTupla(3).toString());
+			ArrayList<CParams> params2 = this.lista_ParamsR(params0);
+			return params2;
+		}else{
+			return params0;
+		}
+	}
+	
+	private Tupla param()throws Exception{
+		anaLex.predice();
+		String lexa = this.anaLex.getLex();
+		Tupla t = new Tupla(5);
+		if(lexa.compareTo("var")==0){
+			this.compara("var");
+			String clase = "pvar";
+			String lex = this.id();
+			if(this.pilaTablaSim.getTSnivel(n).existeID(lex)){
+				throw new Exception("Error sintaxis: ID ya existente"
+						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+			}
+			this.compara(":");
+			Propiedades props = this.tipo();
+			int tam = 1;
+			CParams param = new CParams("variable",props,dir);
+			props.setNivel(n);
+			props.setDir(dir);
+			t.setnTupla(0, lex);
+			t.setnTupla(1, clase);
+			t.setnTupla(2, props);
+			t.setnTupla(3, tam);
+			t.setnTupla(4, param);
+		}else{
+			String lex = this.id();
+			if(this.pilaTablaSim.getTSnivel(n).existeID(lex)){
+				throw new Exception("Error sintaxis: ID ya existente"
+						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+			}
+			this.compara(":");
+			Propiedades props = this.tipo();
+			String clase = "var";
+			int tam = props.getTam();
+			CParams param = new CParams("valor",props,dir);
+			props.setNivel(n);
+			props.setDir(dir);
+			t.setnTupla(0, lex);
+			t.setnTupla(1, clase);
+			t.setnTupla(2, props);
+			t.setnTupla(3, tam);
+			t.setnTupla(4, param);
+		}
+		return t;
 	}
 
 // FIN PARTE DECLARACIONES

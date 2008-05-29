@@ -9,7 +9,7 @@ package compilador;
  */
 public class CParams {
 	private String modo;
-	private String tipo;
+	private Propiedades tipo;
 	private int dir;
 	
 	/**
@@ -17,7 +17,7 @@ public class CParams {
 	 * @param tipo
 	 * @param dir
 	 */
-	public CParams(String modo, String tipo, int dir) {
+	public CParams(String modo, Propiedades tipo, int dir) {
 		this.modo = modo;
 		this.tipo = tipo;
 		this.dir = dir;
@@ -40,14 +40,14 @@ public class CParams {
 	/**
 	 * @return the tipo
 	 */
-	public String getTipo() {
+	public Propiedades getTipo() {
 		return tipo;
 	}
 
 	/**
 	 * @param tipo the tipo to set
 	 */
-	public void setTipo(String tipo) {
+	public void setTipo(Propiedades tipo) {
 		this.tipo = tipo;
 	}
 
