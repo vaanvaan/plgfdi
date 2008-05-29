@@ -45,12 +45,21 @@ public class PilaTS {
 		aux.añadeTS(id, clase, props);
 	}
 	
+	public void añadeIDcima(String id,String clase,Propiedades props){
+		TS aux = (TS)stackTS.get(cima);
+		aux.añadeTS(id, clase, props);
+	}
+	
 	public TS getTSnivel(int level){
 		TS aux = null;
 		if (level<=cima){
 			aux = stackTS.get(level);
 		}
 		return aux;
+	}
+	
+	public TS getTScima(){
+		return stackTS.get(cima);
 	}
 
 }

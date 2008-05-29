@@ -132,7 +132,7 @@ public class AnalizadorSintactico {
 		}else if(this.anaLex.getLex().compareTo("const")==0){
 			Tupla t = new Tupla(2);
 			t = this.constante();
-			this.pilaTablaSim.añadeID(n, (String)t.getnTupla(0), "const",(Propiedades)t.getnTupla(1));
+			this.pilaTablaSim.añadeIDcima((String)t.getnTupla(0), "const",(Propiedades)t.getnTupla(1));
 			dir = dir + ((Propiedades)t.getnTupla(1)).getTam();
 		}
 	}
@@ -170,15 +170,17 @@ public class AnalizadorSintactico {
 	 * 
 	 * @throws Exception Se encarga de recoger cualquier error ocurrido en el reconocimiento de la variable.
 	 */
-	private Tupla variable() throws Exception{
-		Tupla t = new Tupla(2);
+	private void variable() throws Exception{
 		this.compara("var");
-		ListaID listaID=this.lista_id();
-		this.compara(":");
-		String tipo1 = this.tipo();
-		t.setnTupla(0, listaID);
-		t.setnTupla(1, tipo1);
-		return t;
+		//TODO CACAO MARAVILLAO
+		/*
+		 *  1º comprobamos sintaxis correcta (var Lista_ID : Tipo ;)Necesitamos parámetros sintetizados de Tipo para lanzar Lista_ID
+			Y ASI COMO LECHES VERIFICAMOS LA SINTAXIS?????? el : y ;
+			2º ejecutamos Tipo()
+			3º ejecutamos Lista_ID()
+			Tipo(out props) 
+			Lista_ID(in props)
+		 */
 	}
 	
 	/**Método que reconoce una lista de identificadores.
@@ -188,16 +190,17 @@ public class AnalizadorSintactico {
 	 * 
 	 * @throws Exception Se encarga de recoger cualquier error ocurrido en el reconocimiento de una lista de identificadores.
 	 */
-	private ListaID lista_id() throws Exception{
-		this.id();
-		String lex = this.anaLex.getLex();
-		if (this.tablaSim.existeID(lex)) 
+	private void lista_id(Propiedades props) throws Exception{
+		String lex = this.id();
+		if (this.pilaTablaSim.getTSnivel(n).existeID(lex)) 
 			throw new Exception("Error sintaxis: ID ya existente"
 					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
-		ListaID listaID = new ListaID();
-		listaID.añadeID(lex);
-		return this.lista_idR(listaID);
+		props.setDir(dir);
+		props.setNivel(n);
+		this.pilaTablaSim.añadeIDcima(lex, "var", props);
 	}
+	
+	////////////////////////////////////////////////////////////////
 	
 	/**Método que reconoce parte de una secuencia de identificadores. Se creo para evitar la recursion a izquierdas en
 	 * el metodo lista_id
