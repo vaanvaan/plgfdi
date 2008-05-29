@@ -157,7 +157,7 @@ public class AnalizadorSintactico {
 		rValor = this.valor();
 		Propiedades p = new Propiedades();
 		p.setT((String)rValor.getnTupla(0));
-		p.setValor(valorDe((String)rValor.getnTupla(1)));
+		p.setValor(((String)rValor.getnTupla(1)));
 		p.setTam(1);
 		p.setDir(dir);
 		p.setNivel(n);
@@ -202,7 +202,6 @@ public class AnalizadorSintactico {
 		this.lista_idR(props);
 	}
 	
-	////////////////////////////////////////////////////////////////
 	
 	/**Método que reconoce parte de una secuencia de identificadores. Se creo para evitar la recursion a izquierdas en
 	 * el metodo lista_id
@@ -299,6 +298,7 @@ public class AnalizadorSintactico {
 		return p;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private Propiedades tipo_construido()throws Exception{
 		anaLex.predice();
 		String lex = this.anaLex.getLex();
@@ -334,10 +334,102 @@ public class AnalizadorSintactico {
 		return p;
 	}
 	
-	private Tupla campos(){
-		
+	@SuppressWarnings("unchecked")
+	private Tupla campos()throws Exception{
+		int desp = 0;
+		Tupla t = this.campo(desp);
+		ArrayList<CCampos> campos0 = new ArrayList<CCampos>();
+		campos0.add((CCampos)t.getnTupla(0));
+		int desp1 = desp + Integer.parseInt(t.getnTupla(1).toString());
+		Tupla t2 = this.camposR(campos0,desp1);
+		int tam2 = Integer.parseInt(t.getnTupla(1).toString()) + Integer.parseInt(t2.getnTupla(1).toString());
+		Tupla tf = new Tupla(2);
+		tf.setnTupla(0, (ArrayList<CCampos>) t2.getnTupla(0));
+		tf.setnTupla(1, tam2);
+		return tf;
 	}
 	
+	private Tupla camposR(ArrayList<CCampos> campos0, int desp0)throws Exception{
+		anaLex.predice();
+		String lex = this.anaLex.getLex();
+		Tupla tf = new Tupla(2);
+		if(lex.compareTo("end")==0){
+			tf.setnTupla(0, campos0);
+			tf.setnTupla(1, desp0);
+		}else{
+			Tupla t = this.campo(desp0);
+			campos0.add((CCampos)t.getnTupla(0));
+			int desp1 = desp0 + Integer.parseInt(t.getnTupla(1).toString());
+			Tupla t2 = this.camposR(campos0, desp1);
+			int tam2 = Integer.parseInt(t.getnTupla(1).toString()) + Integer.parseInt(t2.getnTupla(1).toString());
+			tf.setnTupla(0, (ArrayList<CCampos>) t2.getnTupla(0));
+			tf.setnTupla(1, tam2);
+		}
+		return tf;
+	}
+	
+	private Tupla campo(int desp)throws Exception{
+		String lex = this.id();
+		Tupla t = new Tupla(2);
+		//FIXME esta comprobacion no es realmente asi
+		//existeID(ts, lex) & ts[lex].props.nivel = n 
+		if(this.pilaTablaSim.getTSnivel(n).existeID(lex)){
+			throw new Exception("Error sintaxis: ID ya existente"
+					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+		}else{
+			this.compara(":");
+			Propiedades props = this.tipo();
+			CCampos c = new CCampos(lex,props,desp);
+			t.setnTupla(0, c);
+			t.setnTupla(1, props.getTam());
+			this.compara(";");
+		}
+		return t;
+	}
+	
+	private int subrango()throws Exception{
+		anaLex.scanner();
+		String token = anaLex.getToken();
+		String lex = anaLex.getLex();
+		int longt = -1;
+		if(token.compareTo("num")==0 && Integer.parseInt(lex)>=0){
+			this.compara(".");
+			this.compara(".");
+			anaLex.scanner();
+			String token2 = anaLex.getToken();
+			String lex2 = anaLex.getLex();
+			if(token2.compareTo("num")==0 && Integer.parseInt(lex2)>=0){
+				if(Integer.parseInt(lex)>Integer.parseInt(lex2)){
+					longt = Integer.parseInt(lex2) - Integer.parseInt(lex) + 1;
+				}else{
+					throw new Exception("Subrango del array invalido"
+							+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+				}
+			}else{
+				throw new Exception("Tipo incorrecto"
+						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+			}
+		}else{
+			throw new Exception("Tipo incorrecto"
+					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+		}
+		return longt;
+	}
+	
+	private void dec_Procs()throws Exception{
+		anaLex.predice();
+		String lex = this.anaLex.getLex();
+		if(lex.compareTo("procedure")==0){
+			this.dec_Proc();
+			this.dec_Procs();
+		}else{
+			//vacio
+		}
+	}
+	
+	private void dec_Proc(){
+		
+	}
 
 // FIN PARTE DECLARACIONES
 	
