@@ -100,17 +100,9 @@ public class AnalizadorSintactico {
 	 * @throws Exception Se recoge cualquier error lanzado dentro de las declaraciones.
 	 */
 	private void declaraciones() throws Exception{
-		Tupla decs = this.declaracion(); // devuelve listaID, tipoDec, tipo, valor
-		this.compara(";");
-		tablaSim.añadeLista((ListaID)decs.getnTupla(0), (String)decs.getnTupla(1), 
-							(String)decs.getnTupla(2), (String)decs.getnTupla(3));
-		
-		// Ahora añadimos código-P si hemos declarado una constante
-		String tipoDec = (String) decs.getnTupla(1); 
-		if (tipoDec.compareTo("const")==0){
-			this.emite("apila "+ decs.getnTupla(3));
-			String id = (String) (decs.getnTupla(4));
-			this.emite("desapila_dir "+ this.tablaSim.getDir(id));
+		this.anaLex.predice();
+		if(this.anaLex.getLex().compareTo("var")==0||this.anaLex.getLex().compareTo("const")==0){  
+			this.declaracion();
 		}
 		this.declaracionesR();
 	}
@@ -124,18 +116,7 @@ public class AnalizadorSintactico {
 	private void declaracionesR() throws Exception{
 		this.anaLex.predice();
 		if(this.anaLex.getLex().compareTo("var")==0||this.anaLex.getLex().compareTo("const")==0){  
-			Tupla t1 = this.declaracion();
-			this.compara(";");
-			tablaSim.añadeLista((ListaID)t1.getnTupla(0), (String)t1.getnTupla(1), 
-					(String)t1.getnTupla(2), (String)t1.getnTupla(3));
-			
-			// Ahora añadimos código-P si hemos declarado una constante
-			String tipoDec = (String) t1.getnTupla(1); 
-			if (tipoDec.compareTo("const")==0){
-				this.emite("apila "+ t1.getnTupla(3));
-				String id = (String) (t1.getnTupla(4));
-				this.emite("desapila_dir "+ this.tablaSim.getDir(id));
-			}
+			this.declaracion();
 			this.declaracionesR();
 		}
 	}
@@ -146,7 +127,7 @@ public class AnalizadorSintactico {
 	 * 
 	 * @throws Exception Recoge cualquier error generado dentro de la declaracion.
 	 */
-	private Tupla declaracion() throws Exception{
+	private void declaracion() throws Exception{
 		Tupla dec = new Tupla(5);
 		this.anaLex.predice();
 		if(this.anaLex.getLex().compareTo("var")==0){
