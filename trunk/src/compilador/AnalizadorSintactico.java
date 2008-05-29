@@ -90,8 +90,8 @@ public class AnalizadorSintactico {
 	}
 	
 	private void bloqueDecls()throws Exception{
-		declaraciones();
-		dec_Procs();
+		this.declaraciones();
+		this.dec_Procs();
 	}
 	
 	/**
@@ -103,8 +103,8 @@ public class AnalizadorSintactico {
 		this.anaLex.predice();
 		if(this.anaLex.getLex().compareTo("var")==0||this.anaLex.getLex().compareTo("const")==0){  
 			this.declaracion();
+			this.declaracionesR();
 		}
-		this.declaracionesR();
 	}
 	
 	/**
@@ -123,31 +123,18 @@ public class AnalizadorSintactico {
 	
 	/**Método que reconoce una declaracion, ya sea constante o variable.
 	 * 
-	 * @return Devuelve una tupla con los elementos de la declaracion para que pueda ser añadida a la tabla de simbolos.
-	 * 
 	 * @throws Exception Recoge cualquier error generado dentro de la declaracion.
 	 */
 	private void declaracion() throws Exception{
-		Tupla dec = new Tupla(5);
 		this.anaLex.predice();
 		if(this.anaLex.getLex().compareTo("var")==0){
-			Tupla var = this.variable(); // Devuelve listaID, tipo
-			dec.setnTupla(0, var.getnTupla(0));
-			dec.setnTupla(1, "var");
-			dec.setnTupla(2, var.getnTupla(1));
-			dec.setnTupla(3, "");
+			this.variable(); 
 		}else if(this.anaLex.getLex().compareTo("const")==0){
-			Tupla cons = this.constante(); // Devuelve listaID, tipo, valor
-			dec.setnTupla(0, cons.getnTupla(0));
-			dec.setnTupla(1, "const");
-			dec.setnTupla(2, cons.getnTupla(1));
-			dec.setnTupla(3, cons.getnTupla(2));
-			dec.setnTupla(4, cons.getnTupla(3));
-		}else{
-			throw new Exception("Error sintaxis: No hay declaraciones" 
-					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+			Tupla t = new Tupla(2);
+			t = this.constante();
+			this.pilaTablaSim.añadeID(n, (String)t.getnTupla(0), "const",(Propiedades)t.getnTupla(1));
+			dir = dir + ((Propiedades)t.getnTupla(1)).getTam();
 		}
-		return dec;
 	}
 	
 	/**Método que se encarga de reconocer una constante.
@@ -157,23 +144,23 @@ public class AnalizadorSintactico {
 	 * @throws Exception Se encarga de recoger cualquier error ocurrido en el reconocimiento de la constante.
 	 */
 	private Tupla constante() throws Exception{
-		Tupla t = new Tupla(4);
+		Tupla t = new Tupla(2);
 		this.compara("const");
-		this.id();
-		String lex0=this.anaLex.getLex();
-		if (this.tablaSim.existeID(lex0)) 
+		String lex0 = this.id();
+		if (this.pilaTablaSim.getTSnivel(n).existeID(lex0)) 
 			throw new Exception("Error sintaxis: ID ya existente"
 					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');		
-		this.compara(":");
-		String tipo1 = this.tipo();
+		t.setnTupla(0, lex0);
 		this.compara("=");
-		String valor = this.valor(tipo1);
-		ListaID listaID = new ListaID();
-		listaID.añadeID(lex0);
-		t.setnTupla(0, listaID);
-		t.setnTupla(1, tipo1);
-		t.setnTupla(2, valor);
-		t.setnTupla(3, lex0);
+		Tupla rValor = new Tupla(2);
+		rValor = this.valor();
+		Propiedades p = new Propiedades();
+		p.setT((String)rValor.getnTupla(0));
+		p.setValor(valorDe((String)rValor.getnTupla(1)));
+		p.setTam(1);
+		p.setDir(dir);
+		p.setNivel(n);
+		t.setnTupla(1, p);
 		return t;
 	}
 	
@@ -559,11 +546,13 @@ public class AnalizadorSintactico {
 	 * 
 	 * @throws Exception Se genera una excepcion si el identificador no es valido.
 	 */
-	private void id() throws Exception{
+	private String id() throws Exception{
 		this.anaLex.scanner();
 		if(anaLex.getToken().compareTo("identificador")!=0){
 			throw new Exception("Error sintaxis: identificador no válido"
 					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+		}else{
+			return this.anaLex.getLex();
 		}
 	}
 //*************************************************************************************************
