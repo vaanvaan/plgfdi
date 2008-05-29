@@ -3,6 +3,7 @@
  */
 package compilador;
 
+import java.util.ArrayList;
 import java.util.Vector;
 import java.io.*;
 
@@ -198,6 +199,7 @@ public class AnalizadorSintactico {
 		props.setDir(dir);
 		props.setNivel(n);
 		this.pilaTablaSim.añadeIDcima(lex, "var", props);
+		this.lista_idR(props);
 	}
 	
 	////////////////////////////////////////////////////////////////
@@ -209,74 +211,133 @@ public class AnalizadorSintactico {
 	 * @return Se devuelve una lista con los lexemas de los identificadores.
 	 * @throws Exception Se recoge cualquier tipo de error ocurrido dentro de esta parte de la lista de identificadores.
 	 */
-	private ListaID lista_idR(ListaID listaIDh0) throws Exception{
+	private void lista_idR(Propiedades props) throws Exception{
 		this.anaLex.predice();
 		String aux = this.anaLex.getToken();
 		if(aux.compareTo("coma")==0){
-			String lex;
 			this.compara(",");
-			this.id();
-			lex = this.anaLex.getLex();
-			if (this.tablaSim.existeID(lex)) 
+			String lex = this.id();
+			if (this.pilaTablaSim.getTSnivel(n).existeID(lex)) 
 				throw new Exception("Error sintaxis: ID ya existente"
 						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
-			listaIDh0.añadeID(lex);
-			return this.lista_idR(listaIDh0);
-		}else{
-			return listaIDh0;
+			props.setDir(dir);
+			props.setNivel(n);
+			dir = dir + props.getTam();
+			this.pilaTablaSim.añadeIDcima(lex, "var", props);
+			this.lista_idR(props);
 		}
 	}
 	
-	/**
-	 * Método que se encarga de reconocer el tipo de una variable o una constante.
-	 * 
-	 * @return Se devuelve un string con el tipo reconocido
-	 * @throws Exception Se genera una excepcion si hay algun tipo incorrecto.
-	 */
-	private String tipo() throws Exception{
-		String tipo="";
-		this.anaLex.scanner();
-		String lexTipo = anaLex.getLex();
-		if(lexTipo.compareTo("integer")==0){
-			tipo = "integer";
-		}else if(lexTipo.compareTo("boolean")==0){
-			tipo = "boolean";
-		}else if(lexTipo.compareTo("real")==0){
-			tipo = "real";
-		}else if(lexTipo.compareTo("char")==0){
-			tipo = "char";
-		}else{
-			//throw new Exception("Error sintaxis: Tipo incorrecto.");
-			Global.setErrorMsg("Violación restricciones. Tipo incorrecto");
-		}
-		return tipo;
-	}
-	
+		
 	/**Método que sirve para reconocer el valor de una constante.
 	 * 
 	 * @param tipo Se pasa por parametro el tipo para ver si concuerda con el valor.
 	 * @return Se devuelve un String con el valor de la constante.
 	 * @throws Exception Se genera una excepcion si el tipo y el valor de una constante no concuerdan.
 	 */
-	private String valor(String tipo) throws Exception{
+	private Tupla valor() throws Exception{
+		Tupla t = new Tupla(2);
 		anaLex.scanner();
 		String token = anaLex.getToken();
 		String lex = anaLex.getLex();
-		if(token.compareTo("num")==0 && tipo.compareTo("integer")==0){
-			return lex; 
-		}else if((lex.compareTo("true")==0 || lex.compareTo("false")==0)
-					&& tipo.compareTo("boolean")==0){
-			return lex;
-		}else if(token.compareTo("numReal")==0 && tipo.compareTo("real")==0){
-			return lex;
-		}else if(token.compareTo("char")==0 && tipo.compareTo("char")==0){
-			return lex;
+		if(token.compareTo("num")==0){
+			t.setnTupla(0,"integer");
+			t.setnTupla(1, lex);
+		}else if(lex.compareTo("true")==0 || lex.compareTo("false")==0){
+			t.setnTupla(0,"boolean");
+			t.setnTupla(1, lex);
+		}else if(token.compareTo("numReal")==0){
+			t.setnTupla(0,"real");
+			t.setnTupla(1, lex);
+		}else if(token.compareTo("char")==0){
+			t.setnTupla(0,"char");
+			t.setnTupla(1, lex);;
 		}else{
 			//throw new Exception("Error sintaxis: valor no corresponde con tipo.");
-			Global.setErrorMsg("Violación restricciones. Valor y Tipo incompatibles");
-			return tipo;
+			Global.setErrorMsg("Violación restricciones. Tipo no encontrado.");
+		}
+		return t;
+	}
+	
+	private Propiedades tipo()throws Exception{
+		this.anaLex.predice();
+		String lex = this.anaLex.getLex();
+		if(lex.compareTo("boolean")==0){
+			return this.tipo_estandar();
+		}else if(lex.compareTo("integer")==0){
+			return this.tipo_estandar();
+		}else if(lex.compareTo("real")==0){
+			return this.tipo_estandar();
+		}else if(lex.compareTo("char")==0){
+			return this.tipo_estandar();
+		}else{
+			return this.tipo_construido();
 		}
 	}
+	
+	private Propiedades tipo_estandar()throws Exception{
+		anaLex.scanner();
+		Propiedades p = new Propiedades();
+		String token = anaLex.getToken();
+		String lex = anaLex.getLex();
+		if(lex.compareTo("boolean")==0){
+			p.setT("boolean");
+			p.setTam(1);
+		}else if(lex.compareTo("integer")==0){
+			p.setT("integer");
+			p.setTam(1);
+		}else if(lex.compareTo("real")==0){
+			p.setT("real");
+			p.setTam(1);
+		}else if(lex.compareTo("char")==0){
+			p.setT("char");
+			p.setTam(1);
+		}else{
+			//throw new Exception("Error sintaxis: valor no corresponde con tipo.");
+			Global.setErrorMsg("Violación restricciones. Tipo no encontrado.");
+		}
+		return p;
+	}
+	
+	private Propiedades tipo_construido()throws Exception{
+		anaLex.predice();
+		String lex = this.anaLex.getLex();
+		Propiedades p = new Propiedades();
+		if(lex.compareTo("array")==0){
+			this.compara("array");
+			this.compara("[");
+			int longt = this.subrango();
+			this.compara("]");
+			this.compara("of");
+			Propiedades p1 = this.tipo();
+			p.setT("array");
+			p.setN(longt);
+			p.setTbase(p1);
+			p.setTam(1);
+		}else if(lex.compareTo("^")==0){
+			this.compara("^");
+			Propiedades p2 = this.tipo();
+			p.setT("pointer");
+			p.setTbase(p2);
+			p.setTam(1);
+		}else if(lex.compareTo("record")==0){
+			this.compara("record");
+			Tupla t = this.campos();
+			this.compara("end");
+			p.setT("reg");
+			p.setCampos((ArrayList<CCampos>) t.getnTupla(0));
+			p.setTam(Integer.parseInt(t.getnTupla(1).toString()));
+		}else{
+			//throw new Exception("Error sintaxis: Tipo incorrecto.");
+			Global.setErrorMsg("Violación restricciones. Tipo incorrecto");
+		}
+		return p;
+	}
+	
+	private Tupla campos(){
+		
+	}
+	
 
 // FIN PARTE DECLARACIONES
 	

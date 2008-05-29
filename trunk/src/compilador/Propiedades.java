@@ -13,7 +13,7 @@ public class Propiedades {
 	private String t;
 	private String valor;
 	private int n;
-	private String tbase;
+	private Propiedades tbase;
 	private ArrayList<CCampos> campos;
 	private int nivel;
 	private ArrayList<CParams> params;
@@ -88,14 +88,14 @@ public class Propiedades {
 	/**
 	 * @return the tbase
 	 */
-	public String getTbase() {
+	public Propiedades getTbase() {
 		return tbase;
 	}
 
 	/**
 	 * @param tbase the tbase to set
 	 */
-	public void setTbase(String tbase) {
+	public void setTbase(Propiedades tbase) {
 		this.tbase = tbase;
 	}
 
@@ -173,9 +173,16 @@ public class Propiedades {
 		campos.add(new CCampos(id,tipo,desp));
 	}
 	
+	public void addCampo(CCampos c){
+		campos.add(c);
+	}
+	
 	public void addParam(String modo, String tipo, int dir){
 		params.add(new CParams(modo,tipo,dir));
 	}
-
+	
+	public void addParam(CParams p){
+		params.add(p);
+	}
 	
 }
