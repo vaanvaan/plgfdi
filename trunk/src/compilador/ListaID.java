@@ -10,13 +10,13 @@ import java.util.Vector;
  *
  */
 public class ListaID {
-	private Vector listaID;
+	private Vector<String> listaID;
 	
 	/**
 	 * Generamos una lista con un tamaño creciente de 1 elemento cada vez que se añade otro.
 	 */
 	public ListaID(){
-		listaID = new Vector(0,1);
+		listaID = new Vector<String>(0,1);
 	}
 	
 	public void añadeID(String lex){
