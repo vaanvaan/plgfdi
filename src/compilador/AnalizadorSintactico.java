@@ -751,8 +751,51 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	private Tupla id_comp(){
-		
+	private Tupla id_comp() throws Exception{
+		if(){
+			String lex = this.id();
+			if(!this.pilaTablaSim.getTSnivel(n).existeID(lex)||this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getClase().compareTo("var")!=0){
+				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
+			}
+			String tipo = this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getProps().getT();
+			accesoVar(this.pilaTablaSim.getTSnivel(n).getEntrada(lex));
+			etq = etq + longAccesoVar(this.pilaTablaSim.getTSnivel(n).getEntrada(lex));
+			Tupla t = new Tupla(2);
+			t.setnTupla(0, lex);
+			t.setnTupla(1, tipo);
+			return t;
+		}else{
+			Tupla t = this.id_comp();
+			this.anaLex.predice();
+			String lex = anaLex.getLex();
+			if(lex.compareTo("[")==0){
+				this.compara("[");
+				Tupla t2 = this.expresion();
+				this.compara("]");
+				if(!this.pilaTablaSim.getTSnivel(n).existeID(t.getnTupla(0).toString()) || t2.getnTupla(0).toString().compareTo("integer")!=0||t.getnTupla(0).toString().compareTo("array")!=0){
+					//error
+				}
+				String tipo0 = this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getT();
+				this.emite("apila "+this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getN());
+				this.emite("multiplica");
+				this.emite("suma");
+				etq = etq+3;
+				Tupla t3 = new Tupla(2);
+				t3.setnTupla(0, t.getnTupla(0));
+				t3.setnTupla(1, tipo0);
+				return t3;
+			}else if(lex.compareTo("^")==0){
+				this.compara("^");
+				if(!this.pilaTablaSim.getTSnivel(n).existeID(t.getnTupla(0).toString()) ||t.getnTupla(0).toString().compareTo("pointer")!=0){
+					//error
+				}
+				String tipo0 = this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getT();
+				emite("apila-ind");
+				etq = etq+1;
+			}else if(lex.compareTo(".")==0){
+				
+			}
+		}
 	}
 	
 	/**Método que reconoce una expresion.
