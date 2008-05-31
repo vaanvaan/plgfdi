@@ -710,14 +710,36 @@ public class AnalizadorSintactico {
 			this.compara("(");
 			Tupla t = this.id_comp();
 			this.compara(")");
-			if(){
-				//ERROR
+			if(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getClase().compareTo("var")!=0){
+				throw new Exception("Error de sintaxis: No se puede modificar una constante"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			}
 			this.emite("read");
-			
+			apila-dir(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getDir());
 			//this.emite("desapila_dir "+ this.tablaSim.getDir(lex));
 			etq = etq + 2;
 		}else if(lexTipo.compareTo("write")==0){
+			this.compara("write");
+			this.compara("(");
+			this.expresion();
+			this.compara(")");
+			this.emite("write");
+			etq = etq+1;
+		}else if(lexTipo.compareTo("new")==0){
+			this.compara("new");
+			this.compara("(");
+			Tupla t = this.id_comp();
+			this.compara(")");
+			if(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getClase().compareTo("var")!=0 || t.getnTupla(1).toString().compareTo("pointer")!=0){
+				throw new Exception("Error: no se puede instanciar memoria para este tipo"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+			}
+			if(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getT().compareTo("pointer")==0){
+				emite("new("+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTam())+")");
+			}else{
+				emite("new("+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getTam())+")");
+			}
+			emite("desapila-ind");
+			etq = etq+2;
+		}else if(lexTipo.compareTo("dispose")==0){
 			this.compara("write");
 			this.compara("(");
 			this.expresion();
@@ -727,6 +749,10 @@ public class AnalizadorSintactico {
 			// Si lo siguiente no empieza por "begin" ya dará error.
 			this.proposicion_compuesta();
 		}
+	}
+	
+	private Tupla id_comp(){
+		
 	}
 	
 	/**Método que reconoce una expresion.
