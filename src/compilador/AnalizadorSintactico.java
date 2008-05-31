@@ -140,7 +140,7 @@ public class AnalizadorSintactico {
 		}else if(this.anaLex.getLex().compareTo("const")==0){
 			Tupla t = new Tupla(2);
 			t = this.constante();
-			this.pilaTablaSim.añadeIDcima((String)t.getnTupla(0), "const",(Propiedades)t.getnTupla(1));
+			this.pilaTablaSim.añadeID(n,(String)t.getnTupla(0), "const",(Propiedades)t.getnTupla(1));
 			dir = dir + ((Propiedades)t.getnTupla(1)).getTam();
 		}
 	}
@@ -231,7 +231,7 @@ public class AnalizadorSintactico {
 						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			props.setDir(dir);
 			props.setNivel(n);
-			this.pilaTablaSim.añadeIDcima(lex, "var", props);
+			this.pilaTablaSim.añadeID(n,lex, "var", props);
 			dir = dir + props.getTam();
 			this.lista_idR(props);
 		}
@@ -464,14 +464,14 @@ public class AnalizadorSintactico {
 		props.setParams(params);
 		props.setNivel(n);
 		props.setInicio(inicio);
-		this.pilaTablaSim.añadeIDcima(lex, "proc", props);
+		this.pilaTablaSim.añadeID(n,lex, "proc", props);
 		this.pilaTablaSim.creaTS();
 		Propiedades props2 = new Propiedades();
 		props2.setT("proc");
 		props2.setParams(params);
 		props2.setNivel(n+1);
 		props2.setInicio(inicio);
-		this.pilaTablaSim.añadeIDcima(lex, "proc", props2);
+		this.pilaTablaSim.añadeID(n,lex, "proc", props2);
 		n = n + 1;
 		this.bloqueDecls();
 		prologo(n,dir);
@@ -500,7 +500,7 @@ public class AnalizadorSintactico {
 	private ArrayList<CParams> lista_Params()throws Exception{
 		Tupla t = param();
 		//FIXME aqui el param tiene un parametro menos xD
-		this.pilaTablaSim.añadeIDcima((String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
+		this.pilaTablaSim.añadeID(n,(String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
 		dir = dir + ((Propiedades)t.getnTupla(2)).getTam();
 		ArrayList<CParams> params0 = new ArrayList<CParams>();
 		params0.add((CParams)t.getnTupla(4));
@@ -515,7 +515,7 @@ public class AnalizadorSintactico {
 			this.compara(",");
 			Tupla t = param();
 			params0.add((CParams)t.getnTupla(4));
-			this.pilaTablaSim.añadeIDcima((String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
+			this.pilaTablaSim.añadeID(n,(String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
 			dir = dir + Integer.parseInt(t.getnTupla(3).toString());
 			ArrayList<CParams> params2 = this.lista_ParamsR(params0);
 			return params2;
@@ -690,7 +690,7 @@ public class AnalizadorSintactico {
 				this.compara(":=");
 				boolean parh = false;
 				Tupla t2 = this.expresion(parh); // Devuelve tipo
-				if (!compatibles(t.getnTupla(1),t2.getnTupla(1)) || ((entradaTS)this.pilaTablaSim.getTScima().getEntrada(t.getnTupla(0).toString())).getClase()!="var"))){
+				if (!compatibles(t.getnTupla(1),t2.getnTupla(1)) || ((entradaTS)this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString())).getClase()!="var"))){
 					Global.setErrorMsg("Violación restricciones. Asignación incorrecta");
 					throw new Exception("Error sintaxis: Asignación incorrecta"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 				}
@@ -919,17 +919,27 @@ public class AnalizadorSintactico {
 		String lexToken= anaLex.getToken();
 		if(lexToken.compareTo("igual")==0 || lexToken.compareTo("distintos")==0 || lexToken.compareTo("mayor")==0
 			|| lexToken.compareTo("mayor_igual")==0 || lexToken.compareTo("menor")==0 || lexToken.compareTo("menor_igual")==0){
-				String op = this.operador();
-				String t1 = this.exp_simple();
-				if (!compatibles(tipo,t1)) {
+				String op = this.oprel();
+				boolean parh = false;
+				Tupla t = this.expresion_simple(parh);
+				if (!comparables(tipo0,t.getnTupla(0).toString(),op)) {
 					//throw new Exception("Error sintaxis: tipos no compatibles.");
 					Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 				}
-				this.emite(op);
+				String modo = "val";
+				apila(op);
+				etq = etq+1;
+				Tupla t2 = new Tupla(2);
+				t2.setnTupla(0, t.getnTupla(0));
+				t2.setnTupla(1, modo);
 				// Si todo va bien, el tipo cambia a boolean por ser relaccional.
-				return "boolean";
+				return t2;
 		} else { 
-			return tipo;}
+			Tupla t = new Tupla(2);
+			t.setnTupla(0, "");
+			t.setnTupla(1, "");
+			return t;
+		}
 	}
 	
 	/**Método que reconoce una expresion simple.
@@ -937,21 +947,48 @@ public class AnalizadorSintactico {
 	 * @return Se devuelve un string del token analizado.
 	 * @throws Exception Se recoge cualquier tipo de error generado mas abajo en la jerarquia.
 	 */
-	private String exp_simple() throws Exception {
-		String tipo="";
+	private Tupla expresion_simple(boolean parh) throws Exception {
 		this.anaLex.predice();
 		String lexToken = anaLex.getToken();
 		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0){
-			this.operador();
-			tipo = this.termino();
-			if (lexToken.compareTo("resta")==0) this.emite("menosN");
+			String op = this.signo();
+			Tupla tup = this.termino(parh);
+			if(tup.getnTupla(0).toString().compareTo("integer")!=0||tup.getnTupla(0).toString().compareTo("numReal")!=0){
+				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
+			}
+			apila(op);
+			etq = etq+1;
+			return tup;
 		} else {
-			tipo = this.termino();
-			this.exp_simpleR(tipo);
+			/** Comprobar si después de Expresión_Simple viene OPSUMA ó OR()
+			Si Exp_SimpleR <> vacío entonces parh1 = false si no parh1 = parh0
+			Término(in parh1; out tipo1, modo1)
+			Exp_SimpleR(in tipo1; out tipo2, modo2)
+			Si modo2 = val entonces modo0 = modo2 si no modo0 = modo1
+			Si tipo2 = numReal entonces tipo0 = tipo2 si no tipo0 = tipo1*/
 		}
-		return tipo;
 	}
 
+	/**Método que reconoce una parte de una expresion simple. Creado para evitar la recursion a izquierdas.
+	 * 
+	 * @param tipo0 Se pasa por parametro el tipo para ver si concuerda con el resto de la expresion.
+	 * @throws Exception Se lanza una excepcion si los tipos son incompatibles.
+	 */
+	private void exp_simpleR(String tipo0) throws Exception {
+		this.anaLex.predice();
+		String lexToken=this.anaLex.getToken();
+		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0
+				|| lexToken.compareTo("ologica")==0){
+			String op = this.operador();
+			String t1 = this.exp_simple();
+			if (!compatibles(tipo0,t1)){
+				//throw new Exception("Error sintaxis: tipos no compatibles.");
+				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
+			}
+			this.emite(op);
+		}
+	}
+	
 	/**Método que reconoce un termino.
 	 * 
 	 * @return Se devuelve un string con el lexema del termino.
@@ -1027,25 +1064,6 @@ public class AnalizadorSintactico {
 		}
 	}
 
-	/**Método que reconoce una parte de una expresion simple. Creado para evitar la recursion a izquierdas.
-	 * 
-	 * @param tipo0 Se pasa por parametro el tipo para ver si concuerda con el resto de la expresion.
-	 * @throws Exception Se lanza una excepcion si los tipos son incompatibles.
-	 */
-	private void exp_simpleR(String tipo0) throws Exception {
-		this.anaLex.predice();
-		String lexToken=this.anaLex.getToken();
-		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0
-				|| lexToken.compareTo("ologica")==0){
-			String op = this.operador();
-			String t1 = this.exp_simple();
-			if (!compatibles(tipo0,t1)){
-				//throw new Exception("Error sintaxis: tipos no compatibles.");
-				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
-			}
-			this.emite(op);
-		}
-	}
 
 	/**Método que reconoce cualquier tipo de operador.
 	 * 
