@@ -844,25 +844,68 @@ public class AnalizadorSintactico {
 		}
 	}
 	
+	private int lista_exps(ArrayList<CParams> fparams)throws Exception{
+		copia();
+		etq = etq+1;
+		boolean parh = (fparams.get(0).getModo().compareTo("var")==0);
+		Tupla t = this.expresion(parh);
+		if(fparams.size()==0||fparams.get(0).getModo().compareTo(t.getnTupla(1).toString())!=0||!compatibles(fparams.get(0).getTipo().getT(),t.getnTupla(0).toString())){
+				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
+			}
+		pasoParametro(t.getnTupla(1).toString(),fparams.get(0));
+		etq = etq+longPasoParametro(t.getnTupla(1).toString(),fparams.get(0));
+		int nparams1 = 1;
+		return this.lista_expsR(fparams,nparams1);
+	}
+	
+	private int lista_expsR(ArrayList<CParams> fparams,int nparams)throws Exception{
+		this.anaLex.predice();
+		String lex = anaLex.getLex();
+		if(lex.compareTo(",")==0){
+			this.compara(",");
+			copia();
+			etq = etq+1;
+			boolean parh = (fparams.get(nparams).getModo().compareTo("var")==0);
+			Tupla t = this.expresion(parh);
+			if(fparams.size()<nparams || fparams.get(nparams).getModo().compareTo(t.getnTupla(1).toString())!=0 || !compatibles(fparams.get(nparams).getTipo().getT(),t.getnTupla(0).toString())){
+				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
+			}
+			pasoParametro(t.getnTupla(1).toString(),fparams.get(nparams));
+			etq = etq+longPasoParametro(t.getnTupla(1).toString(),fparams.get(nparams));
+			int nparams1 = nparams+1;
+			return this.lista_expsR(fparams, nparams1);
+		}else{
+			return nparams;
+		}
+	}
+	
 	/**Método que reconoce una expresion.
 	 * 
 	 * @return Devuelve un string del token analizado.
 	 * @throws Exception Se recoge cualquier tipo de error que haya ocurrido en cualquier metodo de los niveles
 	 * inferiores de la jerarquia.
 	 */
-	private String expresion() throws Exception{
-		String t="";
+	private Tupla expresion(boolean parh) throws Exception{
+		Tupla tup = new Tupla(2);
 		this.anaLex.predice();
 		String lexToken= anaLex.getToken();
 		if(lexToken.compareTo("char")==0){
-			t = "char";
 			this.anaLex.scanner();
 			this.emite("apila " + anaLex.getLex());
+			etq = etq+1;
+			String modo = "val";
+			String tipo = "char";
+			tup.setnTupla(0, tipo);
+			tup.setnTupla(1, modo);
 		}else{
-			t=this.exp_simple();
-			t=this.expresionR(t);
+			/** Comprobar si después de Expresión_Simple viene OPREL
+			Si ExpresiónR<> vacío entonces parh1 = false si no parh1 = parh0
+			Expresión_Simple(in parh1; out tipo1, modo1)
+			ExpresionR(in tipo1; out tipo2, modo2)
+			Si modo2 = val entonces modo0 = modo2 si no modo0 = modo1
+			Si tipo2 <> vacío entonces tipo0 = booleano si no tipo0 = tipo1*/
 		}
-		return t;
+		return tup;
 	}
 	
 	/**Método que reconoce una parte de una expresion. Se creo para evitar la recursion a izquierdas.
@@ -871,7 +914,7 @@ public class AnalizadorSintactico {
 	 * @return Se devuelve un string de la expresion analizada.
 	 * @throws Exception Se genera un error si hay una violacion de tipos.
 	 */
-	private String expresionR(String tipo) throws Exception {
+	private Tupla expresionR(String tipo0) throws Exception {
 		this.anaLex.predice();
 		String lexToken= anaLex.getToken();
 		if(lexToken.compareTo("igual")==0 || lexToken.compareTo("distintos")==0 || lexToken.compareTo("mayor")==0
