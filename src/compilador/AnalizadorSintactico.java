@@ -919,7 +919,7 @@ public class AnalizadorSintactico {
 		String lexToken= anaLex.getToken();
 		if(lexToken.compareTo("igual")==0 || lexToken.compareTo("distintos")==0 || lexToken.compareTo("mayor")==0
 			|| lexToken.compareTo("mayor_igual")==0 || lexToken.compareTo("menor")==0 || lexToken.compareTo("menor_igual")==0){
-				String op = this.oprel();
+				String op = this.operador();
 				boolean parh = false;
 				Tupla t = this.expresion_simple(parh);
 				if (!comparables(tipo0,t.getnTupla(0).toString(),op)) {
@@ -951,7 +951,7 @@ public class AnalizadorSintactico {
 		this.anaLex.predice();
 		String lexToken = anaLex.getToken();
 		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0){
-			String op = this.signo();
+			String op = this.operador();
 			Tupla tup = this.termino(parh);
 			if(tup.getnTupla(0).toString().compareTo("integer")!=0||tup.getnTupla(0).toString().compareTo("numReal")!=0){
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
@@ -974,18 +974,51 @@ public class AnalizadorSintactico {
 	 * @param tipo0 Se pasa por parametro el tipo para ver si concuerda con el resto de la expresion.
 	 * @throws Exception Se lanza una excepcion si los tipos son incompatibles.
 	 */
-	private void exp_simpleR(String tipo0) throws Exception {
+	private Tupla exp_simpleR(String tipo0) throws Exception {
 		this.anaLex.predice();
 		String lexToken=this.anaLex.getToken();
-		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0
-				|| lexToken.compareTo("ologica")==0){
+		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0){
 			String op = this.operador();
-			String t1 = this.exp_simple();
-			if (!compatibles(tipo0,t1)){
+			boolean parh = false;
+			Tupla t1 = this.expresion_simple(parh);
+			if ((tipo0.compareTo("integer")!=0 && t1.getnTupla(0).toString().compareTo("integer")!=0)
+					||(tipo0.compareTo("numReal")!=0 && t1.getnTupla(0).toString().compareTo("numReal")!=0)){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 			}
-			this.emite(op);
+			apila(op);
+			String modo = "val";
+			etq = etq + 1;
+			//this.emite(op);
+			Tupla t = new Tupla(2);
+			t.setnTupla(0, t1.getnTupla(0).toString());
+			t.setnTupla(1, modo);
+			return t;
+		}else if(lexToken.compareTo("ologica")==0){
+			String op = this.operador();
+			boolean parh = false;
+			copia;
+			int flag = etq + 1;
+			ir-v(---);
+			desapila;
+			etq = etq+3;
+			Tupla t1 = this.expresion_simple(parh);
+			parchea(flag,etq);
+			if (tipo0.compareTo("boolean")!=0 ||t1.getnTupla(0).toString().compareTo("boolean")){
+				//throw new Exception("Error sintaxis: tipos no compatibles.");
+				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
+			}
+			String modo0 = "val";
+			Tupla t = new Tupla(2);
+			t.setnTupla(0, t1.getnTupla(0).toString());
+			t.setnTupla(1, modo0);
+			return t;
+		}else{
+			//vacio
+			Tupla t = new Tupla(2);
+			t.setnTupla(0, "");
+			t.setnTupla(1, "");
+			return t;
 		}
 	}
 	
@@ -994,12 +1027,68 @@ public class AnalizadorSintactico {
 	 * @return Se devuelve un string con el lexema del termino.
 	 * @throws Exception Se recoge cualquier tipo de error que se produzca dentro del termino.
 	 */
-	private String termino() throws Exception {
-		String tipo=this.factor();
-		this.terminoR(tipo);
-		return tipo;
+	private Tupla termino(boolean parh) throws Exception {
+		/** Comprobar si después de Expresión_Simple viene OPMULT ó AND()
+		Si TérminoR <> vacío entonces parh1 = false si no parh1 = parh0
+		Factor(in tipo, parh1; out tipo1, modo1)
+		TerminoR(in tipo1; out tipo2, modo2)
+		Si tipo2 = numReal entonces tipo0 = numReal si no tipo0 = tipo1
+		Si modo2 = val entonces modo0 = val si no modo0 = modo1*/
 	}
 
+	/**Método que reconoce una parte de un termino. Se creo para evitar la recursion a izquierdas.
+	 * 
+	 * @param tipo Se pasa por parametro el tipo de la otra parte del termino reconocida para ver si concuerda.
+	 * @throws Exception Se lanza una excepcion si los tipos no son compatibles.
+	 */
+	private Tupla terminoR(String tipo0) throws Exception {
+		this.anaLex.predice();
+		String lexToken = this.anaLex.getToken();
+		if (lexToken.compareTo("multiplica")==0 || lexToken.compareTo("divide")==0
+				|| lexToken.compareTo("modulo")==0 || lexToken.compareTo("divide_real")==0){
+			String op =this.operador();
+			boolean parh = false;
+			Tupla t1 = this.termino(parh);
+			if ((tipo0.compareTo("integer")!=0 && t1.getnTupla(0).toString().compareTo("integer")!=0)
+					||(tipo0.compareTo("numReal")!=0 && t1.getnTupla(0).toString().compareTo("numReal")!=0)){
+				//throw new Exception("Error sintaxis: tipos no compatibles.");
+				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
+			}
+			apila(op);
+			String modo0= "val";
+			etq = etq+1;
+			Tupla t = new Tupla(2);
+			t.setnTupla(0, t1.getnTupla(0).toString());
+			t.setnTupla(1, modo0);
+			return t;
+			//emite(op);
+		}else if(lexToken.compareTo("ylogica")==0){
+			String op =this.operador();
+			boolean parh = false;
+			int flag = etq;
+			ir-f(---);
+			etq = etq+1;
+			Tupla t1 = this.termino(parh);
+			if (tipo0.compareTo("boolean")!=0 ||t1.getnTupla(0).toString().compareTo("boolean")){
+				//throw new Exception("Error sintaxis: tipos no compatibles.");
+				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
+			}
+			String modo0="val";
+			parchea(flag,etq+1);
+			ir-a(etq+2);
+			apila(0);
+			etq = etq+2;
+		}else{
+			//vacio
+			Tupla t = new Tupla(2);
+			t.setnTupla(0, "");
+			t.setnTupla(1, "");
+			return t;
+		}
+	}
+
+
+	
 	/**Método que reconoce un factor.
 	 * 
 	 * @return Se devuelve un string con el valor del factor.
@@ -1043,28 +1132,7 @@ public class AnalizadorSintactico {
 		return tipo;
 	}
 
-	/**Método que reconoce una parte de un termino. Se creo para evitar la recursion a izquierdas.
-	 * 
-	 * @param tipo Se pasa por parametro el tipo de la otra parte del termino reconocida para ver si concuerda.
-	 * @throws Exception Se lanza una excepcion si los tipos no son compatibles.
-	 */
-	private void terminoR(String tipo) throws Exception {
-		this.anaLex.predice();
-		String lexToken = this.anaLex.getToken();
-		if (lexToken.compareTo("multiplica")==0 || lexToken.compareTo("divide")==0
-				|| lexToken.compareTo("modulo")==0 || lexToken.compareTo("divide_real")==0
-				|| lexToken.compareTo("ylogica")==0){
-			String op =this.operador();
-			String t= this.termino();
-			if (!compatibles(tipo,t)) {
-				//throw new Exception("Error sintaxis: tipos no compatibles.");
-				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
-			}
-			emite(op);
-		}
-	}
-
-
+	
 	/**Método que reconoce cualquier tipo de operador.
 	 * 
 	 * @return Se devuelve un string con el lexema del operador.
