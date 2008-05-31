@@ -792,7 +792,17 @@ public class AnalizadorSintactico {
 				String tipo0 = this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getT();
 				emite("apila-ind");
 				etq = etq+1;
+				Tupla t3 = new Tupla(2);
+				t3.setnTupla(0, t.getnTupla(0));
+				t3.setnTupla(1, tipo0);
+				return t3;
 			}else if(lex.compareTo(".")==0){
+				this.compara(".");
+				String le = this.id();
+				if(){
+					//error
+				}
+				String tipo0 = this.pilaTablaSim.getTSnivel(n).getEntrada(le).getProps().getCampos()//aqui hay que acceder a los campos por id)
 				
 			}
 		}
@@ -1012,10 +1022,37 @@ public class AnalizadorSintactico {
 	 * @param tipo2 Tipo de la segunda expresion
 	 * @return Cierto si los tipos son iguales, y falso si son tipos distintos.
 	 */
-	private boolean compatibles(String tipo1,String tipo2){
-		return (tipo1.compareTo(tipo2)==0);
+	private boolean compatibles(Propiedades p1,Propiedades p2,TS ts)
+	{
+		
+	boolean devolver=true;
+	//ArrayList visitadas= new ArrayList();
+	if(comparables(p1.getT(), p2.getT()))
+    devolver= true;
+
+	else if((compatibles(p1.getT(),p2.getT())&&(p1.getT().compareTo("array"))==0))
+		if(p1.getN()==p2.getN())
+			devolver= compatibles(p1.getTbase().getT(),p2.getTbase().getT());
+		else devolver=false;
+	else if(p1.getT().compareTo(p2.getT())==0 &&(p1.getT().compareTo("reg")==0))
+	{
+		if(p1.getCampos().size()==p2.getCampos().size())
+			{
+				for(int i=0;i<p1.getCampos().size();i++)
+				{
+					if(compatibles(((CCampos)p1.getCampos().get(i)).getTipo(),((CCampos)p2.getCampos().get(i)).getTipo(),ts)==false)
+						devolver= false;
+				}
+				devolver=devolver&&true;
+			}
+		else devolver=false;
 	}
+	else if(p1.getT().compareTo(p2.getT())==0 &&(p1.getT().compareTo("pointer")==0))
+    devolver=compatibles(p1.getTbase(),p2.getTbase(),ts);
 	
+	else devolver=false;
+	return devolver;
+}
 
 	/**Funcion que se encarga de emitir los distintos tipos de operaciones.
 	 * 
