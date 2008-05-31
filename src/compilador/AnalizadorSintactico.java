@@ -957,6 +957,22 @@ public class AnalizadorSintactico {
 	}
 
 	
+	/**Función que comprueba que los dos tipos sean comparables
+	 * 
+	 * 
+	 * @param t1 de tipo string (Tipo1)
+	 * @param t2 de tipo string (Tipo2)
+	 * @return
+	 */
+	private boolean comparables(String t1, String t2) {
+		boolean value = compatibles(t1, t2);
+		value=value&&(compatibles(t1,"boolean")||compatibles(t1,"real")||compatibles(t1,"integer"));
+		
+		return value;
+	}
+	
+
+	
 	/**public static void main(String[] args) {
 		AnalizadorSintactico anaSin = new AnalizadorSintactico("c:/prueba.txt");
 		try {
