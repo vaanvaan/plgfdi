@@ -62,10 +62,17 @@ public class AnalizadorSintactico {
 			this.dir = 0;
 			this.n = 0;
 			this.etq = 0;
-			this.bloqueDecls();
-			this.proposicion_compuesta(); 
 			inicio(n,dir);
 			ir-a(etq);
+			etq = longInicio+1;
+			this.bloqueDecls();
+			int inicio = etq;
+			prologo(n,dir);
+			etq = etq + longPrologo;
+			this.proposicion_compuesta(); 
+			epilogo(n);
+			ir-ind();
+			etq = etq + longEpilogo+1;
 			this.compara(".");
 			this.anaLex.scanner();
 			this.emite(this.anaLex.getToken());
@@ -155,6 +162,7 @@ public class AnalizadorSintactico {
 		this.compara("=");
 		Tupla rValor = new Tupla(2);
 		rValor = this.valor();
+		this.compara(";");
 		Propiedades p = new Propiedades();
 		p.setT((String)rValor.getnTupla(0));
 		p.setValor(((String)rValor.getnTupla(1)));
@@ -181,6 +189,7 @@ public class AnalizadorSintactico {
 			3º ejecutamos Lista_ID()
 			Tipo(out props) 
 			Lista_ID(in props)
+			????this.compara(";");
 		 */
 	}
 	
@@ -199,6 +208,7 @@ public class AnalizadorSintactico {
 		props.setDir(dir);
 		props.setNivel(n);
 		this.pilaTablaSim.añadeIDcima(lex, "var", props);
+		dir = dir + props.getTam();
 		this.lista_idR(props);
 	}
 	
@@ -221,8 +231,8 @@ public class AnalizadorSintactico {
 						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			props.setDir(dir);
 			props.setNivel(n);
-			dir = dir + props.getTam();
 			this.pilaTablaSim.añadeIDcima(lex, "var", props);
+			dir = dir + props.getTam();
 			this.lista_idR(props);
 		}
 	}
@@ -258,6 +268,11 @@ public class AnalizadorSintactico {
 		return t;
 	}
 	
+	/**Metodo que diferencia entre tipos construidos y tipos estandar
+	 * 
+	 * @return Unas propiedades con todo lo referente al tipo.
+	 * @throws Exception
+	 */
 	private Propiedades tipo()throws Exception{
 		this.anaLex.predice();
 		String lex = this.anaLex.getLex();
@@ -274,6 +289,11 @@ public class AnalizadorSintactico {
 		}
 	}
 	
+	/**Reconoce un tipo estandar, ya sea boolean,integer,real o char.
+	 * 
+	 * @return Devuelve unas propiedades con el tipo y el tamaño.
+	 * @throws Exception
+	 */
 	private Propiedades tipo_estandar()throws Exception{
 		anaLex.scanner();
 		Propiedades p = new Propiedades();
@@ -313,7 +333,7 @@ public class AnalizadorSintactico {
 			p.setT("array");
 			p.setN(longt);
 			p.setTbase(p1);
-			p.setTam(1);
+			p.setTam(longt*p1.getTam());
 		}else if(lex.compareTo("^")==0){
 			this.compara("^");
 			Propiedades p2 = this.tipo();
@@ -428,31 +448,38 @@ public class AnalizadorSintactico {
 	}
 	
 	private void dec_Proc()throws Exception{
-		int dirAnt = dir;
-		this.pilaTablaSim.creaTS();
-		dir = 0;
-		n = n+1;
 		this.compara("procedure");
 		String lex = this.id();
 		if(this.pilaTablaSim.getTSnivel(n).existeID(lex)){
 			throw new Exception("Error sintaxis: ID ya existente"
 					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 		}
+		int dirAnt = dir;
+		dir = 0;
 		ArrayList<CParams> params = this.parametros();
 		this.compara(";");
-		this.bloqueDecls();
 		int inicio = etq;
-		prologo(n,dir);
-		etq = etq + longPrologo;
 		Propiedades props = new Propiedades();
 		props.setT("proc");
 		props.setParams(params);
 		props.setNivel(n);
 		props.setInicio(inicio);
 		this.pilaTablaSim.añadeIDcima(lex, "proc", props);
+		this.pilaTablaSim.creaTS();
+		Propiedades props2 = new Propiedades();
+		props2.setT("proc");
+		props2.setParams(params);
+		props2.setNivel(n+1);
+		props2.setInicio(inicio);
+		this.pilaTablaSim.añadeIDcima(lex, "proc", props2);
+		n = n + 1;
+		this.bloqueDecls();
+		prologo(n,dir);
+		etq = etq + longPrologo;
+		this.proposicion_compuesta();
 		epilogo(n);
 		etq = etq + longEpilogo+1;
-		//ir-ind
+		ir-ind()
 		dir = dirAnt;
 		//desapila TS (solo -1 en la cima supongo)
 		n = n - 1;
@@ -542,7 +569,7 @@ public class AnalizadorSintactico {
 		return t;
 	}
 
-// FIN PARTE DECLARACIONES
+// FIN PARTE DECLARACIONES ///////////////////////////////////
 	
 	/**Método que reconoce la parte de las instrucciones de un programa escrito en Pascal.
 	 * 
@@ -573,7 +600,6 @@ public class AnalizadorSintactico {
 	 */
 	private void lista_proposiciones() throws Exception{
 		this.proposicion();
-		this.compara(";");
 		this.lista_proposicionesR();
 	}
 	
@@ -585,32 +611,123 @@ public class AnalizadorSintactico {
 	private void lista_proposicionesR() throws Exception{
 		this.anaLex.predice();
 		String lexTipo = anaLex.getLex();
-		if(lexTipo.compareTo("end")!=0){
-			// Ya no hay más proposiciones.
-			this.lista_proposiciones();
+		if(lexTipo.compareTo(";")==0){
+			this.proposicion();
+			this.lista_proposicionesR();
 		}
 	}
+	
+	private void proposicion() throws Exception{
+		this.anaLex.predice();
+		String lexToken= anaLex.getToken();
+		String lexTipo = anaLex.getLex();
+		if(lexTipo.compareTo("if")==0){
+			this.compara("if");
+			boolean parh = false;
+			Tupla t = this.expresion(parh);
+			if(t.getnTupla(0).toString()!="boolean"){
+				throw new Exception("Proposicion no válida."
+						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+			}
+			this.compara("then");
+			ir-f(a);
+			etq = etq+1;
+			this.proposicion_aux();
+			this.anaLex.predice();
+			String l = anaLex.getLex();
+			if(l.compareTo("else")==0){
+				ir-a(b);
+				etq = etq+1;
+				this.compara("else");
+				this.proposicion();
+				parchea(a,b);
+			}else{
+				parchea(a);
+			}
+		}else if(lexTipo.compareTo("while")){
+			this.compara("while");
+			boolean parh = false;
+			Tupla t = this.expresion(parh);
+			if(t.getnTupla(0).toString()!="boolean"){
+				throw new Exception("Proposicion no válida."
+						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+			}
+			this.compara("do");
+			ir-f(a);
+			etq = etq+1;
+			this.proposicion();
+			ir-a(b);
+			etq = etq+1;
+			parchea(a,b);
+		}else{
+			this.proposicion_simple();
+		}
+	}
+	
+	
+	
+	private void proposicion_aux(){
+		this.anaLex.predice();
+		String lexToken= anaLex.getToken();
+		String lexTipo = anaLex.getLex();
+		if(lexTipo.compareTo("if")==0){
+			this.compara("if");
+			boolean parh = false;
+			Tupla t = this.expresion(parh);
+			if(t.getnTupla(0).toString()!="boolean"){
+				throw new Exception("Proposicion no válida."
+						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+			}
+			this.compara("then");
+			ir-f(a);
+			etq = etq+1;
+			this.proposicion_aux();
+			ir-a(b);
+			etq = etq+1;
+			this.compara("else");
+			this.proposicion_aux();
+			parchea(a,b);
+		}else if(lexTipo.compareTo("while")){
+			this.compara("while");
+			boolean parh = false;
+			Tupla t = this.expresion(parh);
+			if(t.getnTupla(0).toString()!="boolean"){
+				throw new Exception("Proposicion no válida."
+						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+			}
+			this.compara("do");
+			ir-f(a);
+			etq = etq+1;
+			this.proposicion_aux();
+			ir-a(b);
+			etq = etq+1;
+			parchea(a,b);
+		}else{
+			this.proposicion_simple();
+		}
+	}
+	
+	
 	
 	/**Método que reconoce cualquier tipo de proposicion (instruccion) del subconjunto de Pascal.
 	 * 
 	 * @throws Exception Se recogen errores de niveles inferiores de la jerarquia y se lanzan otros si hay algun tipo de asignacion incorrecta.
 	 */
-	private void proposicion() throws Exception{
+	private void proposicion_simple() throws Exception{
 		this.anaLex.predice();
 		String lexToken= anaLex.getToken();
 		String lexTipo = anaLex.getLex();
 		if(lexToken.compareTo("identificador")==0){
-			this.id();
-			String lex = this.anaLex.getLex();
+			Tupla t = this.id_comp();
 			this.compara(":=");
-			String tipo = this.expresion(); // Devuelve tipo
-			if (!this.tablaSim.existeID(lex) 
-					|| !this.compatibles(this.tablaSim.devuelveTipo(lex), tipo) 
-					|| this.tablaSim.tipoDecl(lex)!= "var"){
+			boolean parh = false;
+			Tupla t2 = this.expresion(parh); // Devuelve tipo
+			if (!compatibles(t.getnTupla(1),t2.getnTupla(1)) || ((entradaTS)this.pilaTablaSim.getTScima().getEntrada(t.getnTupla(0).toString())).getClase()!="var"))){
 				Global.setErrorMsg("Violación restricciones. Asignación incorrecta");
 				throw new Exception("Error sintaxis: Asignación incorrecta"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			}
-			this.emite("desapila_dir "+this.tablaSim.getDir(lex));
+			
+			//this.emite("desapila_dir "+this.tablaSim.getDir(lex));
 		}else if(lexTipo.compareTo("read")==0){
 			this.compara("read");
 			this.compara("(");
