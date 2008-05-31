@@ -169,7 +169,7 @@ public class Propiedades {
 		this.tam = tam;
 	}
 	
-	public void addCampo(String id, String tipo, int desp){
+	public void addCampo(String id, Propiedades tipo, int desp){
 		campos.add(new CCampos(id,tipo,desp));
 	}
 	
@@ -177,7 +177,7 @@ public class Propiedades {
 		campos.add(c);
 	}
 	
-	public void addParam(String modo, String tipo, int dir){
+	public void addParam(String modo, Propiedades tipo, int dir){
 		params.add(new CParams(modo,tipo,dir));
 	}
 	
