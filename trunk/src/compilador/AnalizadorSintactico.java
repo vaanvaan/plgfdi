@@ -612,6 +612,7 @@ public class AnalizadorSintactico {
 		this.anaLex.predice();
 		String lexTipo = anaLex.getLex();
 		if(lexTipo.compareTo(";")==0){
+			this.compara(";");
 			this.proposicion();
 			this.lista_proposicionesR();
 		}
@@ -630,37 +631,46 @@ public class AnalizadorSintactico {
 						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			}
 			this.compara("then");
-			ir-f(a);
+			int flag1 = etq;
+			ir-f(---);
 			etq = etq+1;
-			this.proposicion_aux();
-			this.anaLex.predice();
-			String l = anaLex.getLex();
-			if(l.compareTo("else")==0){
-				ir-a(b);
-				etq = etq+1;
-				this.compara("else");
-				this.proposicion();
-				parchea(a,b);
-			}else{
-				parchea(a);
-			}
+			this.proposicion();
+			int flag2 = etq;
+			ir-a(---);
+			etq = etq+1;
+			parchea(flag1,etq);
+			this.pElse();
+			parchea(flag2,etq);
 		}else if(lexTipo.compareTo("while")){
 			this.compara("while");
 			boolean parh = false;
+			int etqb = etq;
 			Tupla t = this.expresion(parh);
 			if(t.getnTupla(0).toString()!="boolean"){
 				throw new Exception("Proposicion no válida."
 						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			}
 			this.compara("do");
-			ir-f(a);
+			int flag = etq;
+			ir-f(---);
 			etq = etq+1;
 			this.proposicion();
-			ir-a(b);
+			ir-a(etqb);
 			etq = etq+1;
-			parchea(a,b);
+			parchea(flag,etq);
 		}else{
 			this.proposicion_simple();
+		}
+	}
+	
+	private void pElse(){
+		this.anaLex.predice();
+		String lex = anaLex.getLex();
+		if(lex.compareTo("else")==0){
+			this.Else();
+			this.proposicion();
+		}else{
+			//vacio
 		}
 	}
 	
