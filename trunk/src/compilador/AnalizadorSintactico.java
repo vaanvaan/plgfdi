@@ -1094,42 +1094,70 @@ public class AnalizadorSintactico {
 	 * @return Se devuelve un string con el valor del factor.
 	 * @throws Exception Se lanzan errores si el identificador no existe.
 	 */
-	private String factor() throws Exception {
+	private Tupla factor(String tipo0, boolean parh) throws Exception {
 		String tipo="";
 		this.anaLex.predice();
 		String token = this.anaLex.getToken();
 		String lex = this.anaLex.getLex();
 		if (token.compareTo("identificador")==0){
-			this.id();
-			lex = this.anaLex.getLex(); 
-			if (!tablaSim.existeID(lex)) 
-				throw new Exception("Error sintaxis: ID no declarado"
-						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
-			tipo = this.tablaSim.devuelveTipo(lex);
-			this.emite("apila_dir "+ this.tablaSim.getDir(lex));
+			String tipo1 = this.id_comp();
+			if(compatibles(tipo1,tipo0)||compatibles(tipo1,"numReal")||compatibles(tipo1,"boolean") && (parh==false)){
+				emite("apila-ind");
+				etq = etq+1;
+			}
+			String modo = "var";
+			Tupla t = new Tupla(2);
+			t.setnTupla(0, tipo1);
+			t.setnTupla(1, modo);
+			return t;
 		} else if (token.compareTo("lparen")==0){
 			this.compara("(");
-			tipo = this.expresion();
+			Tupla t = this.expresion(parh);
 			this.compara(")");
+			return t;
 		} else if (lex.compareTo("not")==0){
 			this.anaLex.scanner();
-			String l = this.anaLex.getLex();
-			tipo = this.factor();
-			this.emite(l);
+			String signo = this.anaLex.getLex();
+			boolean parh1 = false;
+			Tupla t = this.factor(tipo0,parh1);
+			//this.emite(signo);
+			if(t.getnTupla(0).toString().compareTo("booleano")!=0){
+				//throw new Exception("Error sintaxis: tipos no compatibles.");
+				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
+			}
+			return t;
 		} else if (lex.compareTo("true")==0 || lex.compareTo("false")==0){
 			this.anaLex.scanner();
-			tipo = "boolean";
+			String tipo1 = "boolean";
+			String modo = "val";
+			//apila(valorDe(lex));
 			this.emite("apila "+ this.anaLex.getLex());
+			etq = etq+1;
+			Tupla t = new Tupla(2);
+			t.setnTupla(0, tipo1);
+			t.setnTupla(1, modo);
+			return t;
 		} else if (token.compareTo("num")==0){
 			this.anaLex.scanner();
-			tipo = "integer";
+			String tipo1 = "integer";
+			String modo = "val";
 			this.emite("apila "+ this.anaLex.getLex());
+			etq = etq+1;
+			Tupla t = new Tupla(2);
+			t.setnTupla(0, tipo1);
+			t.setnTupla(1, modo);
+			return t;
 		} else if (token.compareTo("numReal")==0){
 			this.anaLex.scanner();
-			tipo = "real";
+			String tipo1 = "numReal";
+			String modo = "val";
 			this.emite("apila "+ this.anaLex.getLex());
+			etq = etq+1;
+			Tupla t = new Tupla(2);
+			t.setnTupla(0, tipo1);
+			t.setnTupla(1, modo);
+			return t;
 		}
-		return tipo;
 	}
 
 	
