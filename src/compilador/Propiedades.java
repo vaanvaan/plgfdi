@@ -102,14 +102,14 @@ public class Propiedades {
 	/**
 	 * @return the campos
 	 */
-	public ArrayList getCampos() {
+	public ArrayList<CCampos> getCampos() {
 		return campos;
 	}
 
 	/**
 	 * @param campos the campos to set
 	 */
-	public void setCampos(ArrayList campos) {
+	public void setCampos(ArrayList<CCampos> campos) {
 		this.campos = campos;
 	}
 
@@ -130,14 +130,14 @@ public class Propiedades {
 	/**
 	 * @return the params
 	 */
-	public ArrayList getParams() {
+	public ArrayList<CParams> getParams() {
 		return params;
 	}
 
 	/**
 	 * @param params the params to set
 	 */
-	public void setParams(ArrayList params) {
+	public void setParams(ArrayList<CParams> params) {
 		this.params = params;
 	}
 
