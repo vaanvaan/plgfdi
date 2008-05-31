@@ -676,49 +676,6 @@ public class AnalizadorSintactico {
 	
 	
 	
-	private void proposicion_aux(){
-		this.anaLex.predice();
-		String lexToken= anaLex.getToken();
-		String lexTipo = anaLex.getLex();
-		if(lexTipo.compareTo("if")==0){
-			this.compara("if");
-			boolean parh = false;
-			Tupla t = this.expresion(parh);
-			if(t.getnTupla(0).toString()!="boolean"){
-				throw new Exception("Proposicion no válida."
-						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
-			}
-			this.compara("then");
-			ir-f(a);
-			etq = etq+1;
-			this.proposicion_aux();
-			ir-a(b);
-			etq = etq+1;
-			this.compara("else");
-			this.proposicion_aux();
-			parchea(a,b);
-		}else if(lexTipo.compareTo("while")){
-			this.compara("while");
-			boolean parh = false;
-			Tupla t = this.expresion(parh);
-			if(t.getnTupla(0).toString()!="boolean"){
-				throw new Exception("Proposicion no válida."
-						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
-			}
-			this.compara("do");
-			ir-f(a);
-			etq = etq+1;
-			this.proposicion_aux();
-			ir-a(b);
-			etq = etq+1;
-			parchea(a,b);
-		}else{
-			this.proposicion_simple();
-		}
-	}
-	
-	
-	
 	/**Método que reconoce cualquier tipo de proposicion (instruccion) del subconjunto de Pascal.
 	 * 
 	 * @throws Exception Se recogen errores de niveles inferiores de la jerarquia y se lanzan otros si hay algun tipo de asignacion incorrecta.
@@ -728,28 +685,38 @@ public class AnalizadorSintactico {
 		String lexToken= anaLex.getToken();
 		String lexTipo = anaLex.getLex();
 		if(lexToken.compareTo("identificador")==0){
-			Tupla t = this.id_comp();
-			this.compara(":=");
-			boolean parh = false;
-			Tupla t2 = this.expresion(parh); // Devuelve tipo
-			if (!compatibles(t.getnTupla(1),t2.getnTupla(1)) || ((entradaTS)this.pilaTablaSim.getTScima().getEntrada(t.getnTupla(0).toString())).getClase()!="var"))){
-				Global.setErrorMsg("Violación restricciones. Asignación incorrecta");
-				throw new Exception("Error sintaxis: Asignación incorrecta"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+			if(){
+				Tupla t = this.id_comp();
+				this.compara(":=");
+				boolean parh = false;
+				Tupla t2 = this.expresion(parh); // Devuelve tipo
+				if (!compatibles(t.getnTupla(1),t2.getnTupla(1)) || ((entradaTS)this.pilaTablaSim.getTScima().getEntrada(t.getnTupla(0).toString())).getClase()!="var"))){
+					Global.setErrorMsg("Violación restricciones. Asignación incorrecta");
+					throw new Exception("Error sintaxis: Asignación incorrecta"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+				}
+				if(compatible(t.getnTupla(1).toString(),"integer") || 
+						compatible(t.getnTupla(1).toString(),"numReal") || 
+						compatible(t.getnTupla(1).toString(),"boolean")){
+					desapila-ind();
+				}else{
+					mueve(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTam());
+					etq = etq + 1;
+				}
+			}else{
+				this.proposicion_proc();
 			}
-			
-			//this.emite("desapila_dir "+this.tablaSim.getDir(lex));
 		}else if(lexTipo.compareTo("read")==0){
 			this.compara("read");
 			this.compara("(");
-			this.id();
-			String lex = this.anaLex.getLex();
-			if (!this.tablaSim.existeID(lex)) 
-				throw new Exception("Error sintaxis: ID no declarado"
-						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+			Tupla t = this.id_comp();
 			this.compara(")");
-			//this.emite("apila_dir "+ this.tablaSim.getDir(lex));
+			if(){
+				//ERROR
+			}
 			this.emite("read");
-			this.emite("desapila_dir "+ this.tablaSim.getDir(lex));
+			
+			//this.emite("desapila_dir "+ this.tablaSim.getDir(lex));
+			etq = etq + 2;
 		}else if(lexTipo.compareTo("write")==0){
 			this.compara("write");
 			this.compara("(");
