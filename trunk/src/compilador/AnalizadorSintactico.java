@@ -773,7 +773,7 @@ public class AnalizadorSintactico {
 				Tupla t2 = this.expresion();
 				this.compara("]");
 				if(!this.pilaTablaSim.getTSnivel(n).existeID(t.getnTupla(0).toString()) || t2.getnTupla(0).toString().compareTo("integer")!=0||t.getnTupla(0).toString().compareTo("array")!=0){
-					//error
+					throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 				}
 				String tipo0 = this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getT();
 				this.emite("apila "+this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getN());
@@ -787,7 +787,7 @@ public class AnalizadorSintactico {
 			}else if(lex.compareTo("^")==0){
 				this.compara("^");
 				if(!this.pilaTablaSim.getTSnivel(n).existeID(t.getnTupla(0).toString()) ||t.getnTupla(0).toString().compareTo("pointer")!=0){
-					//error
+					throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 				}
 				String tipo0 = this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getT();
 				emite("apila-ind");
@@ -800,10 +800,46 @@ public class AnalizadorSintactico {
 				this.compara(".");
 				String le = this.id();
 				if(){
-					//error
+					throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 				}
 				String tipo0 = this.pilaTablaSim.getTSnivel(n).getEntrada(le).getProps().getCampos()//aqui hay que acceder a los campos por id)
-				
+				emite("apila"+this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getCampos()...//mas de lo mismo)
+				emite("suma");
+				etq = etq+2;
+			}
+		}
+	}
+	
+	private void proposicion_proc()throws Exception{
+		String lex = this.id();
+		if(!this.pilaTablaSim.getTSnivel(n).existeID(lex)||this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getClase().compareTo("proc")!=0){
+			throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
+		}
+		this.compara("(");
+		ArrayList<CParams> fparams = this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getProps().getParams();
+		apila-ret(etq);
+		etq = etq+longApilaRet;
+		this.Aexps(fparams);
+		this.compara(")");
+		ir-a(this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getProps().getInicio());
+		etq = etq+1;
+	}
+	
+	private void Aexps(ArrayList<CParams> fparams)throws Exception{
+		this.anaLex.predice();
+		String lex = anaLex.getLex();
+		if(lex.compareTo(")")!=0){
+			inicio-paso();
+			etq = etq+longInicioPaso;
+			ArrayList<CParams> nparams = this.lista_exps(fparams);
+			if(nparams.size()!=fparams.size()){
+				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
+			}
+			fin-paso();
+			etq = etq+longFinPaso;
+		}else{
+			if(fparams.size()>0){
+				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 			}
 		}
 	}
