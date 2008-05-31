@@ -36,18 +36,132 @@ public class AnalizadorSintactico {
 	
 	private int dir;
 	
+	private  int longApilaRet;
+	
+	private int longPrologo;
+	
+	private int longEpilogo;
+	
+	private int longInicioPaso;
+	
+	private int longFinPaso;
+	
+	private int longdireccionParFormal;
+	
+	private int longPasoParametro;
+	
+	private int longInicio;
+	
 	private int etq;
 	/**Constructor del analizador sintactico, donde se crea el analizador lexico y la tabla de simbolos. 
 	 * 
 	 * @param path Ruta del archivo que se va a analizar.
 	 */
 	public AnalizadorSintactico(String path,String path2){
+		this.longPrologo = 13;
+		this.longdireccionParFormal = 2;
+		this.longPasoParametro = 1;
+		this.longEpilogo = 13;
+		this.longInicio = 4;
+		this.longInicioPaso = 3;
+		this.longFinPaso = 1;
+		this.longApilaRet = 5;
 		anaLex = new AnalizadorLexico(path);
-		tablaSim = new TS();
+		this.pilaTablaSim = new PilaTS();
 		instrucciones = new Vector(0,1);
 		pathDestino = path2;
 	}
 	
+	
+	public void apilaRet(int ret){
+		emite("apila-dir(0)");
+		emite("apila(1)");
+		emite("suma");
+		emite("apila("+ret+")");
+		emite("desapila-ind");
+	}
+	
+	public void accesoVar(infoID){
+		emite("apila-dir("+(1+infoID.getNivel())+")");
+		emite("apila("+(infoID.getDir())+")");
+		emite("suma");
+		if(infoID.getClase().compareTo("pvar")==0){
+			emite("apila-ind");
+		}
+	}
+	
+	public int longAccesoVar(infoID){
+		if(infoID.getClase().compareTo("pvar")==0){
+			return 4;
+		}else{
+			return 3;
+		}
+	}
+	
+	public void inicio(int numNiveles,int tamDatos){
+		emite("apila("+(numNiveles+1)+")");
+		emite("desapila-dir(1)");
+		emite("apila("+(1+numNiveles+tamDatos)+")");
+		emite("desapila-dir(0)");
+	}
+	
+	public void prologo(int nivel,int tamlocales){
+		emite("apila-dir(0)");
+		emite("apila(2)");
+		emite("suma");
+		emite("apila-dir("+(1+nivel)+")");
+		emite("desapila-ind");
+		emite("apila-dir(0)");
+		emite("apila(3)");
+		emite("suma");
+		emite("desapila-dir("+(1+nivel)+")");
+		emite("apila-dir(0)");
+		emite("apila("+(tamlocales+2)+")");
+		emite("suma");
+		emite("desapila-dir(0)");
+	}
+	
+	public void epilogo(int nivel){
+		//FIXME 1/nivel????????????
+		emite("apila-dir("+(1/nivel)+")");
+		emite("apila(2)");
+		emite("resta");
+		emite("apila-ind");
+		emite("apila-dir("+(1+nivel)+")");
+		emite("apila(3)");
+		emite("resta");
+		emite("copia");
+		emite("desapila-dir(0)");
+		emite("apila(2)");
+		emite("suma");
+		emite("apila-ind");
+		emite("desapila-dir("+(1+nivel)+")");
+	}
+	
+	public void direccionParFormal(/**algo(CParams??)**/ pformal){
+		emite("apila("+pformal.dir+")");
+		emite("suma");
+	}
+	
+	public void pasoParametro(String modoReal,pformal){
+		if(pformal.getModo().compareTo("val")==0||modoReal.compareTo("var")==0){
+			mueve(pformal.getTipo().getTam());
+		}else{
+			emite("desapila-ind");
+		}
+	}
+	
+	
+	
+	public void inicioPaso(){
+		emite("apila-dir(0)");
+		emite("apila(3)");
+		emite("suma");
+	}
+	
+	public void finPaso(){
+		emite("desapila");
+	}
 	
 	/**Método que reconoce un programa completo de Pascal de nuestro subconjunto.
 	 * 
@@ -817,7 +931,7 @@ public class AnalizadorSintactico {
 		}
 		this.compara("(");
 		ArrayList<CParams> fparams = this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getProps().getParams();
-		apila-ret(etq);
+		apilaRet(etq);
 		etq = etq+longApilaRet;
 		this.Aexps(fparams);
 		this.compara(")");
