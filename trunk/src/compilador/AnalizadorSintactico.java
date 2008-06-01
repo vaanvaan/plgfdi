@@ -26,7 +26,7 @@ public class AnalizadorSintactico {
 	/**
 	 * Vector que almacena el conjunto de instrucciones emitidas hasta el momento.
 	 */
-	private Vector instrucciones;
+	private Vector<String> instrucciones;
 	/**
 	 * String con el path del archivo que se tiene que escribir.
 	 */
@@ -163,8 +163,35 @@ public class AnalizadorSintactico {
 		emite("desapila");
 	}
 	
-	public void parchea(int flag,int etq){
-		
+	/**
+	 * Sustituye la instrucción con etiqueta flag, por la correcta.
+	 * @param tipo tipo de instrucción a sustituir. 0:inicio, 1:ir-a, 2:ir-f
+	 * @param flag dirección de la instrucción
+	 */
+	public void parchea(int tipo,int flag){
+		int etqAux = etq;
+		etq = flag;
+		switch (tipo){
+		case 0:
+			emiteP("apila("+(n+1)+")");
+			etq++;
+			emiteP("desapila-dir(1)");
+			etq++;
+			emiteP("apila("+(1+n+dir)+")");
+			etq++;
+			emiteP("desapila-dir(0)");
+			break;
+		case 1:
+			emiteP("ir-a("+etq+")"); 
+			break;
+		case 2:
+			emiteP("ir-f("+etq+")");
+			break;
+		case 3:
+			emiteP("ir-v("+etq+")");
+			break;
+		}
+		etq = etqAux;
 	}
 	
 	/**Método que reconoce un programa completo de Pascal de nuestro subconjunto.
@@ -181,16 +208,13 @@ public class AnalizadorSintactico {
 			this.n = 0;
 			this.etq = 0;
 			inicio(n,dir);
+			int flag = etq;
 			emite("ir-a("+etq+")");
 			etq = longInicio+1;
 			this.bloqueDecls();
-			int inicio = etq;
-			prologo(n,dir);
-			etq = etq + longPrologo;
+			this.parchea(0, 0);
+			this.parchea(1, flag);
 			this.proposicion_compuesta(); 
-			epilogo(n);
-			ir-ind();
-			etq = etq + longEpilogo+1;
 			this.compara(".");
 			this.anaLex.scanner();
 			this.emite(this.anaLex.getToken());
@@ -362,7 +386,7 @@ public class AnalizadorSintactico {
 	 * @return Se devuelve un String con el valor de la constante.
 	 * @throws Exception Se genera una excepcion si el tipo y el valor de una constante no concuerdan.
 	 */
-	private Tupla valor() throws Exception{
+	private Tupla valor(){ // throws Exception{
 		Tupla t = new Tupla(2);
 		anaLex.scanner();
 		String token = anaLex.getToken();
@@ -391,7 +415,7 @@ public class AnalizadorSintactico {
 	 * @return Unas propiedades con todo lo referente al tipo.
 	 * @throws Exception
 	 */
-	private Propiedades tipo()throws Exception{
+	private Propiedades tipo(){ //throws Exception{
 		this.anaLex.predice();
 		String lex = this.anaLex.getLex();
 		if(lex.compareTo("boolean")==0){
@@ -412,7 +436,7 @@ public class AnalizadorSintactico {
 	 * @return Devuelve unas propiedades con el tipo y el tamaño.
 	 * @throws Exception
 	 */
-	private Propiedades tipo_estandar()throws Exception{
+	private Propiedades tipo_estandar(){ //throws Exception{
 		anaLex.scanner();
 		Propiedades p = new Propiedades();
 		String token = anaLex.getToken();
@@ -436,8 +460,7 @@ public class AnalizadorSintactico {
 		return p;
 	}
 	
-	@SuppressWarnings("unchecked")
-	private Propiedades tipo_construido()throws Exception{
+	private Propiedades tipo_construido(){ //throws Exception{
 		anaLex.predice();
 		String lex = this.anaLex.getLex();
 		Propiedades p = new Propiedades();
@@ -466,13 +489,12 @@ public class AnalizadorSintactico {
 			p.setCampos((ArrayList<CCampos>) t.getnTupla(0));
 			p.setTam(Integer.parseInt(t.getnTupla(1).toString()));
 		}else{
-			//throw new Exception("Error sintaxis: Tipo incorrecto.");
 			Global.setErrorMsg("Violación restricciones. Tipo incorrecto");
+			// throw new Exception("Error sintaxis: Tipo incorrecto.");
 		}
 		return p;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private Tupla campos()throws Exception{
 		int desp = 0;
 		Tupla t = this.campo(desp);
@@ -584,12 +606,14 @@ public class AnalizadorSintactico {
 		props.setInicio(inicio);
 		this.pilaTablaSim.añadeID(n,lex, "proc", props);
 		this.pilaTablaSim.creaTS();
+		/*
 		Propiedades props2 = new Propiedades();
 		props2.setT("proc");
 		props2.setParams(params);
-		props2.setNivel(n+1);
 		props2.setInicio(inicio);
-		this.pilaTablaSim.añadeID(n,lex, "proc", props2);
+		*/
+		props.setNivel(n+1);
+		this.pilaTablaSim.añadeID(n,lex, "proc", props);
 		n = n + 1;
 		this.bloqueDecls();
 		prologo(n,dir);
@@ -597,7 +621,7 @@ public class AnalizadorSintactico {
 		this.proposicion_compuesta();
 		epilogo(n);
 		etq = etq + longEpilogo+1;
-		ir-ind();
+		emite("ir-ind");
 		dir = dirAnt;
 		//desapila TS (solo -1 en la cima supongo)
 		n = n - 1;
@@ -750,15 +774,15 @@ public class AnalizadorSintactico {
 			}
 			this.compara("then");
 			int flag1 = etq;
-			emite("ir-f("+---+")");
+			emite("ir-f("+etq+")");
 			etq = etq+1;
 			this.proposicion();
 			int flag2 = etq;
-			emite("ir-a("+---+")");
+			emite("ir-a("+etq+")");
 			etq = etq+1;
-			parchea(flag1,etq);
+			parchea(2,flag1);
 			this.pElse();
-			parchea(flag2,etq);
+			parchea(1,flag2);
 		}else if(lexTipo.compareTo("while")==0){
 			this.compara("while");
 			boolean parh = false;
@@ -770,12 +794,12 @@ public class AnalizadorSintactico {
 			}
 			this.compara("do");
 			int flag = etq;
-			emite("ir-f("+---+")");
+			emite("ir-f("+etq+")");
 			etq = etq+1;
 			this.proposicion();
 			emite("ir-a("+etqb+")");
 			etq = etq+1;
-			parchea(flag,etq);
+			parchea(2,flag);
 		}else{
 			this.proposicion_simple();
 		}
@@ -893,7 +917,7 @@ public class AnalizadorSintactico {
 			if(lex.compareTo("[")==0){
 				this.compara("[");
 				//FIXME expresion void...
-				Tupla t2 = this.expresion();
+				Tupla t2 = this.expresion(false);
 				this.compara("]");
 				if(!this.pilaTablaSim.getTSnivel(n).existeID(t.getnTupla(0).toString()) || t2.getnTupla(0).toString().compareTo("integer")!=0||t.getnTupla(0).toString().compareTo("array")!=0){
 					throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
@@ -976,7 +1000,7 @@ public class AnalizadorSintactico {
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 			}
 		pasoParametro(t.getnTupla(1).toString(),fparams.get(0));
-		etq = etq+longPasoParametro(t.getnTupla(1).toString(),fparams.get(0));
+		etq = etq+longPasoParametro;
 		int nparams1 = 1;
 		return this.lista_expsR(fparams,nparams1);
 	}
@@ -994,7 +1018,7 @@ public class AnalizadorSintactico {
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 			}
 			pasoParametro(t.getnTupla(1).toString(),fparams.get(nparams));
-			etq = etq+longPasoParametro(t.getnTupla(1).toString(),fparams.get(nparams));
+			etq = etq+longPasoParametro;
 			int nparams1 = nparams+1;
 			return this.lista_expsR(fparams, nparams1);
 		}else{
@@ -1122,11 +1146,11 @@ public class AnalizadorSintactico {
 			boolean parh = false;
 			emite("copia");
 			int flag = etq + 1;
-			ir-v(---);
+			emite("ir-v("+etq+")");
 			emite("desapila");
 			etq = etq+3;
 			Tupla t1 = this.expresion_simple(parh);
-			parchea(flag,etq);
+			parchea(3,flag);
 			if (tipo0.compareTo("boolean")!=0 ||t1.getnTupla(0).toString().compareTo("boolean")){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
@@ -1189,7 +1213,7 @@ public class AnalizadorSintactico {
 			String op =this.operador();
 			boolean parh = false;
 			int flag = etq;
-			emite("ir-f("---")");
+			emite("ir-f("+etq+")");
 			etq = etq+1;
 			Tupla t1 = this.termino(parh);
 			if (tipo0.compareTo("boolean")!=0 ||t1.getnTupla(0).toString().compareTo("boolean")!=0){
@@ -1197,7 +1221,9 @@ public class AnalizadorSintactico {
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 			}
 			String modo0="val";
-			parchea(flag,etq+1);
+			etq = etq + 1;
+			parchea(2,flag);
+			etq = etq - 1;
 			emite("ir-a("+(etq+2)+")");
 			emite("apila(0)");
 			etq = etq+2;
@@ -1394,6 +1420,13 @@ public class AnalizadorSintactico {
 		this.instrucciones.add(a);
 	}
 
+	/**
+	 * Sustituye la instrucción en la posición etq por otra.
+	 * @param a Instrucción que va a ser añadida.
+	 */
+	private void emiteP(String a){
+		this.instrucciones.set(etq, a);
+	}
 	
 	/**Función que comprueba que los dos tipos sean comparables
 	 * 
