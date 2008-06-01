@@ -4,6 +4,7 @@
 package compilador;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Vector;
 import java.io.*;
 
@@ -484,7 +485,7 @@ public class AnalizadorSintactico {
 			Tupla t = this.campos();
 			this.compara("end");
 			p.setT("reg");
-			p.setCampos((ArrayList<CCampos>) t.getnTupla(0));
+			p.setCampos((Hashtable<String, CCampos>) t.getnTupla(0));
 			p.setTam(Integer.parseInt(t.getnTupla(1).toString()));
 		}else{
 			Global.setErrorMsg("Violación restricciones. Tipo incorrecto");
@@ -496,18 +497,18 @@ public class AnalizadorSintactico {
 	private Tupla campos()throws Exception{
 		int desp = 0;
 		Tupla t = this.campo(desp);
-		ArrayList<CCampos> campos0 = new ArrayList<CCampos>();
-		campos0.add((CCampos)t.getnTupla(0));
+		Hashtable<String, CCampos> campos0 = new Hashtable<String, CCampos>(10);
+		campos0.put(((CCampos) t.getnTupla(0)).getId(), (CCampos) t.getnTupla(0));
 		int desp1 = desp + Integer.parseInt(t.getnTupla(1).toString());
 		Tupla t2 = this.camposR(campos0,desp1);
 		int tam2 = Integer.parseInt(t.getnTupla(1).toString()) + Integer.parseInt(t2.getnTupla(1).toString());
 		Tupla tf = new Tupla(2);
-		tf.setnTupla(0, (ArrayList<CCampos>) t2.getnTupla(0));
+		tf.setnTupla(0, t2.getnTupla(0));
 		tf.setnTupla(1, tam2);
 		return tf;
 	}
 	
-	private Tupla camposR(ArrayList<CCampos> campos0, int desp0)throws Exception{
+	private Tupla camposR(Hashtable<String, CCampos> campos0, int desp0)throws Exception{
 		anaLex.predice();
 		String lex = this.anaLex.getLex();
 		Tupla tf = new Tupla(2);
@@ -516,11 +517,11 @@ public class AnalizadorSintactico {
 			tf.setnTupla(1, desp0);
 		}else{
 			Tupla t = this.campo(desp0);
-			campos0.add((CCampos)t.getnTupla(0));
+			campos0.put(((CCampos) t.getnTupla(0)).getId(), (CCampos) t.getnTupla(0));
 			int desp1 = desp0 + Integer.parseInt(t.getnTupla(1).toString());
 			Tupla t2 = this.camposR(campos0, desp1);
 			int tam2 = Integer.parseInt(t.getnTupla(1).toString()) + Integer.parseInt(t2.getnTupla(1).toString());
-			tf.setnTupla(0, (ArrayList<CCampos>) t2.getnTupla(0));
+			tf.setnTupla(0, t2.getnTupla(0));
 			tf.setnTupla(1, tam2);
 		}
 		return tf;
@@ -942,24 +943,21 @@ public class AnalizadorSintactico {
 			return rtupla;
 		
 		// 3. Si encontramos .
-		// FIXME Cambiar CCampos por una HASHTABLE
-		/*
 		} else if (lex.compareTo(".")==0){
 			this.compara(".");
 			String id2 = this.id();
-			if(propsID.getT().compareTo("reg")!=0 || !propsID.getCampos().existeID(id2))
+			if(propsID.getT().compareTo("reg")!=0 || !propsID.getCampos().containsKey(id2))
 				{
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 				}
-			String tipo = propsID.getCampos().getCampo(id2).getT();
-			this.emite("apila "+ propsID.getCampos().getCampo(id2).getDesp());
+			String tipo = propsID.getCampos().get(id2).getTipo().getT();
+			this.emite("apila "+ propsID.getCampos().get(id2).getDesp());
 			this.emite("suma");
 			etq = etq + 2;
 			Tupla rtupla = new Tupla(2);
 			rtupla.setnTupla(0, id);
 			rtupla.setnTupla(1, tipo);
 			return rtupla;
-		*/
 			
 		// Si no, es una variable normal.	
 		} else {

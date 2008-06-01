@@ -4,6 +4,7 @@
 package compilador;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 /**
  * @author DaNieLooP
@@ -14,7 +15,7 @@ public class Propiedades {
 	private String valor;
 	private int n;
 	private Propiedades tbase;
-	private ArrayList<CCampos> campos;
+	private Hashtable<String, CCampos> campos;
 	private int nivel;
 	private ArrayList<CParams> params;
 	private int dir;
@@ -22,7 +23,7 @@ public class Propiedades {
 	private int inicio;
 	
 	public Propiedades(){
-		campos = new ArrayList<CCampos>();
+		campos = new Hashtable<String, CCampos>(10);
 		params = new ArrayList<CParams>();
 	}
 
@@ -102,15 +103,8 @@ public class Propiedades {
 	/**
 	 * @return the campos
 	 */
-	public ArrayList<CCampos> getCampos() {
+	public Hashtable<String, CCampos> getCampos() {
 		return campos;
-	}
-
-	/**
-	 * @param campos the campos to set
-	 */
-	public void setCampos(ArrayList<CCampos> campos) {
-		this.campos = campos;
 	}
 
 	/**
@@ -170,19 +164,22 @@ public class Propiedades {
 	}
 	
 	public void addCampo(String id, Propiedades tipo, int desp){
-		campos.add(new CCampos(id,tipo,desp));
+		campos.put(id, new CCampos(id,tipo,desp));
 	}
 	
 	public void addCampo(CCampos c){
-		campos.add(c);
-	}
-	
+		campos.put(c.getId(), c);
+	}	
 	public void addParam(String modo, Propiedades tipo, int dir){
 		params.add(new CParams(modo,tipo,dir));
 	}
 	
 	public void addParam(CParams p){
 		params.add(p);
+	}
+
+	public void setCampos(Hashtable<String, CCampos> campos) {
+		this.campos = campos;
 	}
 	
 }
