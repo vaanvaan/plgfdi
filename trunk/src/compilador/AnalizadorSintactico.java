@@ -151,8 +151,6 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	
-	
 	public void inicioPaso(){
 		emite("apila-dir(0)");
 		emite("apila(3)");
@@ -886,8 +884,7 @@ public class AnalizadorSintactico {
 		}else if(lexTipo.compareTo("dispose")==0){
 			this.compara("write");
 			this.compara("(");
-			//FIXME otra expresion void
-			this.expresion();
+			this.expresion(false);
 			this.compara(")");
 			this.emite("write");
 		}else{
