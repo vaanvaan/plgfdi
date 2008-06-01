@@ -529,9 +529,7 @@ public class AnalizadorSintactico {
 	
 	private Tupla campo(int desp)throws Exception{
 		String lex = this.id();
-		Tupla t = new Tupla(2);
-		//FIXME esta comprobacion no es realmente asi
-		//existeID(ts, lex) & ts[lex].props.nivel = n 
+		Tupla t = new Tupla(2); 
 		if(this.pilaTablaSim.getTSnivel(n).existeID(lex)){
 			throw new Exception("Error sintaxis: ID ya existente"
 					+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
