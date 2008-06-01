@@ -840,7 +840,7 @@ public class AnalizadorSintactico {
 						compatibles(t.getnTupla(1).toString(),"boolean")){
 					emite("desapila-ind");
 				}else{
-					mueve(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTam());
+					this.emite("mueve "+(this.pilaTablaSim.getTSnivel(n).getEntrada((String) t.getnTupla(0)).getProps().getTam()));
 					etq = etq + 1;
 				}
 			}else{
@@ -1085,7 +1085,7 @@ public class AnalizadorSintactico {
 				String op = this.operador();
 				boolean parh = false;
 				Tupla t = this.expresion_simple(parh);
-				if (!comparables(tipo0,t.getnTupla(0).toString(),op)) {
+				if (!comparables(tipo0,t.getnTupla(0),op)) {
 					//throw new Exception("Error sintaxis: tipos no compatibles.");
 					Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 				}
@@ -1167,7 +1167,7 @@ public class AnalizadorSintactico {
 			etq = etq+3;
 			Tupla t1 = this.expresion_simple(parh);
 			parchea(3,flag);
-			if (tipo0.compareTo("boolean")!=0 ||t1.getnTupla(0).toString().compareTo("boolean")){
+			if (tipo0.compareTo("boolean")!=0 ||((String) t1.getnTupla(0)).compareTo("boolean") != 0){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 			}
@@ -1265,7 +1265,7 @@ public class AnalizadorSintactico {
 		String token = this.anaLex.getToken();
 		String lex = this.anaLex.getLex();
 		if (token.compareTo("identificador")==0){
-			String tipo1 = this.id_comp();
+			String tipo1 = (String) this.id_comp().getnTupla(1);
 			if(compatibles(tipo1,tipo0)||compatibles(tipo1,"numReal")||compatibles(tipo1,"boolean") && (parh==false)){
 				emite("apila-ind");
 				etq = etq+1;
