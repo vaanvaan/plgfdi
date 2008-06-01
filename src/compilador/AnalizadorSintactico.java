@@ -163,7 +163,7 @@ public class AnalizadorSintactico {
 	
 	/**
 	 * Sustituye la instrucción con etiqueta flag, por la correcta.
-	 * @param tipo tipo de instrucción a sustituir. 0:inicio, 1:ir-a, 2:ir-f
+	 * @param tipo tipo de instrucción a sustituir. 0:inicio, 1:ir-a, 2:ir-f, 3:ir-v
 	 * @param flag dirección de la instrucción
 	 */
 	public void parchea(int tipo,int flag){
@@ -861,8 +861,7 @@ public class AnalizadorSintactico {
 		}else if(lexTipo.compareTo("write")==0){
 			this.compara("write");
 			this.compara("(");
-			//FIXME aqui como te dije yiropa expresion es void, y luego la pones boolean
-			this.expresion();
+			this.expresion(false);
 			this.compara(")");
 			this.emite("write");
 			etq = etq+1;
@@ -894,63 +893,83 @@ public class AnalizadorSintactico {
 	}
 	
 	private Tupla id_comp() throws Exception{
-		//FIXME mas ejem
-		if(){
-			String lex = this.id();
-			if(!this.pilaTablaSim.getTSnivel(n).existeID(lex)||this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getClase().compareTo("var")!=0){
+		String id = this.id();
+		if(!this.pilaTablaSim.getTSnivel(n).existeID(id)||this.pilaTablaSim.getTSnivel(n).getEntrada(id).getClase().compareTo("var")!=0)
+			{
+			throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
+			}
+		Propiedades propsID = this.pilaTablaSim.getTSnivel(n).getEntrada(id).getProps();
+		this.anaLex.predice();
+		String lex = this.anaLex.getLex();
+		
+		// 0. Si encontramos id --> id_comp
+		if (this.anaLex.getToken()== "identificador"){
+			return this.id_comp();
+		
+			// 1. Si encontramos [
+		} else if (lex.compareTo("[")==0){
+			this.compara("[");
+			Tupla t = this.expresion(false);
+			this.compara("[");
+			if(t.getnTupla(0).toString().compareTo("integer")!=0 || 
+					propsID.getT().compareTo("array")!=0)
+				{
+				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
+				}
+			String tipo = propsID.getTbase().getT();
+			this.emite("apila "+ propsID.getTbase().getN());
+			this.emite("multiplica");
+			this.emite("suma");
+			etq = etq+3;
+			Tupla rtupla = new Tupla(2);
+			rtupla.setnTupla(0, id);
+			rtupla.setnTupla(1, tipo);
+			return rtupla;
+			
+		// 2. Si encontramos ^
+		} else if (lex.compareTo("^")==0){
+			this.compara("^");
+			if(propsID.getT().compareTo("pointer")!=0){
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 			}
-			String tipo = this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getProps().getT();
-			accesoVar(this.pilaTablaSim.getTSnivel(n).getEntrada(lex));
-			etq = etq + longAccesoVar(this.pilaTablaSim.getTSnivel(n).getEntrada(lex));
-			Tupla t = new Tupla(2);
-			t.setnTupla(0, lex);
-			t.setnTupla(1, tipo);
-			return t;
-		}else{
-			Tupla t = this.id_comp();
-			this.anaLex.predice();
-			String lex = anaLex.getLex();
-			if(lex.compareTo("[")==0){
-				this.compara("[");
-				//FIXME expresion void...
-				Tupla t2 = this.expresion(false);
-				this.compara("]");
-				if(!this.pilaTablaSim.getTSnivel(n).existeID(t.getnTupla(0).toString()) || t2.getnTupla(0).toString().compareTo("integer")!=0||t.getnTupla(0).toString().compareTo("array")!=0){
-					throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
+			String tipo = propsID.getTbase().getT();
+			this.emite("apila-ind");
+			etq++;
+			Tupla rtupla = new Tupla(2);
+			rtupla.setnTupla(0, id);
+			rtupla.setnTupla(1, tipo);
+			return rtupla;
+		
+		// 3. Si encontramos .
+		// FIXME Cambiar CCampos por una HASHTABLE
+		/*
+		} else if (lex.compareTo(".")==0){
+			this.compara(".");
+			String id2 = this.id();
+			if(propsID.getT().compareTo("reg")!=0 || !propsID.getCampos().existeID(id2))
+				{
+				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 				}
-				String tipo0 = this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getT();
-				this.emite("apila "+this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getN());
-				this.emite("multiplica");
-				this.emite("suma");
-				etq = etq+3;
-				Tupla t3 = new Tupla(2);
-				t3.setnTupla(0, t.getnTupla(0));
-				t3.setnTupla(1, tipo0);
-				return t3;
-			}else if(lex.compareTo("^")==0){
-				this.compara("^");
-				if(!this.pilaTablaSim.getTSnivel(n).existeID(t.getnTupla(0).toString()) ||t.getnTupla(0).toString().compareTo("pointer")!=0){
-					throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
-				}
-				String tipo0 = this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getT();
-				emite("apila-ind");
-				etq = etq+1;
-				Tupla t3 = new Tupla(2);
-				t3.setnTupla(0, t.getnTupla(0));
-				t3.setnTupla(1, tipo0);
-				return t3;
-			}else if(lex.compareTo(".")==0){
-				this.compara(".");
-				String le = this.id();
-				if(){
-					throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
-				}
-				String tipo0 = this.pilaTablaSim.getTSnivel(n).getEntrada(le).getProps().getCampos()//aqui hay que acceder a los campos por id)
-				emite("apila("+this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getCampos()...//mas de lo mismo)
-				emite("suma");
-				etq = etq+2;
-			}
+			String tipo = propsID.getCampos().getCampo(id2).getT();
+			this.emite("apila "+ propsID.getCampos().getCampo(id2).getDesp());
+			this.emite("suma");
+			etq = etq + 2;
+			Tupla rtupla = new Tupla(2);
+			rtupla.setnTupla(0, id);
+			rtupla.setnTupla(1, tipo);
+			return rtupla;
+		*/
+			
+		// Si no, es una variable normal.	
+		} else {
+			String tipo = propsID.getT();
+			entradaTS entradaID = this.pilaTablaSim.getTSnivel(n).getEntrada(id); 
+			this.accesoVar(entradaID);
+			etq = etq + this.longAccesoVar(entradaID);
+			Tupla rtupla = new Tupla(2);
+			rtupla.setnTupla(0, id);
+			rtupla.setnTupla(1, tipo);
+			return rtupla;
 		}
 	}
 	
