@@ -831,7 +831,8 @@ public class AnalizadorSintactico {
 				this.compara(":=");
 				boolean parh = false;
 				Tupla t2 = this.expresion(parh); // Devuelve tipo
-				if (!compatibles(t.getnTupla(1),t2.getnTupla(1)) || ((entradaTS)this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString())).getClase()!="var"))){
+				if (!compatibles((String)t.getnTupla(1), (String)t2.getnTupla(1)) || 
+						((entradaTS)this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString())).getClase()!="var"){
 					Global.setErrorMsg("Violación restricciones. Asignación incorrecta");
 					throw new Exception("Error sintaxis: Asignación incorrecta"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 				}
