@@ -1089,7 +1089,8 @@ public class AnalizadorSintactico {
 				String op = this.operador();
 				boolean parh = false;
 				Tupla t = this.expresion_simple(parh);
-				if (!comparables(tipo0,t.getnTupla(0),op)) {
+				
+				if (!comparables(tipo0,"int")||!comparables(tipo0,"numReal")||!comparables(tipo0,"boolean")) {
 					//throw new Exception("Error sintaxis: tipos no compatibles.");
 					Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 				}
