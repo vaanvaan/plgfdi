@@ -881,11 +881,18 @@ public class AnalizadorSintactico {
 			emite("desapila-ind");
 			etq = etq+2;
 		}else if(lexTipo.compareTo("dispose")==0){
-			this.compara("write");
+			this.compara("dispose");
 			this.compara("(");
-			this.expresion(false);
+			Tupla t = this.id_comp();
 			this.compara(")");
-			this.emite("write");
+			if(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getClase().compareTo("var")!=0 || t.getnTupla(1).toString().compareTo("pointer")!=0){
+				throw new Exception("Error: no se puede instanciar memoria para este tipo"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
+			}
+			if(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getT().compareTo("pointer")==0){
+				emite("del("+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTam())+")");
+			}else{
+				emite("del"+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getTam())+")");
+			}
 		}else{
 			// Si lo siguiente no empieza por "begin" ya dará error.
 			this.proposicion_compuesta();
