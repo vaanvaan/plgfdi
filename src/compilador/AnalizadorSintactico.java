@@ -1338,17 +1338,31 @@ public class AnalizadorSintactico {
 	 * @param tipo2 Tipo de la segunda expresion
 	 * @return Cierto si los tipos son iguales, y falso si son tipos distintos.
 	 */
-	private boolean compatibles(Propiedades p1,Propiedades p2,TS ts)
+	private boolean compatibles(Propiedades p1,Propiedades p2,TS ts,ArrayList<String[]> visitados)
 	{
 		
 	boolean devolver=true;
-	//ArrayList visitadas= new ArrayList();
+	boolean existe=false;
+	String[] aux=new String[2];
+	for(int i=0;i<visitados.size();i++)
+	{
+		aux[0]=visitados.get(i)[0];
+		aux[1]=visitados.get(i)[1];
+		if((compatibles(aux[0],p1.getT())&&compatibles(aux[1],p2.getT()))||(compatibles(aux[1],p1.getT())&&compatibles(aux[0],p2.getT())))
+				existe=true;
+	}
+	aux[0]=p1.getT();
+	aux[1]=p2.getT();
+	if(existe) devolver=true;
+	else 
+	{
+	visitados.add(aux);
 	if(comparables(p1.getT(), p2.getT()))
     devolver= true;
 
 	else if((compatibles(p1.getT(),p2.getT())&&(p1.getT().compareTo("array"))==0))
 		if(p1.getN()==p2.getN())
-			devolver= compatibles(p1.getTbase().getT(),p2.getTbase().getT());
+			devolver= comparables(p1.getTbase().getT(),p2.getTbase().getT());
 		else devolver=false;
 	else if(p1.getT().compareTo(p2.getT())==0 &&(p1.getT().compareTo("reg")==0))
 	{
@@ -1356,7 +1370,7 @@ public class AnalizadorSintactico {
 			{
 				for(int i=0;i<p1.getCampos().size();i++)
 				{
-					if(compatibles(((CCampos)p1.getCampos().get(i)).getTipo(),((CCampos)p2.getCampos().get(i)).getTipo(),ts)==false)
+					if(compatibles(((CCampos)p1.getCampos().get(i)).getTipo(),((CCampos)p2.getCampos().get(i)).getTipo(),ts,visitados)==false)
 						devolver= false;
 				}
 				devolver=devolver&&true;
@@ -1364,11 +1378,13 @@ public class AnalizadorSintactico {
 		else devolver=false;
 	}
 	else if(p1.getT().compareTo(p2.getT())==0 &&(p1.getT().compareTo("pointer")==0))
-    devolver=compatibles(p1.getTbase(),p2.getTbase(),ts);
+    devolver=compatibles(p1.getTbase(),p2.getTbase(),ts,visitados);
 	
 	else devolver=false;
+	}
 	return devolver;
 }
+
 
 	/**Funcion que se encarga de emitir los distintos tipos de operaciones.
 	 * 
@@ -1392,8 +1408,23 @@ public class AnalizadorSintactico {
 		
 		return value;
 	}
-	
+	private boolean compatibles(String tipo1,String tipo2){
+		return (tipo1.compareTo(tipo2)==0);
+	}
 
+	/**Función que comprueba que los dos tipos sean comparables
+	 * 
+	 * 
+	 * @param t1 de tipo string (Tipo1)
+	 * @param t2 de tipo string (Tipo2)
+	 * @return
+
+	
+	/**
+	 * 
+	 * @return
+	 */
+	
 	
 	/**public static void main(String[] args) {
 		AnalizadorSintactico anaSin = new AnalizadorSintactico("c:/prueba.txt");
