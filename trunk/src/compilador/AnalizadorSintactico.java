@@ -69,7 +69,7 @@ public class AnalizadorSintactico {
 		this.longApilaRet = 5;
 		anaLex = new AnalizadorLexico(path);
 		this.pilaTablaSim = new PilaTS();
-		instrucciones = new Vector(0,1);
+		instrucciones = new Vector<String>(0,1);
 		pathDestino = path2;
 	}
 	
