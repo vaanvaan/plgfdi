@@ -767,11 +767,11 @@ public class AnalizadorSintactico {
 			}
 			this.compara("then");
 			int flag1 = etq;
-			emite("ir-f("+etq+")");
+			emite("ir-f "+etq);
 			etq = etq+1;
 			this.proposicion();
 			int flag2 = etq;
-			emite("ir-a("+etq+")");
+			emite("ir-a "+etq);
 			etq = etq+1;
 			parchea(2,flag1);
 			this.pElse();
@@ -787,10 +787,10 @@ public class AnalizadorSintactico {
 			}
 			this.compara("do");
 			int flag = etq;
-			emite("ir-f("+etq+")");
+			emite("ir-f "+etq);
 			etq = etq+1;
 			this.proposicion();
-			emite("ir-a("+etqb+")");
+			emite("ir-a("+etqb);
 			etq = etq+1;
 			parchea(2,flag);
 		}else{
@@ -804,8 +804,6 @@ public class AnalizadorSintactico {
 		if(lex.compareTo("else")==0){
 			this.compara("else");
 			this.proposicion();
-		}else{
-			//vacio
 		}
 	}
 	
@@ -821,13 +819,16 @@ public class AnalizadorSintactico {
 		String lexTipo = anaLex.getLex();
 		if(lexToken.compareTo("identificador")==0){
 			//FIXME ejem...
-			if(){
-				Tupla t = this.id_comp();
+			Tupla t = this.id_comp();
+			this.anaLex.predice();
+			lexTipo = anaLex.getLex();
+			// Si encontramos :=, es una asignación.
+			if(lexTipo.compareTo(":=")==0){
 				this.compara(":=");
 				boolean parh = false;
 				Tupla t2 = this.expresion(parh); // Devuelve tipo
 				if (!compatibles((String)t.getnTupla(1), (String)t2.getnTupla(1)) || 
-						((entradaTS)this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString())).getClase()!="var"){
+						(this.pilaTablaSim.getTSnivel(n).getEntrada((String) t.getnTupla(0)).getClase() != "var")){
 					Global.setErrorMsg("Violación restricciones. Asignación incorrecta");
 					throw new Exception("Error sintaxis: Asignación incorrecta"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 				}
@@ -839,6 +840,7 @@ public class AnalizadorSintactico {
 					this.emite("mueve "+(this.pilaTablaSim.getTSnivel(n).getEntrada((String) t.getnTupla(0)).getProps().getTam()));
 					etq = etq + 1;
 				}
+			// Si no, es una invocación a procedimiento
 			}else{
 				this.proposicion_proc();
 			}
@@ -851,8 +853,7 @@ public class AnalizadorSintactico {
 				throw new Exception("Error de sintaxis: No se puede modificar una constante"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			}
 			this.emite("read");
-			emite("apila-dir("+this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getDir()+")");
-			//this.emite("desapila_dir "+ this.tablaSim.getDir(lex));
+			emite("desapila-dir "+this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getDir());
 			etq = etq + 2;
 		}else if(lexTipo.compareTo("write")==0){
 			this.compara("write");
@@ -866,13 +867,14 @@ public class AnalizadorSintactico {
 			this.compara("(");
 			Tupla t = this.id_comp();
 			this.compara(")");
-			if(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getClase().compareTo("var")!=0 || t.getnTupla(1).toString().compareTo("pointer")!=0){
+			if(this.pilaTablaSim.getTSnivel(n).getEntrada((String) t.getnTupla(0)).getClase().compareTo("var")!=0 || 
+					((String) t.getnTupla(1)).compareTo("pointer")!=0){
 				throw new Exception("Error: no se puede instanciar memoria para este tipo"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			}
 			if(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getT().compareTo("pointer")==0){
-				emite("new("+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTam())+")");
+				emite("new "+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTam()));
 			}else{
-				emite("new("+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getTam())+")");
+				emite("new "+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getTam()));
 			}
 			emite("desapila-ind");
 			etq = etq+2;
@@ -881,18 +883,18 @@ public class AnalizadorSintactico {
 			this.compara("(");
 			Tupla t = this.id_comp();
 			this.compara(")");
-			if(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getClase().compareTo("var")!=0 || t.getnTupla(1).toString().compareTo("pointer")!=0){
+			if(this.pilaTablaSim.getTSnivel(n).getEntrada((String) t.getnTupla(0)).getClase().compareTo("var")!=0 || 
+					((String) t.getnTupla(1)).compareTo("pointer")!=0){
 				throw new Exception("Error: no se puede instanciar memoria para este tipo"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 			}
 			if(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getT().compareTo("pointer")==0){
-				emite("del("+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTam())+")");
+				emite("del "+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTam()));
 			}else{
-				emite("del"+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getTam())+")");
+				emite("del "+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getTam()));
 			}
-		}else{
+		}else
 			// Si lo siguiente no empieza por "begin" ya dará error.
 			this.proposicion_compuesta();
-		}
 	}
 	
 	private Tupla id_comp() throws Exception{
