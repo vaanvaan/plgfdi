@@ -139,14 +139,14 @@ public class AnalizadorSintactico {
 		emite("desapila-dir("+(1+nivel)+")");
 	}
 	
-	public void direccionParFormal(/**algo(CParams??)**/ pformal){
-		emite("apila("+pformal.dir+")");
+	public void direccionParFormal(CParams pformal){
+		emite("apila("+pformal.getDir()+")");
 		emite("suma");
 	}
 	
-	public void pasoParametro(String modoReal,pformal){
-		if(pformal.getModo().compareTo("val")==0||modoReal.compareTo("var")==0){
-			mueve(pformal.getTipo().getTam());
+	public void pasoParametro(String modoReal, CParams pformal){
+		if(pformal.getModo().compareTo("val")==0 || modoReal.compareTo("var")==0){
+			emite("mueve("+pformal.getTipo().getTam()+")");
 		}else{
 			emite("desapila-ind");
 		}
@@ -385,7 +385,7 @@ public class AnalizadorSintactico {
 	 * @return Se devuelve un String con el valor de la constante.
 	 * @throws Exception Se genera una excepcion si el tipo y el valor de una constante no concuerdan.
 	 */
-	private Tupla valor(){ // throws Exception{
+	private Tupla valor() throws Exception{
 		Tupla t = new Tupla(2);
 		anaLex.scanner();
 		String token = anaLex.getToken();
@@ -414,7 +414,7 @@ public class AnalizadorSintactico {
 	 * @return Unas propiedades con todo lo referente al tipo.
 	 * @throws Exception
 	 */
-	private Propiedades tipo(){ //throws Exception{
+	private Propiedades tipo() throws Exception{
 		this.anaLex.predice();
 		String lex = this.anaLex.getLex();
 		if(lex.compareTo("boolean")==0){
@@ -435,7 +435,7 @@ public class AnalizadorSintactico {
 	 * @return Devuelve unas propiedades con el tipo y el tamaño.
 	 * @throws Exception
 	 */
-	private Propiedades tipo_estandar(){ //throws Exception{
+	private Propiedades tipo_estandar() throws Exception{
 		anaLex.scanner();
 		Propiedades p = new Propiedades();
 		String token = anaLex.getToken();
@@ -459,7 +459,7 @@ public class AnalizadorSintactico {
 		return p;
 	}
 	
-	private Propiedades tipo_construido(){ //throws Exception{
+	private Propiedades tipo_construido() throws Exception{
 		anaLex.predice();
 		String lex = this.anaLex.getLex();
 		Propiedades p = new Propiedades();
@@ -802,7 +802,7 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	private void pElse(){
+	private void pElse() throws Exception{
 		this.anaLex.predice();
 		String lex = anaLex.getLex();
 		if(lex.compareTo("else")==0){
@@ -1196,6 +1196,7 @@ public class AnalizadorSintactico {
 	 * @throws Exception Se recoge cualquier tipo de error que se produzca dentro del termino.
 	 */
 	private Tupla termino(boolean parh) throws Exception {
+		return null;
 		/** Comprobar si después de Expresión_Simple viene OPMULT ó AND()
 		Si TérminoR <> vacío entonces parh1 = false si no parh1 = parh0
 		Factor(in tipo, parh1; out tipo1, modo1)
@@ -1248,13 +1249,8 @@ public class AnalizadorSintactico {
 			emite("ir-a("+(etq+2)+")");
 			emite("apila(0)");
 			etq = etq+2;
-		}else{
-			//vacio
-			Tupla t = new Tupla(2);
-			t.setnTupla(0, "");
-			t.setnTupla(1, "");
-			return t;
 		}
+		return null;
 	}
 
 
@@ -1328,6 +1324,7 @@ public class AnalizadorSintactico {
 			t.setnTupla(1, modo);
 			return t;
 		}
+		return null;
 	}
 
 	
