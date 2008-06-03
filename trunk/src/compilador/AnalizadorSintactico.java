@@ -818,9 +818,10 @@ public class AnalizadorSintactico {
 		String lexToken= anaLex.getToken();
 		String lexTipo = anaLex.getLex();
 		if(lexToken.compareTo("identificador")==0){
-			// FIXME
+			// FIXME Duda
 			/** ¿Se puede predecir consecutivamente?
-			 ** ¿O predice lo mismo 2 veces?  
+			 ** ¿O predice lo mismo 2 veces?
+			 ** Supongo que predice lo mismo en ambas. En ese caso está bien.  
 			 **/
 			Tupla t = this.id_comp();
 			this.anaLex.predice();
