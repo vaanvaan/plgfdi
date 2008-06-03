@@ -1062,12 +1062,16 @@ public class AnalizadorSintactico {
 			tup.setnTupla(0, tipo);
 			tup.setnTupla(1, modo);
 		}else{
-			/** Comprobar si después de Expresión_Simple viene OPREL
-			Si ExpresiónR<> vacío entonces parh1 = false si no parh1 = parh0
-			Expresión_Simple(in parh1; out tipo1, modo1)
-			ExpresionR(in tipo1; out tipo2, modo2)
-			Si modo2 = val entonces modo0 = modo2 si no modo0 = modo1
-			Si tipo2 <> vacío entonces tipo0 = booleano si no tipo0 = tipo1*/
+			// FIXME Comprobar si después de Expresión_Simple viene OPREL
+			// Si ExpresiónR<> vacío entonces parh = false si no parh
+			Tupla t1 = this.expresion_simple(parh);
+			Tupla t2 = this.expresionR((String) t1.getnTupla(0));
+			if (((String) t2.getnTupla(1)).compareTo("val")==0){
+				tup.setnTupla(1, t2.getnTupla(1));
+			} else tup.setnTupla(1, t1.getnTupla(1));
+			if (((String) t2.getnTupla(0)).compareTo("")==0) {
+				tup.setnTupla(0, "boolean");
+			} else tup.setnTupla(0, t1.getnTupla(0));
 		}
 		return tup;
 	}
@@ -1081,30 +1085,26 @@ public class AnalizadorSintactico {
 	private Tupla expresionR(String tipo0) throws Exception {
 		this.anaLex.predice();
 		String lexToken= anaLex.getToken();
+		Tupla t = new Tupla(2);
 		if(lexToken.compareTo("igual")==0 || lexToken.compareTo("distintos")==0 || lexToken.compareTo("mayor")==0
 			|| lexToken.compareTo("mayor_igual")==0 || lexToken.compareTo("menor")==0 || lexToken.compareTo("menor_igual")==0){
 				String op = this.operador();
 				boolean parh = false;
-				Tupla t = this.expresion_simple(parh);
-				
+				Tupla t1 = this.expresion_simple(parh);
 				if (!comparables(tipo0,"int")||!comparables(tipo0,"numReal")||!comparables(tipo0,"boolean")) {
 					//throw new Exception("Error sintaxis: tipos no compatibles.");
 					Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 				}
 				String modo = "val";
-				emite("apila("+op+")");
+				emite("apila "+op);
 				etq = etq+1;
-				Tupla t2 = new Tupla(2);
-				t2.setnTupla(0, t.getnTupla(0));
-				t2.setnTupla(1, modo);
-				// Si todo va bien, el tipo cambia a boolean por ser relaccional.
-				return t2;
+				t.setnTupla(0, t1.getnTupla(0));
+				t.setnTupla(1, modo);
 		} else { 
-			Tupla t = new Tupla(2);
 			t.setnTupla(0, "");
 			t.setnTupla(1, "");
-			return t;
 		}
+		return t;
 	}
 	
 	/**Método que reconoce una expresion simple.
@@ -1115,25 +1115,31 @@ public class AnalizadorSintactico {
 	private Tupla expresion_simple(boolean parh) throws Exception {
 		this.anaLex.predice();
 		String lexToken = anaLex.getToken();
+		Tupla tup;
 		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0){
 			String op = this.operador();
-			Tupla tup = this.termino(parh);
-			if(tup.getnTupla(0).toString().compareTo("integer")!=0||tup.getnTupla(0).toString().compareTo("numReal")!=0){
+			tup = this.termino(parh);
+			if(((String) tup.getnTupla(0)).compareTo("integer")!=0 ||
+					((String) tup.getnTupla(0)).compareTo("numReal")!=0){
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 			}
-			emite("apila("+op+")");
+			emite("apila "+op);
 			etq = etq+1;
 			return tup;
 		} else {
-			// FIXME
-			return null;
-			/** Comprobar si después de Expresión_Simple viene OPSUMA ó OR()
-			Si Exp_SimpleR <> vacío entonces parh1 = false si no parh1 = parh0
-			Término(in parh1; out tipo1, modo1)
-			Exp_SimpleR(in tipo1; out tipo2, modo2)
-			Si modo2 = val entonces modo0 = modo2 si no modo0 = modo1
-			Si tipo2 = numReal entonces tipo0 = tipo2 si no tipo0 = tipo1*/
+			// FIXME Comprobar si después de Expresión_Simple viene OPSUMA ó OR
+			// Si exp_simpleR <> vacío entonces parh = false si no parh
+			tup = new Tupla(2);
+			Tupla t1 = this.termino(parh);
+			Tupla t2 = this.exp_simpleR((String) t1.getnTupla(0));
+			if (((String) t2.getnTupla(1)).compareTo("val")==0){
+				tup.setnTupla(1, t2.getnTupla(1));
+			} else tup.setnTupla(1, t1.getnTupla(1));
+			if (((String) t2.getnTupla(0)).compareTo("numReal")==0) {
+				tup.setnTupla(0, "numReal");
+			} else tup.setnTupla(0, t1.getnTupla(0));
 		}
+		return tup;
 	}
 
 	/**Método que reconoce una parte de una expresion simple. Creado para evitar la recursion a izquierdas.
@@ -1153,20 +1159,19 @@ public class AnalizadorSintactico {
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 			}
-			emite("apila("+op+")");
+			emite("apila "+op);
 			String modo = "val";
 			etq = etq + 1;
-			//this.emite(op);
 			Tupla t = new Tupla(2);
 			t.setnTupla(0, t1.getnTupla(0).toString());
 			t.setnTupla(1, modo);
 			return t;
 		}else if(lexToken.compareTo("ologica")==0){
-			String op = this.operador();
+			this.operador();
 			boolean parh = false;
 			emite("copia");
 			int flag = etq + 1;
-			emite("ir-v("+etq+")");
+			emite("ir-v "+etq);
 			emite("desapila");
 			etq = etq+3;
 			Tupla t1 = this.expresion_simple(parh);
@@ -1177,11 +1182,10 @@ public class AnalizadorSintactico {
 			}
 			String modo0 = "val";
 			Tupla t = new Tupla(2);
-			t.setnTupla(0, t1.getnTupla(0).toString());
+			t.setnTupla(0, t1.getnTupla(0));
 			t.setnTupla(1, modo0);
 			return t;
 		}else{
-			//vacio
 			Tupla t = new Tupla(2);
 			t.setnTupla(0, "");
 			t.setnTupla(1, "");
