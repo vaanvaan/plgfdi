@@ -818,7 +818,10 @@ public class AnalizadorSintactico {
 		String lexToken= anaLex.getToken();
 		String lexTipo = anaLex.getLex();
 		if(lexToken.compareTo("identificador")==0){
-			//FIXME ejem...
+			// FIXME
+			/** ¿Se puede predecir consecutivamente?
+			 ** ¿O predice lo mismo 2 veces?  
+			 **/
 			Tupla t = this.id_comp();
 			this.anaLex.predice();
 			lexTipo = anaLex.getLex();
@@ -842,7 +845,7 @@ public class AnalizadorSintactico {
 				}
 			// Si no, es una invocación a procedimiento
 			}else{
-				this.proposicion_proc();
+				this.proposicion_proc((String) t.getnTupla(0));
 			}
 		}else if(lexTipo.compareTo("read")==0){
 			this.compara("read");
@@ -899,37 +902,38 @@ public class AnalizadorSintactico {
 	
 	private Tupla id_comp() throws Exception{
 		String id = this.id();
-		if(!this.pilaTablaSim.getTSnivel(n).existeID(id)||this.pilaTablaSim.getTSnivel(n).getEntrada(id).getClase().compareTo("var")!=0)
+		if (!this.pilaTablaSim.getTSnivel(n).existeID(id))
 			{
 			throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 			}
+		String tipo = this.id_compR(id);
+		Tupla rtupla = new Tupla(2);
+		rtupla.setnTupla(0, id);
+		rtupla.setnTupla(1, tipo);
+		return rtupla;
+	}
+	
+	private String id_compR(String id) throws Exception{
 		Propiedades propsID = this.pilaTablaSim.getTSnivel(n).getEntrada(id).getProps();
 		this.anaLex.predice();
 		String lex = this.anaLex.getLex();
-		
-		// 0. Si encontramos id --> id_comp
-		if (this.anaLex.getToken()== "identificador"){
-			return this.id_comp();
-		
-			// 1. Si encontramos [
-		} else if (lex.compareTo("[")==0){
+		// 1. Si encontramos [
+		if (lex.compareTo("[")==0){
 			this.compara("[");
 			Tupla t = this.expresion(false);
-			this.compara("[");
-			if(t.getnTupla(0).toString().compareTo("integer")!=0 || 
+			this.compara("]");
+			if ((this.pilaTablaSim.getTSnivel(n).getEntrada(id).getClase().compareTo("var")!=0) ||
+					t.getnTupla(0).toString().compareTo("integer")!=0 || 
 					propsID.getT().compareTo("array")!=0)
 				{
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 				}
-			String tipo = propsID.getTbase().getT();
+			this.id_compR(id);
 			this.emite("apila "+ propsID.getTbase().getN());
 			this.emite("multiplica");
 			this.emite("suma");
 			etq = etq+3;
-			Tupla rtupla = new Tupla(2);
-			rtupla.setnTupla(0, id);
-			rtupla.setnTupla(1, tipo);
-			return rtupla;
+			return propsID.getTbase().getT();
 			
 		// 2. Si encontramos ^
 		} else if (lex.compareTo("^")==0){
@@ -937,47 +941,40 @@ public class AnalizadorSintactico {
 			if(propsID.getT().compareTo("pointer")!=0){
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 			}
-			String tipo = propsID.getTbase().getT();
 			this.emite("apila-ind");
 			etq++;
-			Tupla rtupla = new Tupla(2);
-			rtupla.setnTupla(0, id);
-			rtupla.setnTupla(1, tipo);
-			return rtupla;
+			return propsID.getTbase().getT();
 		
 		// 3. Si encontramos .
 		} else if (lex.compareTo(".")==0){
 			this.compara(".");
 			String id2 = this.id();
-			if(propsID.getT().compareTo("reg")!=0 || !propsID.getCampos().containsKey(id2))
+			if ((this.pilaTablaSim.getTSnivel(n).getEntrada(id).getClase().compareTo("var")!=0) ||
+					propsID.getT().compareTo("reg")!=0 || !propsID.getCampos().containsKey(id2))
 				{
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 				}
-			String tipo = propsID.getCampos().get(id2).getTipo().getT();
+			this.id_compR(id);
 			this.emite("apila "+ propsID.getCampos().get(id2).getDesp());
 			this.emite("suma");
 			etq = etq + 2;
-			Tupla rtupla = new Tupla(2);
-			rtupla.setnTupla(0, id);
-			rtupla.setnTupla(1, tipo);
-			return rtupla;
+			return propsID.getCampos().get(id2).getTipo().getT();
 			
-		// Si no, es una variable normal.	
+		// Si no, es una variable normal o el ID de un procedimiento.	
 		} else {
-			String tipo = propsID.getT();
-			entradaTS entradaID = this.pilaTablaSim.getTSnivel(n).getEntrada(id); 
-			this.accesoVar(entradaID);
-			etq = etq + this.longAccesoVar(entradaID);
-			Tupla rtupla = new Tupla(2);
-			rtupla.setnTupla(0, id);
-			rtupla.setnTupla(1, tipo);
-			return rtupla;
-		}
+			// Si es una variable, accedemos.
+			if (this.pilaTablaSim.getTSnivel(n).getEntrada(id).getClase().compareTo("var")!=0){
+				entradaTS entradaID = this.pilaTablaSim.getTSnivel(n).getEntrada(id); 
+				this.accesoVar(entradaID);
+				etq = etq + this.longAccesoVar(entradaID);
+				}
+			return propsID.getT();
+		}		
 	}
 	
-	private void proposicion_proc()throws Exception{
-		String lex = this.id();
-		if(!this.pilaTablaSim.getTSnivel(n).existeID(lex)||this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getClase().compareTo("proc")!=0){
+	private void proposicion_proc(String lex)throws Exception{
+		if(this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getClase().compareTo("proc")!=0)
+		{
 			throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 		}
 		this.compara("(");
@@ -986,7 +983,7 @@ public class AnalizadorSintactico {
 		etq = etq+longApilaRet;
 		this.Aexps(fparams);
 		this.compara(")");
-		emite("ir-a("+this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getProps().getInicio()+")");
+		emite("ir-a "+this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getProps().getInicio());
 		etq = etq+1;
 	}
 	
@@ -1014,10 +1011,11 @@ public class AnalizadorSintactico {
 		etq = etq+1;
 		boolean parh = (fparams.get(0).getModo().compareTo("var")==0);
 		Tupla t = this.expresion(parh);
-		if(fparams.size()==0||fparams.get(0).getModo().compareTo(t.getnTupla(1).toString())!=0||!compatibles(fparams.get(0).getTipo().getT(),t.getnTupla(0).toString())){
+		if(fparams.size()==0||fparams.get(0).getModo().compareTo(t.getnTupla(1).toString())!=0
+				||!compatibles(fparams.get(0).getTipo().getT(),(String) t.getnTupla(0))){
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 			}
-		pasoParametro(t.getnTupla(1).toString(),fparams.get(0));
+		pasoParametro((String) t.getnTupla(1),fparams.get(0));
 		etq = etq+longPasoParametro;
 		int nparams1 = 1;
 		return this.lista_expsR(fparams,nparams1);
@@ -1032,7 +1030,8 @@ public class AnalizadorSintactico {
 			etq = etq+1;
 			boolean parh = (fparams.get(nparams).getModo().compareTo("var")==0);
 			Tupla t = this.expresion(parh);
-			if(fparams.size()<nparams || fparams.get(nparams).getModo().compareTo(t.getnTupla(1).toString())!=0 || !compatibles(fparams.get(nparams).getTipo().getT(),t.getnTupla(0).toString())){
+			if(fparams.size()<nparams || fparams.get(nparams).getModo().compareTo((String) t.getnTupla(1))!=0 || 
+					!compatibles(fparams.get(nparams).getTipo().getT(),(String) t.getnTupla(0))){
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 			}
 			pasoParametro(t.getnTupla(1).toString(),fparams.get(nparams));
