@@ -75,16 +75,16 @@ public class AnalizadorSintactico {
 	
 	
 	public void apilaRet(int ret){
-		emite("apila-dir(0)");
-		emite("apila(1)");
+		emite("apila-dir 0");
+		emite("apila 1");
 		emite("suma");
-		emite("apila("+ret+")");
+		emite("apila "+ret);
 		emite("desapila-ind");
 	}
 	
 	public void accesoVar(entradaTS infoID){
-		emite("apila-dir("+(1+infoID.getProps().getNivel())+")");
-		emite("apila("+(infoID.getProps().getDir())+")");
+		emite("apila-dir "+(1+infoID.getProps().getNivel()));
+		emite("apila "+(infoID.getProps().getDir()));
 		emite("suma");
 		if(infoID.getClase().compareTo("pvar")==0){
 			emite("apila-ind");
@@ -100,61 +100,60 @@ public class AnalizadorSintactico {
 	}
 	
 	public void inicio(int numNiveles,int tamDatos){
-		emite("apila("+(numNiveles+1)+")");
-		emite("desapila-dir(1)");
-		emite("apila("+(1+numNiveles+tamDatos)+")");
-		emite("desapila-dir(0)");
+		emite("apila "+(numNiveles+1));
+		emite("desapila-dir 1");
+		emite("apila "+(1+numNiveles+tamDatos));
+		emite("desapila-dir 0");
 	}
 	
 	public void prologo(int nivel,int tamlocales){
-		emite("apila-dir(0)");
-		emite("apila(2)");
+		emite("apila-dir 0");
+		emite("apila 2");
 		emite("suma");
-		emite("apila-dir("+(1+nivel)+")");
+		emite("apila-dir "+(1+nivel));
 		emite("desapila-ind");
-		emite("apila-dir(0)");
-		emite("apila(3)");
+		emite("apila-dir 0");
+		emite("apila 3");
 		emite("suma");
-		emite("desapila-dir("+(1+nivel)+")");
+		emite("desapila-dir "+(1+nivel));
 		emite("apila-dir(0)");
-		emite("apila("+(tamlocales+2)+")");
+		emite("apila "+(tamlocales+2));
 		emite("suma");
-		emite("desapila-dir(0)");
+		emite("desapila-dir 0");
 	}
 	
 	public void epilogo(int nivel){
-		//FIXME 1/nivel????????????
-		emite("apila-dir("+(1/nivel)+")");
-		emite("apila(2)");
+		emite("apila-dir "+(1+nivel));
+		emite("apila 2");
 		emite("resta");
 		emite("apila-ind");
-		emite("apila-dir("+(1+nivel)+")");
-		emite("apila(3)");
+		emite("apila-dir "+(1+nivel));
+		emite("apila 3");
 		emite("resta");
 		emite("copia");
-		emite("desapila-dir(0)");
-		emite("apila(2)");
+		emite("desapila-dir 0");
+		emite("apila 2");
 		emite("suma");
 		emite("apila-ind");
-		emite("desapila-dir("+(1+nivel)+")");
+		emite("desapila-dir "+(1+nivel));
 	}
 	
 	public void direccionParFormal(CParams pformal){
-		emite("apila("+pformal.getDir()+")");
+		emite("apila "+pformal.getDir());
 		emite("suma");
 	}
 	
 	public void pasoParametro(String modoReal, CParams pformal){
 		if(pformal.getModo().compareTo("val")==0 || modoReal.compareTo("var")==0){
-			emite("mueve("+pformal.getTipo().getTam()+")");
+			emite("mueve "+pformal.getTipo().getTam());
 		}else{
 			emite("desapila-ind");
 		}
 	}
 	
 	public void inicioPaso(){
-		emite("apila-dir(0)");
-		emite("apila(3)");
+		emite("apila-dir 0");
+		emite("apila 3");
 		emite("suma");
 	}
 	
@@ -172,22 +171,22 @@ public class AnalizadorSintactico {
 		etq = flag;
 		switch (tipo){
 		case 0:
-			emiteP("apila("+(n+1)+")");
+			emiteP("apila "+(n+1)+")");
 			etq++;
-			emiteP("desapila-dir(1)");
+			emiteP("desapila-dir 1)");
 			etq++;
-			emiteP("apila("+(1+n+dir)+")");
+			emiteP("apila "+(1+n+dir));
 			etq++;
-			emiteP("desapila-dir(0)");
+			emiteP("desapila-dir 0");
 			break;
 		case 1:
-			emiteP("ir-a("+etq+")"); 
+			emiteP("ir-a "+etq); 
 			break;
 		case 2:
-			emiteP("ir-f("+etq+")");
+			emiteP("ir-f "+etq);
 			break;
 		case 3:
-			emiteP("ir-v("+etq+")");
+			emiteP("ir-v "+etq);
 			break;
 		}
 		etq = etqAux;
@@ -208,7 +207,7 @@ public class AnalizadorSintactico {
 			this.etq = 0;
 			inicio(n,dir);
 			int flag = etq;
-			emite("ir-a("+etq+")");
+			emite("ir-a "+etq);
 			etq = longInicio+1;
 			this.bloqueDecls();
 			this.parchea(0, 0);
@@ -579,8 +578,6 @@ public class AnalizadorSintactico {
 		if(lex.compareTo("procedure")==0){
 			this.dec_Proc();
 			this.dec_Procs();
-		}else{
-			//vacio
 		}
 	}
 	
@@ -625,24 +622,23 @@ public class AnalizadorSintactico {
 	}
 	
 	private ArrayList<CParams> parametros()throws Exception{
-		ArrayList<CParams> params = new ArrayList<CParams>();
+		ArrayList<CParams> params = null;
 		anaLex.predice();
 		String lex = this.anaLex.getLex();
 		if(lex.compareTo("(")==0){
 			this.compara("(");
 			params = lista_Params();
 			this.compara(")");
-		}
+		} else params = new ArrayList<CParams>();
 		return params;
 	}
 	
 	private ArrayList<CParams> lista_Params()throws Exception{
 		Tupla t = param();
-		//FIXME aqui el param tiene un parametro menos xD
 		this.pilaTablaSim.añadeID(n,(String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
-		dir = dir + ((Propiedades)t.getnTupla(2)).getTam();
+		dir = dir + Integer.parseInt(t.getnTupla(3).toString());
 		ArrayList<CParams> params0 = new ArrayList<CParams>();
-		params0.add((CParams)t.getnTupla(4));
+		params0.add((CParams)t.getnTupla(3));
 		ArrayList<CParams> params1 = this.lista_ParamsR(params0);
 		return params1;
 	}
