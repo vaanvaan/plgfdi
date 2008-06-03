@@ -1128,6 +1128,8 @@ public class AnalizadorSintactico {
 			etq = etq+1;
 			return tup;
 		} else {
+			// FIXME
+			return null;
 			/** Comprobar si después de Expresión_Simple viene OPSUMA ó OR()
 			Si Exp_SimpleR <> vacío entonces parh1 = false si no parh1 = parh0
 			Término(in parh1; out tipo1, modo1)
@@ -1230,7 +1232,6 @@ public class AnalizadorSintactico {
 			t.setnTupla(0, t1.getnTupla(0).toString());
 			t.setnTupla(1, modo0);
 			return t;
-			//emite(op);
 		}else if(lexToken.compareTo("ylogica")==0){
 			String op =this.operador();
 			boolean parh = false;
@@ -1249,8 +1250,13 @@ public class AnalizadorSintactico {
 			emite("ir-a("+(etq+2)+")");
 			emite("apila(0)");
 			etq = etq+2;
+			return t1;
+		}else {
+			Tupla t = new Tupla(2);
+			t.setnTupla(0, "");
+			t.setnTupla(1, "");
+			return t;
 		}
-		return null;
 	}
 
 
@@ -1286,17 +1292,15 @@ public class AnalizadorSintactico {
 			String signo = this.anaLex.getLex();
 			boolean parh1 = false;
 			Tupla t = this.factor(tipo0,parh1);
-			//this.emite(signo);
+			this.emite(signo);
 			if(t.getnTupla(0).toString().compareTo("booleano")!=0){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
-				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
-			}
+				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");}
 			return t;
 		} else if (lex.compareTo("true")==0 || lex.compareTo("false")==0){
 			this.anaLex.scanner();
 			String tipo1 = "boolean";
 			String modo = "val";
-			//apila(valorDe(lex));
 			this.emite("apila("+ this.anaLex.getLex()+")");
 			etq = etq+1;
 			Tupla t = new Tupla(2);
@@ -1323,8 +1327,7 @@ public class AnalizadorSintactico {
 			t.setnTupla(0, tipo1);
 			t.setnTupla(1, modo);
 			return t;
-		}
-		return null;
+		} else return null;
 	}
 
 	
