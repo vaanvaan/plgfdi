@@ -368,7 +368,7 @@ public class AnalizadorLexico {
 						this.transita(6);
 					}else if(buf==':'){
 						this.transita(9);
-					}else if(buf==','||buf=='.'||buf=='+' || buf == '-' || buf =='*' || buf == '/'||buf=='('||buf==')'||buf==';'||buf=='='){
+					}else if(buf==','||buf=='.'||buf=='+' || buf == '-' || buf =='*' || buf == '/'||buf=='('||buf==')'||buf==';'||buf=='='||buf=='^'||buf=='['||buf==']'){
 						this.transita(10);
 					}else if(buf=='>'){
 						this.transita(11);
