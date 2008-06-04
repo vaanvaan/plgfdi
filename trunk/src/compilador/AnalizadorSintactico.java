@@ -209,9 +209,9 @@ public class AnalizadorSintactico {
 			this.n = 0;
 			this.etq = 0;
 			inicio(n,dir);
+			etq = longInicio+1;
 			int flag = etq;
 			emite("ir-a "+etq);
-			etq = longInicio+1;
 			this.bloqueDecls();
 			this.parchea(0, 0);
 			this.parchea(1, flag);
