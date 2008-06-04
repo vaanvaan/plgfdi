@@ -807,7 +807,7 @@ public class AnalizadorSintactico {
 			emite("ir-a("+etqb);
 			etq = etq+1;
 			parchea(2,flag);
-		}else{
+		}else if (lexTipo.compareTo("end")!=0){
 			this.proposicion_simple();
 		}
 	}
@@ -845,7 +845,7 @@ public class AnalizadorSintactico {
 				this.compara(":=");
 				parh = false;
 				Tupla t2 = this.expresion(); // Devuelve tipo
-				if (!compatibles((String)t.getnTupla(1), (String)t2.getnTupla(1)) || 
+				if (!compatibles((String)t.getnTupla(1), (String)t2.getnTupla(0)) || 
 						(this.pilaTablaSim.getTSnivel(n).getEntrada((String) t.getnTupla(0)).getClase() != "var")){
 					Global.setErrorMsg("Violación restricciones. Asignación incorrecta");
 					throw new Exception("Error sintaxis: Asignación incorrecta"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
@@ -1088,8 +1088,8 @@ public class AnalizadorSintactico {
 				tup.setnTupla(1, t2.getnTupla(1));
 			} else tup.setnTupla(1, t1.getnTupla(1));
 			if (((String) t2.getnTupla(0)).compareTo("")==0) {
-				tup.setnTupla(0, "boolean");
-			} else tup.setnTupla(0, t1.getnTupla(0));
+				tup.setnTupla(0, t1.getnTupla(0));
+			} else tup.setnTupla(0, "boolean");
 		}
 		return tup;
 	}
