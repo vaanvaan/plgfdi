@@ -28,6 +28,23 @@ public class Propiedades {
 	}
 
 	
+	public Propiedades(Propiedades props) {
+		t = props.getT();
+		valor = props.getValor();
+		n = props.getN();
+		tbase = props.getTbase();
+		// FIXME
+		// Creo que no copia los valores. Problema en declaración múltiple de registros.
+		campos = (Hashtable<String, CCampos>) props.getCampos().clone();
+		nivel = props.getNivel();
+		params = (ArrayList<CParams>) props.getParams().clone();
+		dir = props.getDir();
+		tam = props.getTam();
+		inicio = props.getInicio();
+		
+	}
+
+
 	/**
 	 * @return the inicio
 	 */
