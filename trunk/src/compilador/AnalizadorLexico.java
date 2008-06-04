@@ -488,11 +488,16 @@ public class AnalizadorLexico {
 	
 	public void gotoUntil(String cadena) throws Exception{
 		boolean enc=false;
+		int limiteID=0;
 		while(!enc){
 			this.scanner();
 			if(this.lex.compareTo(cadena)==0){
 				enc = true;
+			}else if(this.lex.compareTo(";")==0 ||limiteID>100){
+				throw new Exception("Error sintaxis: Programa mal formado"
+						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');		
 			}
+			limiteID++;
 		}
 	}
 	
