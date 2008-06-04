@@ -166,7 +166,7 @@ public class AnalizadorSintactico {
 	
 	/**
 	 * Sustituye la instrucción con etiqueta flag, por la correcta.
-	 * @param tipo tipo de instrucción a sustituir. 0:inicio, 1:ir-a, 2:ir-f, 3:ir-v
+	 * @param tipo tipo de instrucción a sustituir. 0:inicio, 1:ir-a, 2:ir-f, 3:ir-v, 4:ir-a etq + 1
 	 * @param flag dirección de la instrucción
 	 */
 	public void parchea(int tipo,int flag){
@@ -191,6 +191,9 @@ public class AnalizadorSintactico {
 		case 3:
 			emiteP("ir-v "+etq);
 			break;
+		case 4:
+			emiteP("ir-a "+(etq+1));
+			break;
 		}
 		etq = etqAux;
 	}
@@ -211,11 +214,12 @@ public class AnalizadorSintactico {
 			inicio(n,dir);
 			etq = longInicio;
 			int flag = etq;
+			// FIXME
 			emite("ir-a "+etq);
+			etq = etq + 1;
 			this.bloqueDecls();
 			this.parchea(0, 0);
-			etq = etq + 1;
-			this.parchea(1, flag);
+			this.parchea(4, flag);
 			this.proposicion_compuesta(); 
 			this.compara(".");
 			this.anaLex.scanner();
