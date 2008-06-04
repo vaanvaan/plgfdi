@@ -86,7 +86,7 @@ public class AnalizadorSintactico {
 	}
 	
 	public void accesoVar(entradaTS infoID){
-		emite("apila-dir "+(1+infoID.getProps().getNivel()));
+		emite("apila "+(infoID.getProps().getNivel()));
 		emite("apila "+(infoID.getProps().getDir()));
 		emite("suma");
 		if(infoID.getClase().compareTo("pvar")==0){
@@ -1112,12 +1112,12 @@ public class AnalizadorSintactico {
 				String op = this.operador();
 				parh = false;
 				Tupla t1 = this.expresion_simple();
-				if (!comparables(tipo0,"int")||!comparables(tipo0,"numReal")||!comparables(tipo0,"boolean")) {
+				if (!comparables(tipo0,"integer") && !comparables(tipo0,"numReal") && !comparables(tipo0,"boolean")) {
 					//throw new Exception("Error sintaxis: tipos no compatibles.");
 					Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 				}
 				String modo = "val";
-				emite("apila "+op);
+				emite(op);
 				etq = etq+1;
 				t.setnTupla(0, t1.getnTupla(0));
 				t.setnTupla(1, modo);
@@ -1137,14 +1137,14 @@ public class AnalizadorSintactico {
 		this.anaLex.predice();
 		String lexToken = anaLex.getToken();
 		Tupla tup;
-		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0){
+		if (lexToken.compareTo("resta")==0){
 			String op = this.operador();
 			tup = this.termino();
-			if(((String) tup.getnTupla(0)).compareTo("integer")!=0 ||
+			if(((String) tup.getnTupla(0)).compareTo("integer")!=0 &&
 					((String) tup.getnTupla(0)).compareTo("numReal")!=0){
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 			}
-			emite("apila "+op);
+			emite("menosN");
 			etq = etq+1;
 			return tup;
 		} else {
@@ -1176,12 +1176,12 @@ public class AnalizadorSintactico {
 			String op = this.operador();
 			parh = false;
 			Tupla t1 = this.expresion_simple();
-			if ((tipo0.compareTo("integer")!=0 && t1.getnTupla(0).toString().compareTo("integer")!=0)
-					||(tipo0.compareTo("numReal")!=0 && t1.getnTupla(0).toString().compareTo("numReal")!=0)){
+			if ((tipo0.compareTo("integer")!=0 || t1.getnTupla(0).toString().compareTo("integer")!=0)
+					&& (tipo0.compareTo("numReal")!=0 || t1.getnTupla(0).toString().compareTo("numReal")!=0)){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 			}
-			emite("apila "+op);
+			emite(op);
 			String modo = "val";
 			etq = etq + 1;
 			Tupla t = new Tupla(2);
@@ -1254,7 +1254,7 @@ public class AnalizadorSintactico {
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 			}
-			emite("apila "+op);
+			emite(op);
 			String modo0= "val";
 			etq = etq+1;
 			Tupla t = new Tupla(2);
