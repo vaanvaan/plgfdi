@@ -56,6 +56,22 @@ public class AnalizadorLexico {
 		this.estado = state;
 	}
 	
+	/** Funcion que cambia el estado del analizador lexico, ademas de actualizar el lexema y la posicion
+	 * de lectura del fichero. Este es un caso especial para los nºs en punto flotante.
+	 * 
+	 * @param state Nuevo estado al que pasa el analizador lï¿½xico.
+	 */
+	public void transitaFloat(int state){
+		char aux = archivo.charAt(Global.getGlobalPos()); 
+		if(aux == ','){
+			aux = '.';
+		}
+		this.lex = lex + aux;
+		Global.aumentaCol();
+		Global.aumenteGlobalPos();
+		this.estado = state;
+	}
+	
 	/** Funcion que a partir de un lexema dado, devuelve el token asociado.
 	 * 
 	 * @param lexema Lexema a partir del cual se obtiene el token.
@@ -255,8 +271,8 @@ public class AnalizadorLexico {
 				case 6:
 					if(buf>='0'&&buf<='9'){
 						this.transita(6);
-					}else if(buf=='.'||buf=='e'){
-						this.transita(7);
+					}else if(buf==','||buf=='e'){
+						this.transitaFloat(7);
 					}else{
 						encontrado = true;
 						this.token = "num";
