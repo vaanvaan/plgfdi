@@ -211,12 +211,10 @@ public class AnalizadorSintactico {
 			inicio(n,dir);
 			etq = longInicio;
 			int flag = etq;
-			// FIXME
-			// este ir-a es a etq + 1. Hay que cambiar el parchea.
 			emite("ir-a "+etq);
-			etq = etq + 1;
 			this.bloqueDecls();
 			this.parchea(0, 0);
+			etq = etq + 1;
 			this.parchea(1, flag);
 			this.proposicion_compuesta(); 
 			this.compara(".");
@@ -1250,8 +1248,8 @@ public class AnalizadorSintactico {
 			String op =this.operador();
 			parh = false;
 			Tupla t1 = this.termino();
-			if ((tipo0.compareTo("integer")!=0 && t1.getnTupla(0).toString().compareTo("integer")!=0)
-					||(tipo0.compareTo("numReal")!=0 && t1.getnTupla(0).toString().compareTo("numReal")!=0)){
+			if ((tipo0.compareTo("integer")!=0 || t1.getnTupla(0).toString().compareTo("integer")!=0)
+					&& (tipo0.compareTo("numReal")!=0 || t1.getnTupla(0).toString().compareTo("numReal")!=0)){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 			}
