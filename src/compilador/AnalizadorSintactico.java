@@ -66,8 +66,7 @@ public class AnalizadorSintactico {
 		this.longdireccionParFormal = 2;
 		this.longPasoParametro = 1;
 		this.longEpilogo = 13;
-		// FIXME
-		this.longInicio = 3;
+		this.longInicio = 4;
 		this.longInicioPaso = 3;
 		this.longFinPaso = 1;
 		this.longApilaRet = 5;
@@ -210,7 +209,7 @@ public class AnalizadorSintactico {
 			this.n = 0;
 			this.etq = 0;
 			inicio(n,dir);
-			etq = longInicio+1;
+			etq = longInicio;
 			int flag = etq;
 			emite("ir-a "+etq);
 			this.bloqueDecls();
