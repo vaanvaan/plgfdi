@@ -66,7 +66,8 @@ public class AnalizadorSintactico {
 		this.longdireccionParFormal = 2;
 		this.longPasoParametro = 1;
 		this.longEpilogo = 13;
-		this.longInicio = 4;
+		// FIXME
+		this.longInicio = 3;
 		this.longInicioPaso = 3;
 		this.longFinPaso = 1;
 		this.longApilaRet = 5;
