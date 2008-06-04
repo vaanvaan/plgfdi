@@ -261,8 +261,8 @@ public class AnalizadorLexico {
 					this.token = "char";
 					break;
 				case 5:
-					if(buf=='.'||buf=='e'){
-						this.transita(7);
+					if(buf==','||buf=='e'){
+						this.transitaFloat(7);
 					}else{
 						encontrado = true;
 						this.token = "num";
@@ -417,8 +417,8 @@ public class AnalizadorLexico {
 					this.token = "char";
 					break;
 				case 5:
-					if(buf=='.'||buf=='e'){
-						this.transita(7);
+					if(buf==','||buf=='e'){
+						this.transitaFloat(7);
 					}else{
 						encontrado = true;
 						Global.setGlobalPos(posAux);
@@ -429,8 +429,8 @@ public class AnalizadorLexico {
 				case 6:
 					if(buf>='0'&&buf<='9'){
 						this.transita(6);
-					}else if(buf=='.'||buf=='e'){
-						this.transita(7);
+					}else if(buf==','||buf=='e'){
+						this.transitaFloat(7);
 					}else{
 						encontrado = true;
 						Global.setGlobalPos(posAux);
