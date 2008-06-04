@@ -1325,7 +1325,7 @@ public class AnalizadorSintactico {
 			parh = false;
 			Tupla t = this.factor();
 			this.emite(signo);
-			if(t.getnTupla(0).toString().compareTo("booleano")!=0){
+			if(t.getnTupla(0).toString().compareTo("boolean")!=0){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");}
 			return t;
