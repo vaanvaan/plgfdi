@@ -161,13 +161,13 @@ public class Maquina_P{
 			if(accion.equalsIgnoreCase("apila")){
 				apilar(com.getOperando());
 				print_state("apila", com.getOperando());
-			}else if(accion.equalsIgnoreCase("apila_dir")){
+			}else if(accion.equalsIgnoreCase("apila-dir")){
 				apila_dir(Integer.parseInt(com.getOperando()));
 				if(!memoriaref.contains(com.getOperando())){
 					memoriaref.add(com.getOperando());
 				}
 				print_state("apila_dir", com.getOperando());
-			}else if(accion.equalsIgnoreCase("apila_ind")){
+			}else if(accion.equalsIgnoreCase("apila-ind")){
 				apila_ind();
 //				if(!memoriaref.contains(com.getOperando())){
 //					memoriaref.add(com.getOperando());
@@ -176,13 +176,13 @@ public class Maquina_P{
 			}else if(accion.equalsIgnoreCase("desapila")){
 				desapila();
 				print_state("desapila","");
-			}else if(accion.equalsIgnoreCase("desapila_dir")){
+			}else if(accion.equalsIgnoreCase("desapila-dir")){
 				desapila_dir(Integer.parseInt(com.getOperando()));
 				if(!memoriaref.contains(com.getOperando())){
 					memoriaref.add(com.getOperando());
 				}
 				print_state("desapila_dir",com.getOperando());
-			}else if(accion.equalsIgnoreCase("desapila_ind")){
+			}else if(accion.equalsIgnoreCase("desapila-ind")){
 				desapila_ind();
 //				if(!memoriaref.contains(com.getOperando())){
 //					memoriaref.add(com.getOperando());
@@ -252,16 +252,16 @@ public class Maquina_P{
 			}else if(accion.equalsIgnoreCase("copia")){
 				copia_cima();
 				print_state("copia cima","");
-			}else if(accion.equalsIgnoreCase("ir_a")){
+			}else if(accion.equalsIgnoreCase("ir-a")){
 				ir_a(new Long(com.getOperando().toString()));
 				print_state("ir_a",com.getOperando().toString());
-			}else if(accion.equalsIgnoreCase("ir_f")){
+			}else if(accion.equalsIgnoreCase("ir-f")){
 				ir_f(new Long(com.getOperando().toString()));
 				print_state("ir_f",com.getOperando().toString());
-			}else if(accion.equalsIgnoreCase("ir_v")){
+			}else if(accion.equalsIgnoreCase("ir-v")){
 				ir_v(new Long(com.getOperando().toString()));
 				print_state("ir_v",com.getOperando().toString());
-			}else if(accion.equalsIgnoreCase("ir_ind")){
+			}else if(accion.equalsIgnoreCase("ir-ind")){
 				ir_ind();
 				print_state("ir_ind",com.getOperando().toString());
 			}else if(accion.equalsIgnoreCase("stop")){
