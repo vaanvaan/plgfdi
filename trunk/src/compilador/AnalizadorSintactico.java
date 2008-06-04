@@ -54,6 +54,9 @@ public class AnalizadorSintactico {
 	private int longInicio;
 	
 	private int etq;
+	
+	private boolean parh;
+	
 	/**Constructor del analizador sintactico, donde se crea el analizador lexico y la tabla de simbolos. 
 	 * 
 	 * @param path Ruta del archivo que se va a analizar.
@@ -450,7 +453,6 @@ public class AnalizadorSintactico {
 	private Propiedades tipo_estandar() throws Exception{
 		anaLex.scanner();
 		Propiedades p = new Propiedades();
-		String token = anaLex.getToken();
 		String lex = anaLex.getLex();
 		if(lex.compareTo("boolean")==0){
 			p.setT("boolean");
@@ -768,12 +770,11 @@ public class AnalizadorSintactico {
 	
 	private void proposicion() throws Exception{
 		this.anaLex.predice();
-		String lexToken= anaLex.getToken();
 		String lexTipo = anaLex.getLex();
 		if(lexTipo.compareTo("if")==0){
 			this.compara("if");
-			boolean parh = false;
-			Tupla t = this.expresion(parh);
+			this.parh = false;
+			Tupla t = this.expresion();
 			if(t.getnTupla(0).toString()!="boolean"){
 				throw new Exception("Proposicion no válida."
 						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
@@ -791,9 +792,9 @@ public class AnalizadorSintactico {
 			parchea(1,flag2);
 		}else if(lexTipo.compareTo("while")==0){
 			this.compara("while");
-			boolean parh = false;
+			parh = false;
 			int etqb = etq;
-			Tupla t = this.expresion(parh);
+			Tupla t = this.expresion();
 			if(t.getnTupla(0).toString()!="boolean"){
 				throw new Exception("Proposicion no válida."
 						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
@@ -842,8 +843,8 @@ public class AnalizadorSintactico {
 			// Si encontramos :=, es una asignación.
 			if(lexTipo.compareTo(":=")==0){
 				this.compara(":=");
-				boolean parh = false;
-				Tupla t2 = this.expresion(parh); // Devuelve tipo
+				parh = false;
+				Tupla t2 = this.expresion(); // Devuelve tipo
 				if (!compatibles((String)t.getnTupla(1), (String)t2.getnTupla(1)) || 
 						(this.pilaTablaSim.getTSnivel(n).getEntrada((String) t.getnTupla(0)).getClase() != "var")){
 					Global.setErrorMsg("Violación restricciones. Asignación incorrecta");
@@ -875,7 +876,8 @@ public class AnalizadorSintactico {
 		}else if(lexTipo.compareTo("write")==0){
 			this.compara("write");
 			this.compara("(");
-			this.expresion(false);
+			parh = false;
+			this.expresion();
 			this.compara(")");
 			this.emite("write");
 			etq = etq+1;
@@ -934,7 +936,8 @@ public class AnalizadorSintactico {
 		// 1. Si encontramos [
 		if (lex.compareTo("[")==0){
 			this.compara("[");
-			Tupla t = this.expresion(false);
+			parh = false;
+			Tupla t = this.expresion();
 			this.compara("]");
 			if ((this.pilaTablaSim.getTSnivel(n).getEntrada(id).getClase().compareTo("var")!=0) ||
 					t.getnTupla(0).toString().compareTo("integer")!=0 || 
@@ -1023,8 +1026,8 @@ public class AnalizadorSintactico {
 	private int lista_exps(ArrayList<CParams> fparams)throws Exception{
 		emite("copia");
 		etq = etq+1;
-		boolean parh = (fparams.get(0).getModo().compareTo("var")==0);
-		Tupla t = this.expresion(parh);
+		parh = (fparams.get(0).getModo().compareTo("var")==0);
+		Tupla t = this.expresion();
 		if(fparams.size()==0||fparams.get(0).getModo().compareTo(t.getnTupla(1).toString())!=0
 				||!compatibles(fparams.get(0).getTipo().getT(),(String) t.getnTupla(0))){
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
@@ -1042,8 +1045,8 @@ public class AnalizadorSintactico {
 			this.compara(",");
 			emite("copia");
 			etq = etq+1;
-			boolean parh = (fparams.get(nparams).getModo().compareTo("var")==0);
-			Tupla t = this.expresion(parh);
+			parh = (fparams.get(nparams).getModo().compareTo("var")==0);
+			Tupla t = this.expresion();
 			if(fparams.size()<nparams || fparams.get(nparams).getModo().compareTo((String) t.getnTupla(1))!=0 || 
 					!compatibles(fparams.get(nparams).getTipo().getT(),(String) t.getnTupla(0))){
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
@@ -1063,7 +1066,7 @@ public class AnalizadorSintactico {
 	 * @throws Exception Se recoge cualquier tipo de error que haya ocurrido en cualquier metodo de los niveles
 	 * inferiores de la jerarquia.
 	 */
-	private Tupla expresion(boolean parh) throws Exception{
+	private Tupla expresion() throws Exception{
 		Tupla tup = new Tupla(2);
 		this.anaLex.predice();
 		String lexToken= anaLex.getToken();
@@ -1078,7 +1081,8 @@ public class AnalizadorSintactico {
 		}else{
 			// FIXME Comprobar si después de Expresión_Simple viene OPREL
 			// Si ExpresiónR<> vacío entonces parh = false si no parh
-			Tupla t1 = this.expresion_simple(parh);
+			// ARREGLADO!
+			Tupla t1 = this.expresion_simple();
 			Tupla t2 = this.expresionR((String) t1.getnTupla(0));
 			if (((String) t2.getnTupla(1)).compareTo("val")==0){
 				tup.setnTupla(1, t2.getnTupla(1));
@@ -1103,8 +1107,8 @@ public class AnalizadorSintactico {
 		if(lexToken.compareTo("igual")==0 || lexToken.compareTo("distintos")==0 || lexToken.compareTo("mayor")==0
 			|| lexToken.compareTo("mayor_igual")==0 || lexToken.compareTo("menor")==0 || lexToken.compareTo("menor_igual")==0){
 				String op = this.operador();
-				boolean parh = false;
-				Tupla t1 = this.expresion_simple(parh);
+				parh = false;
+				Tupla t1 = this.expresion_simple();
 				if (!comparables(tipo0,"int")||!comparables(tipo0,"numReal")||!comparables(tipo0,"boolean")) {
 					//throw new Exception("Error sintaxis: tipos no compatibles.");
 					Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
@@ -1126,13 +1130,13 @@ public class AnalizadorSintactico {
 	 * @return Se devuelve un string del token analizado.
 	 * @throws Exception Se recoge cualquier tipo de error generado mas abajo en la jerarquia.
 	 */
-	private Tupla expresion_simple(boolean parh) throws Exception {
+	private Tupla expresion_simple() throws Exception {
 		this.anaLex.predice();
 		String lexToken = anaLex.getToken();
 		Tupla tup;
 		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0){
 			String op = this.operador();
-			tup = this.termino(parh);
+			tup = this.termino();
 			if(((String) tup.getnTupla(0)).compareTo("integer")!=0 ||
 					((String) tup.getnTupla(0)).compareTo("numReal")!=0){
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
@@ -1143,8 +1147,9 @@ public class AnalizadorSintactico {
 		} else {
 			// FIXME Comprobar si después de Expresión_Simple viene OPSUMA ó OR
 			// Si exp_simpleR <> vacío entonces parh = false si no parh
+			// ARREGLADO!!
 			tup = new Tupla(2);
-			Tupla t1 = this.termino(parh);
+			Tupla t1 = this.termino();
 			Tupla t2 = this.exp_simpleR((String) t1.getnTupla(0));
 			if (((String) t2.getnTupla(1)).compareTo("val")==0){
 				tup.setnTupla(1, t2.getnTupla(1));
@@ -1166,8 +1171,8 @@ public class AnalizadorSintactico {
 		String lexToken=this.anaLex.getToken();
 		if (lexToken.compareTo("suma")==0 || lexToken.compareTo("resta")==0){
 			String op = this.operador();
-			boolean parh = false;
-			Tupla t1 = this.expresion_simple(parh);
+			parh = false;
+			Tupla t1 = this.expresion_simple();
 			if ((tipo0.compareTo("integer")!=0 && t1.getnTupla(0).toString().compareTo("integer")!=0)
 					||(tipo0.compareTo("numReal")!=0 && t1.getnTupla(0).toString().compareTo("numReal")!=0)){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
@@ -1182,13 +1187,13 @@ public class AnalizadorSintactico {
 			return t;
 		}else if(lexToken.compareTo("ologica")==0){
 			this.operador();
-			boolean parh = false;
+			parh = false;
 			emite("copia");
 			int flag = etq + 1;
 			emite("ir-v "+etq);
 			emite("desapila");
 			etq = etq+3;
-			Tupla t1 = this.expresion_simple(parh);
+			Tupla t1 = this.expresion_simple();
 			parchea(3,flag);
 			if (tipo0.compareTo("boolean")!=0 ||((String) t1.getnTupla(0)).compareTo("boolean") != 0){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
@@ -1212,18 +1217,12 @@ public class AnalizadorSintactico {
 	 * @return Se devuelve un string con el lexema del termino.
 	 * @throws Exception Se recoge cualquier tipo de error que se produzca dentro del termino.
 	 */
-	private Tupla termino(boolean parh) throws Exception {
+	private Tupla termino() throws Exception {
 		Tupla tup = new Tupla(2);
-		/**
-		Si TérminoR <> vacío entonces parh1 = false si no parh1 = parh0
-		Factor(in tipo, parh1; out tipo1, modo1)
-		TerminoR(in tipo1; out tipo2, modo2)
-		Si tipo2 = numReal entonces tipo0 = numReal si no tipo0 = tipo1
-		Si modo2 = val entonces modo0 = val si no modo0 = modo1*/
 		// FIXME Comprobar si después de Expresión_Simple viene viene OPMULT ó AND()
 		// Si ExpresiónR<> vacío entonces parh = false si no parh
-		//FIXME de donde sacamos el tipo?
-		Tupla t1 = this.factor("",parh);
+		// ARREGLADO!!
+		Tupla t1 = this.factor();
 		Tupla t2 = this.terminoR((String) t1.getnTupla(0));
 		if (((String) t2.getnTupla(1)).compareTo("val")==0){
 			tup.setnTupla(1, t2.getnTupla(1));
@@ -1245,37 +1244,38 @@ public class AnalizadorSintactico {
 		if (lexToken.compareTo("multiplica")==0 || lexToken.compareTo("divide")==0
 				|| lexToken.compareTo("modulo")==0 || lexToken.compareTo("divide_real")==0){
 			String op =this.operador();
-			boolean parh = false;
-			Tupla t1 = this.termino(parh);
+			parh = false;
+			Tupla t1 = this.termino();
 			if ((tipo0.compareTo("integer")!=0 && t1.getnTupla(0).toString().compareTo("integer")!=0)
 					||(tipo0.compareTo("numReal")!=0 && t1.getnTupla(0).toString().compareTo("numReal")!=0)){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 			}
-			emite("apila("+op+")");
+			emite("apila "+op);
 			String modo0= "val";
 			etq = etq+1;
 			Tupla t = new Tupla(2);
-			t.setnTupla(0, t1.getnTupla(0).toString());
+			t.setnTupla(0, t1.getnTupla(0));
 			t.setnTupla(1, modo0);
 			return t;
 		}else if(lexToken.compareTo("ylogica")==0){
-			String op =this.operador();
-			boolean parh = false;
+			parh = false;
 			int flag = etq;
-			emite("ir-f("+etq+")");
+			emite("ir-f "+etq);
 			etq = etq+1;
-			Tupla t1 = this.termino(parh);
+			Tupla t1 = this.termino();
 			if (tipo0.compareTo("boolean")!=0 ||t1.getnTupla(0).toString().compareTo("boolean")!=0){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");
 			}
 			String modo0="val";
+			t1.setnTupla(1, modo0);
 			etq = etq + 1;
 			parchea(2,flag);
 			etq = etq - 1;
-			emite("ir-a("+(etq+2)+")");
-			emite("apila(0)");
+			int etqAux = etq + 2;
+			emite("ir-a "+(etqAux));
+			emite("apila 0");
 			etq = etq+2;
 			return t1;
 		}else {
@@ -1293,14 +1293,13 @@ public class AnalizadorSintactico {
 	 * @return Se devuelve un string con el valor del factor.
 	 * @throws Exception Se lanzan errores si el identificador no existe.
 	 */
-	private Tupla factor(String tipo0, boolean parh) throws Exception {
-		String tipo="";
+	private Tupla factor() throws Exception {
 		this.anaLex.predice();
 		String token = this.anaLex.getToken();
 		String lex = this.anaLex.getLex();
 		if (token.compareTo("identificador")==0){
 			String tipo1 = (String) this.id_comp().getnTupla(1);
-			if(compatibles(tipo1,tipo0)||compatibles(tipo1,"numReal")||compatibles(tipo1,"boolean") && (parh==false)){
+			if(compatibles(tipo1,"integer")||compatibles(tipo1,"numReal")||compatibles(tipo1,"boolean") && (parh==false)){
 				emite("apila-ind");
 				etq = etq+1;
 			}
@@ -1311,14 +1310,14 @@ public class AnalizadorSintactico {
 			return t;
 		} else if (token.compareTo("lparen")==0){
 			this.compara("(");
-			Tupla t = this.expresion(parh);
+			Tupla t = this.expresion();
 			this.compara(")");
 			return t;
 		} else if (lex.compareTo("not")==0){
 			this.anaLex.scanner();
 			String signo = this.anaLex.getLex();
-			boolean parh1 = false;
-			Tupla t = this.factor(tipo0,parh1);
+			parh = false;
+			Tupla t = this.factor();
 			this.emite(signo);
 			if(t.getnTupla(0).toString().compareTo("booleano")!=0){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
@@ -1328,7 +1327,7 @@ public class AnalizadorSintactico {
 			this.anaLex.scanner();
 			String tipo1 = "boolean";
 			String modo = "val";
-			this.emite("apila("+ this.anaLex.getLex()+")");
+			this.emite("apila "+ this.anaLex.getLex());
 			etq = etq+1;
 			Tupla t = new Tupla(2);
 			t.setnTupla(0, tipo1);
