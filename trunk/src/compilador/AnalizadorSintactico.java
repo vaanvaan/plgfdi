@@ -983,7 +983,7 @@ public class AnalizadorSintactico {
 		// Si no, es una variable normal o el ID de un procedimiento.	
 		} else {
 			// Si es una variable, accedemos.
-			if (this.pilaTablaSim.getTSnivel(n).getEntrada(id).getClase().compareTo("var")!=0){
+			if (this.pilaTablaSim.getTSnivel(n).getEntrada(id).getClase().compareTo("var")==0){
 				entradaTS entradaID = this.pilaTablaSim.getTSnivel(n).getEntrada(id); 
 				this.accesoVar(entradaID);
 				etq = etq + this.longAccesoVar(entradaID);
