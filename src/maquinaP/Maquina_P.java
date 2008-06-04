@@ -1,4 +1,6 @@
 package maquinaP;
+
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,7 +32,7 @@ import compilador.AuxFun;
  * Clase principal de la máquina P
  * 
  */
-public class Maquina_P {
+public class Maquina_P{
 	
 	
 	private Stack pila = new Stack();
@@ -47,7 +49,6 @@ public class Maquina_P {
 	private int TAM_MEM_ESTATICA = 100;
 	private int TAM_HEAP = 300;
 	private ArrayList heap;
-	private ArrayList displays;
 	
 	
 	/**
@@ -137,7 +138,6 @@ public class Maquina_P {
 			ComandoVO com = (ComandoVO) comandos.get(pc.intValue());
 			String accion = com.getAccion();
 			pc++;
-			fin = pc >= comandos.size();
 			if(debug){
 				//esperamos a que nos digan que ejecutemos:
 				if(com.getOperando() != null){
@@ -167,6 +167,12 @@ public class Maquina_P {
 					memoriaref.add(com.getOperando());
 				}
 				print_state("apila_dir", com.getOperando());
+			}else if(accion.equalsIgnoreCase("apila_ind")){
+				apila_ind();
+//				if(!memoriaref.contains(com.getOperando())){
+//					memoriaref.add(com.getOperando());
+//				}
+				print_state("apila_ind", com.getOperando());
 			}else if(accion.equalsIgnoreCase("desapila")){
 				desapila();
 				print_state("desapila","");
@@ -176,6 +182,13 @@ public class Maquina_P {
 					memoriaref.add(com.getOperando());
 				}
 				print_state("desapila_dir",com.getOperando());
+			}else if(accion.equalsIgnoreCase("desapila_ind")){
+				desapila_ind();
+//				if(!memoriaref.contains(com.getOperando())){
+//					memoriaref.add(com.getOperando());
+//				}
+				// tener cuidado con la memoria que se referencia
+				print_state("desapila_ind",com.getOperando());
 			}else if(accion.equalsIgnoreCase("suma")){
 				suma();
 				print_state("suma","");
@@ -236,6 +249,21 @@ public class Maquina_P {
 			}else if(accion.equalsIgnoreCase("write")){
 				escribir();
 				print_state("write","");
+			}else if(accion.equalsIgnoreCase("copia")){
+				copia_cima();
+				print_state("copia cima","");
+			}else if(accion.equalsIgnoreCase("ir_a")){
+				ir_a(new Long(com.getOperando().toString()));
+				print_state("ir_a",com.getOperando().toString());
+			}else if(accion.equalsIgnoreCase("ir_f")){
+				ir_f(new Long(com.getOperando().toString()));
+				print_state("ir_f",com.getOperando().toString());
+			}else if(accion.equalsIgnoreCase("ir_v")){
+				ir_v(new Long(com.getOperando().toString()));
+				print_state("ir_v",com.getOperando().toString());
+			}else if(accion.equalsIgnoreCase("ir_ind")){
+				ir_ind();
+				print_state("ir_ind",com.getOperando().toString());
 			}else if(accion.equalsIgnoreCase("stop")){
 				stop();
 				print_state("stop","");
@@ -469,6 +497,28 @@ public class Maquina_P {
 			}
 		}
 	}
+	
+	/**
+	 * Esta función se encarga de realizar un salto a la dirección que apunta la cima de la pila
+	 * consumiéndo la cima.
+	 */
+	public void ir_ind(){
+		if (!pila.isEmpty()) {
+			String obj = pila.pop().toString();
+			if(esEntero(obj)){
+				Long dir = new Long(obj);
+				pc = dir;
+			}else{
+				halt = true;
+				error = true;
+				System.out.println("Error en salto de instruccion");
+			}
+		}else{
+			halt = true;
+			error = true;
+			System.out.println("Pila vacia");
+		}
+	}
 	/**
 	 * Copia el vlor de la cima
 	 */
@@ -556,34 +606,6 @@ public class Maquina_P {
 		}
 	}
 	
-	/**
-	 * Determina el numero de displays que va a gestionar la maquina
-	 * @param ndisplays		el numero de displays
-	 */
-	public void set_num_displays(String ndisplays){
-		if(esEntero(ndisplays)){
-			displays = new ArrayList(Integer.parseInt(ndisplays));
-		}else{
-			System.out.println("Se esperaba dato numerico!");
-		}
-	}
-	
-	/**
-	 * Metodo que genera un RA, registro de activación.
-	 * Se hará uso de un array de RA's, en vez de usar indices altos del heap
-	 * que supondria el crecimiento opuesto a los tipos declarados, 
-	 * usaremos un array nuevo, para simplificar el movimiento.
-	 * El límite de la memoria dinamica, controlará el máximo numero de celdas
-	 * que componen el heap y el array de RA's
-	 * El display apuntará a la primera posición de los datos -> pos i.
-	 * En la pos i-1 estará el valor antiguo del display.
-	 * En la pos i-2 estará la dirección de retorno.
-	 * @param display	numero del display al que hay que engancharlo
-	 */
-	public void new_ra(int display){
-		ArrayList ra = new ArrayList(2);
-		
-	}
 	/**
 	 * Método que se encarga de realizar la suma, si procede, de los elementos situados
 	 * en la cima y subcima de la pila.
