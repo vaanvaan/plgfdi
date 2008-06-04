@@ -176,7 +176,7 @@ public class AnalizadorSintactico {
 		case 0:
 			emiteP("apila "+(n+1));
 			etq++;
-			emiteP("desapila-dir 1)");
+			emiteP("desapila-dir 1");
 			etq++;
 			emiteP("apila "+(1+n+dir));
 			etq++;
