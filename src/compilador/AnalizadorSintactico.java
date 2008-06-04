@@ -385,11 +385,12 @@ public class AnalizadorSintactico {
 			if (this.pilaTablaSim.getTSnivel(n).existeID(lex)) 
 				throw new Exception("Error sintaxis: ID ya existente"
 						+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
-			props.setDir(dir);
-			props.setNivel(n);
-			this.pilaTablaSim.añadeID(n,lex, "var", props);
+			Propiedades props1 = new Propiedades(props);
+			props1.setDir(dir);
+			props1.setNivel(n);
+			this.pilaTablaSim.añadeID(n,lex, "var", props1);
 			dir = dir + props.getTam();
-			this.lista_idR(props);
+			this.lista_idR(props1);
 		}
 	}
 	
