@@ -486,6 +486,16 @@ public class AnalizadorLexico {
 		}
 	}
 	
+	public void gotoUntil(String cadena) throws Exception{
+		boolean enc=false;
+		while(!enc){
+			this.scanner();
+			if(this.lex.compareTo(cadena)==0){
+				enc = true;
+			}
+		}
+	}
+	
 
 	/**
 	 * @return the lex

@@ -321,6 +321,8 @@ public class AnalizadorSintactico {
 	 */
 	private void variable() throws Exception{
 		this.compara("var");
+		int posAux = Global.getGlobalPos();
+		int colAux = Global.getColumna();
 		//TODO CACAO MARAVILLAO
 		/*
 		 *  1º comprobamos sintaxis correcta (var Lista_ID : Tipo ;)Necesitamos parámetros sintetizados de Tipo para lanzar Lista_ID
@@ -331,6 +333,17 @@ public class AnalizadorSintactico {
 			Lista_ID(in props)
 			????this.compara(";");
 		 */
+		this.anaLex.gotoUntil(":");
+		Propiedades p = this.tipo();
+		int posAux2 = Global.getGlobalPos();
+		int colAux2 = Global.getColumna();
+		Global.setGlobalPos(posAux);
+		Global.setColumna(colAux);
+		this.lista_id(p);
+		Global.setGlobalPos(posAux2);
+		Global.setColumna(colAux2);
+		this.compara(";");
+		
 	}
 	
 	/**Método que reconoce una lista de identificadores.
@@ -1200,13 +1213,25 @@ public class AnalizadorSintactico {
 	 * @throws Exception Se recoge cualquier tipo de error que se produzca dentro del termino.
 	 */
 	private Tupla termino(boolean parh) throws Exception {
-		return null;
-		/** Comprobar si después de Expresión_Simple viene OPMULT ó AND()
+		Tupla tup = new Tupla(2);
+		/**
 		Si TérminoR <> vacío entonces parh1 = false si no parh1 = parh0
 		Factor(in tipo, parh1; out tipo1, modo1)
 		TerminoR(in tipo1; out tipo2, modo2)
 		Si tipo2 = numReal entonces tipo0 = numReal si no tipo0 = tipo1
 		Si modo2 = val entonces modo0 = val si no modo0 = modo1*/
+		// FIXME Comprobar si después de Expresión_Simple viene viene OPMULT ó AND()
+		// Si ExpresiónR<> vacío entonces parh = false si no parh
+		//FIXME de donde sacamos el tipo?
+		Tupla t1 = this.factor("",parh);
+		Tupla t2 = this.terminoR((String) t1.getnTupla(0));
+		if (((String) t2.getnTupla(1)).compareTo("val")==0){
+			tup.setnTupla(1, t2.getnTupla(1));
+		} else tup.setnTupla(1, t1.getnTupla(1));
+		if (((String) t2.getnTupla(0)).compareTo("numReal")==0) {
+			tup.setnTupla(0, "numReal");
+		} else tup.setnTupla(0, t1.getnTupla(0));
+		return tup;
 	}
 
 	/**Método que reconoce una parte de un termino. Se creo para evitar la recursion a izquierdas.
