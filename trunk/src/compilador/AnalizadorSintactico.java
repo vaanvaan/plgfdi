@@ -576,7 +576,7 @@ public class AnalizadorSintactico {
 			String token2 = anaLex.getToken();
 			String lex2 = anaLex.getLex();
 			if(token2.compareTo("num")==0 && Integer.parseInt(lex2)>=0){
-				if(Integer.parseInt(lex)>Integer.parseInt(lex2)){
+				if(Integer.parseInt(lex)<Integer.parseInt(lex2)){
 					longt = Integer.parseInt(lex2) - Integer.parseInt(lex) + 1;
 				}else{
 					throw new Exception("Subrango del array invalido"
