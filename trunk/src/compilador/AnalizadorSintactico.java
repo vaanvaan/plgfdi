@@ -211,6 +211,8 @@ public class AnalizadorSintactico {
 			inicio(n,dir);
 			etq = longInicio;
 			int flag = etq;
+			// FIXME
+			// este ir-a es a etq + 1. Hay que cambiar el parchea.
 			emite("ir-a "+etq);
 			this.bloqueDecls();
 			this.parchea(0, 0);
