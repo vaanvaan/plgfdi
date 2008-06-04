@@ -1338,7 +1338,7 @@ public class AnalizadorSintactico {
 			this.anaLex.scanner();
 			String tipo1 = "integer";
 			String modo = "val";
-			this.emite("apila("+ this.anaLex.getLex()+")");
+			this.emite("apila "+ this.anaLex.getLex());
 			etq = etq+1;
 			Tupla t = new Tupla(2);
 			t.setnTupla(0, tipo1);
@@ -1348,7 +1348,7 @@ public class AnalizadorSintactico {
 			this.anaLex.scanner();
 			String tipo1 = "numReal";
 			String modo = "val";
-			this.emite("apila("+ this.anaLex.getLex()+")");
+			this.emite("apila "+ this.anaLex.getLex());
 			etq = etq+1;
 			Tupla t = new Tupla(2);
 			t.setnTupla(0, tipo1);
