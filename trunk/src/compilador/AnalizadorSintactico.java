@@ -614,6 +614,7 @@ public class AnalizadorSintactico {
 		}
 		int dirAnt = dir;
 		dir = 0;
+		this.pilaTablaSim.creaTS();
 		ArrayList<CParams> params = this.parametros();
 		this.compara(";");
 		int inicio = etq;
@@ -623,7 +624,7 @@ public class AnalizadorSintactico {
 		props.setNivel(n);
 		props.setInicio(inicio);
 		this.pilaTablaSim.añadeID(n,lex, "proc", props);
-		this.pilaTablaSim.creaTS();
+		
 		/*
 		Propiedades props2 = new Propiedades();
 		props2.setT("proc");
@@ -660,6 +661,7 @@ public class AnalizadorSintactico {
 	private ArrayList<CParams> lista_Params()throws Exception{
 		Tupla t = param();
 		this.pilaTablaSim.añadeID(n,(String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
+		this.pilaTablaSim.añadeID(n+1,(String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
 		dir = dir + Integer.parseInt(t.getnTupla(3).toString());
 		ArrayList<CParams> params0 = new ArrayList<CParams>();
 		params0.add((CParams)t.getnTupla(4));
@@ -675,6 +677,7 @@ public class AnalizadorSintactico {
 			Tupla t = param();
 			params0.add((CParams)t.getnTupla(4));
 			this.pilaTablaSim.añadeID(n,(String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
+			this.pilaTablaSim.añadeID(n+1,(String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
 			dir = dir + Integer.parseInt(t.getnTupla(3).toString());
 			ArrayList<CParams> params2 = this.lista_ParamsR(params0);
 			return params2;
@@ -698,7 +701,7 @@ public class AnalizadorSintactico {
 			this.compara(":");
 			Propiedades props = this.tipo();
 			int tam = 1;
-			CParams param = new CParams("variable",props,dir);
+			CParams param = new CParams("var",props,dir);
 			props.setNivel(n);
 			props.setDir(dir);
 			t.setnTupla(0, lex);
@@ -716,7 +719,8 @@ public class AnalizadorSintactico {
 			Propiedades props = this.tipo();
 			String clase = "var";
 			int tam = props.getTam();
-			CParams param = new CParams("valor",props,dir);
+			//valorrrrrrrrr
+			CParams param = new CParams("val",props,dir);
 			props.setNivel(n);
 			props.setDir(dir);
 			t.setnTupla(0, lex);
@@ -855,8 +859,10 @@ public class AnalizadorSintactico {
 				this.compara(":=");
 				parh = false;
 				Tupla t2 = this.expresion(); // Devuelve tipo
+				//añadido
 				if (!compatibles((String)t.getnTupla(1), (String)t2.getnTupla(0)) || 
-						(this.pilaTablaSim.getTSnivel(n).getEntrada((String) t.getnTupla(0)).getClase() != "var")){
+						((this.pilaTablaSim.getTSnivel(n).getEntrada((String) t.getnTupla(0)).getClase() != "var")&&
+								(this.pilaTablaSim.getTSnivel(n).getEntrada((String) t.getnTupla(0)).getClase() != "pvar"))){
 					Global.setErrorMsg("Violación restricciones. Asignación incorrecta");
 					throw new Exception("Error sintaxis: Asignación incorrecta"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 				}
@@ -1035,6 +1041,7 @@ public class AnalizadorSintactico {
 	private int lista_exps(ArrayList<CParams> fparams)throws Exception{
 		emite("copia");
 		etq = etq+1;
+		//el modo tiene k ser variable o valor
 		parh = (fparams.get(0).getModo().compareTo("var")==0);
 		Tupla t = this.expresion();
 		if(fparams.size()==0||fparams.get(0).getModo().compareTo(t.getnTupla(1).toString())!=0
@@ -1078,8 +1085,13 @@ public class AnalizadorSintactico {
 	private Tupla expresion() throws Exception{
 		Tupla tup = new Tupla(2);
 		this.anaLex.predice();
+		String lex = anaLex.getLex();
 		String lexToken= anaLex.getToken();
-		if(lexToken.compareTo("char")==0){
+		boolean aux = false;
+		if(this.pilaTablaSim.getTSnivel(n).getEntrada(lex)!=null){
+			aux = true;
+		}
+		if(lexToken.compareTo("char")==0||(aux && this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getProps().getT().compareTo("char")==0)){
 			this.anaLex.scanner();
 			this.emite("apila " + anaLex.getLex());
 			etq = etq+1;
