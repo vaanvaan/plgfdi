@@ -3,5 +3,5 @@ program prueba15;
     var numero : real;
 
 begin
-    numero := a;
+    numero := 'a';
 end.

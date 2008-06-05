@@ -17,7 +17,7 @@ program prueba3;
 	reg1.campo2 := 5;
 	reg1.campo3 := 0;	
 	reg2.campo1 := 1;
-	reg2.campo2 := a;
+	reg2.campo2 := 'a';
 	reg2.campo3 := true;
 	reg1.campo1 := reg2.campo1;
 	reg1.campo2 := reg2.campo2;
