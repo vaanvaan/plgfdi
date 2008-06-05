@@ -5,7 +5,7 @@ var r1 : real, r2 : real;
 procedure proc1(var re : real);
  begin
   re := re*7;
- end;
+ end
 
 begin
 

@@ -21,7 +21,7 @@ program prueba13;
 		else if emp.categoria = 'b' then emp.sueldo := emp.sueldo * (1,10*i);
 		     else  emp.sueldo := emp.sueldo * (1,05*i);
 	
-	end;
+	end
   
    begin
 	j := 0;

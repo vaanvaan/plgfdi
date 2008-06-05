@@ -12,7 +12,7 @@ program triangulopascal;
 	    read(x);
 	    if (x>1)and(x<21) then tamano := x;
 	    else tam := 10;
-	end;
+	end
 
     procedure rellenaCeros(var arr : array [0..19] of array [0..19] of integer);
 	var i : integer, j : integer;
@@ -28,7 +28,7 @@ program triangulopascal;
 			end;
 		    i := i+1;
 		end;
-	end;
+	end
 
     procedure escribeTriangulo(var arr : array [0..19] of array [0..19] of integer);
 	var i : integer, j : integer;
@@ -66,7 +66,7 @@ program triangulopascal;
 		    write('\n');
 		    i := i+1;
 		end;
-	end;
+	end
 
     begin        
 	rellenaCeros(triangulo);
