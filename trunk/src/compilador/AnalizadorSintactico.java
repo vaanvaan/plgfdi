@@ -519,12 +519,14 @@ public class AnalizadorSintactico {
 		Hashtable<String, CCampos> campos0 = new Hashtable<String, CCampos>(10);
 		campos0.put(((CCampos) t.getnTupla(0)).getId(), (CCampos) t.getnTupla(0));
 		int desp1 = desp + Integer.parseInt(t.getnTupla(1).toString());
-		Tupla t2 = this.camposR(campos0,desp1);
+		return this.camposR(campos0,desp1);
+		/*
 		int tam2 = Integer.parseInt(t.getnTupla(1).toString()) + Integer.parseInt(t2.getnTupla(1).toString());
 		Tupla tf = new Tupla(2);
 		tf.setnTupla(0, t2.getnTupla(0));
-		tf.setnTupla(1, tam2);
+		tf.setnTupla(1, t2.getnTupla(1));
 		return tf;
+		*/
 	}
 	
 	private Tupla camposR(Hashtable<String, CCampos> campos0, int desp0)throws Exception{
@@ -538,10 +540,12 @@ public class AnalizadorSintactico {
 			Tupla t = this.campo(desp0);
 			campos0.put(((CCampos) t.getnTupla(0)).getId(), (CCampos) t.getnTupla(0));
 			int desp1 = desp0 + Integer.parseInt(t.getnTupla(1).toString());
-			Tupla t2 = this.camposR(campos0, desp1);
+			return this.camposR(campos0, desp1);
+			/*
 			int tam2 = Integer.parseInt(t.getnTupla(1).toString()) + Integer.parseInt(t2.getnTupla(1).toString());
 			tf.setnTupla(0, t2.getnTupla(0));
 			tf.setnTupla(1, tam2);
+			*/
 		}
 		return tf;
 	}
@@ -818,6 +822,7 @@ public class AnalizadorSintactico {
 	}
 	
 	private void pElse() throws Exception{
+		this.compara(";");
 		this.anaLex.predice();
 		String lex = anaLex.getLex();
 		if(lex.compareTo("else")==0){
