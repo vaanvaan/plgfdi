@@ -1,0 +1,20 @@
+program prueba8;
+
+   var lista1 : array[0..2] of integer;
+   var lista2 : array[0..2] of integer;
+
+   
+   begin
+	
+	lista1[0] := 1;
+	lista1[1] := 1;
+	lista1[2] := 2;
+	lista2[0] := 9;
+	lista2[1] := 9;
+	lista2[2] := 9;
+
+	lista2[1] := lista1[1];
+	write(lista2[1]);
+	
+	
+   end.

@@ -1,0 +1,12 @@
+program prueba18;
+
+    var num : integer;
+
+    procedure holamundo(var r : real);
+	begin
+		r:=r+1;
+	end;
+begin
+    num := 21;
+    holamundo(num);
+end.

@@ -1,0 +1,31 @@
+program prueba2;
+
+   var reg1 : record 
+			campo1 : integer;
+			campo2 : integer;
+		end;
+
+   var reg2 : record 
+			campo1 : integer;
+			campo2 : char;
+			campo3 : boolean;
+			campo4 : ^record 
+					campo1 : integer;
+					campo2 : integer;
+					end;
+		end;
+   begin
+	
+	reg1.campo1 := 10;
+	reg1.campo2 := 5;	
+	reg2.campo1 := 1;
+	reg2.campo2 := a;
+	reg2.campo3 := true;
+	new(reg2.campo4);
+	reg2.campo4^.campo1 := reg1.campo1;
+	reg2.campo4^.campo2 := reg1.campo2;
+	
+	write(reg2.campo4^.campo1);
+	dispose(reg2.campo4);
+
+   end.

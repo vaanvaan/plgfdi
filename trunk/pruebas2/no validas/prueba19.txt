@@ -1,0 +1,8 @@
+program prueba19;
+
+    var
+    procedure
+
+begin
+    
+end.

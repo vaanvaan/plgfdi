@@ -1,0 +1,72 @@
+prueba1:
+crear 2 registros del mismo tipo, rellenarlos, asignar uno a otro.
+
+prueba2:
+se declaran 2 registros, el segundo con un campo puntero, al primer tipo de registro.
+Se rellenan, se reserva memoria para el puntero, se muestra el campo del registro apuntado, y se libera mem.
+
+prueba3:
+se declaran 2 reg, ambos con 3 campos, pero de distintos tipos, se rellenan y se asigna uno al otro.
+ERROR-> los campos son de distinto tipo.
+
+prueba4:
+se declaran 2 reg, con distinto numero de campos, y se asigna uno a otro.
+ERROR-> los registros no tienen los mismo campos.
+
+prueba5:
+se declara un array de 10 posiciones de enteros, se rellena con un while de 1 a 10.
+con otro while, se comprueba cada posicion, si el valor es mayor que 5 se imprime 1, si no 0.
+
+prueba6:
+se declaran dos array de tamaó 3, uno de enteros y otro de bool, se rellenan y se asigna uno a otro.
+ERROR-> los array son de distinto tipo, aunqe del mismo tamaño.
+
+prueba7:
+se declaran 2 array de mismo tipo, pero distinto tamaño, se rellena uno y se asigna al segundo.
+ERROR-> distinto tañamo.
+
+prueba8:
+array1 contiene 112, array2 contiene 999, se asigna array1 a array2, y se comprueba que se imprime un 1.
+
+prueba9:
+Array de 5 posiciones, y un puntero a integer, asignar puntero, modificar lo apuntado por puntero, y mostrar.
+inicialmente lista[1] = 6; posteriormente lista[1] = 7, y se imprime por pantalla.
+
+prueba10:
+Array de 3 posiciones y 2 punteros a integer, asiganción entre punteros, y ver que se modifica correctamente en el array.
+
+prueba11:
+Dado un array de 5 posiciones, se busca el maximo en un bucle while, usando un puntero para maximo. Muestra 7.
+
+prueba12:
+Se crean 3 array de 5 char, un array de arrays de 5 char, y un registro con un entero y un puntero a un array de arrays de char.
+Se rellena el primer array como mundo, el segundo como monte, y el tercero como islas. Se asignan a las posiciones 1, 2 y 3 respectivamente del segundo array.
+se asiga al puntero del registro este ultimo array, y se imprime el 4º caracter del segundo array (monte), es decir, t.
+
+prueba13:
+se define un registro con 3 campos, un array de ese tipo de registros, y unos metodos para operar sobre los campos.
+Debe imprimir : 1321,213 1064,930 656,232 741.793
+
+prueba14:
+ERROR-> en esta prueba se al intercambiado el orden del cuerpo de declaraciones, y de procedimientos.
+
+prueba15:
+ERROR-> asignar un char a un real.
+
+prueba16:
+ERROR-> asignar un boolean a un real.
+
+prueba17:
+ERROR-> usar un puntero real sobre un entero.
+
+prueba18:
+ERROR-> se pasa por parametro un entero a un real de un procedure.
+ 
+qsort:
+quicksort de tam maximo 50, que ordena un vector de enteros, en este caso debe devolver 1 2 3 4 5 6 7 8 9 10
+
+burbuja:
+programa que utiliza el algoritmo Bubblesort, para ordenas un array de 26 char. devuelve el abecedario.
+
+trianguloPascal:
+programa que genera el triangulo de pascal para una profundidad dada (maximo 20), y lo muestra por pantalla.

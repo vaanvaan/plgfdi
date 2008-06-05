@@ -1,0 +1,7 @@
+program prueba16;
+
+    var numero : real;
+
+begin
+    numero := true;
+end.
