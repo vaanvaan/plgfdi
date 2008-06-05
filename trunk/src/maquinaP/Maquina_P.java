@@ -48,7 +48,6 @@ public class Maquina_P{
 	private String path;
 	private int TAM_MEM_ESTATICA = 100;
 	private int TAM_HEAP = 300;
-	private ArrayList heap;
 	
 	
 	/**
@@ -566,11 +565,19 @@ public class Maquina_P{
 	 * @param nceldas		numero de celdas
 	 */
 	public void heap_new(int nceldas){
-		int ini = heap.size();
-		pila.push(String.valueOf(ini));
-		for (int i = 0; i < nceldas; i++) {
-			String a = "#";
-			heap.add(a);
+		int ini = memoria.size();
+		if(ini+nceldas> TAM_HEAP){
+			error=true;
+			halt=true;
+			System.out.println("MEMORY ERROR");
+			System.out.println("HEAP supera el tamaño máximo.");
+			System.out.println("Tamaño actual del Heap: "+ TAM_HEAP);
+		}else{
+			pila.push(String.valueOf(ini));
+			for (int i = 0; i < nceldas; i++) {
+				String a = "#";
+				memoria.add(a);
+			}
 		}
 	}
 	
@@ -581,7 +588,7 @@ public class Maquina_P{
 	 * @param nceldas		numero de celdas
 	 */
 	public void heap_del(int nceldas){
-		if (heap.isEmpty() || (nceldas > heap.size()) || pila.isEmpty()) {
+		if ((memoria.size()<=TAM_MEM_ESTATICA) || (nceldas > memoria.size()) || pila.isEmpty()) {
 			halt = true;
 			error = true;
 			System.out.println("Heap/Pila vacio/a!");
@@ -591,7 +598,7 @@ public class Maquina_P{
 				Integer dir = Integer.parseInt(cima);
 				try{
 					for (int i = 0; i < nceldas; i++) {
-						heap.remove((dir+i));
+						memoria.remove((dir+i));
 					}
 				}catch (Exception e) {
 					halt = true;
