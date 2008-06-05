@@ -43,11 +43,11 @@ public class TS {
 	 */
 	public boolean añadeTS(String id, String clase, Propiedades props){
 		entradaTS aux = new entradaTS(id, clase, props);
-		aux.getProps().setDir(dir);
+		// aux.getProps().setDir(dir);
 		ts.put(id,aux);
 		if (aux == null) return false;
 		else {
-			dir++;
+			//dir++;
 			return true;
 		}
 	}

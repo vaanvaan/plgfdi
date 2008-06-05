@@ -857,9 +857,7 @@ public class AnalizadorSintactico {
 					Global.setErrorMsg("Violación restricciones. Asignación incorrecta");
 					throw new Exception("Error sintaxis: Asignación incorrecta"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');
 				}
-				if(compatibles(t.getnTupla(1).toString(),"integer") || 
-						compatibles(t.getnTupla(1).toString(),"numReal") || 
-						compatibles(t.getnTupla(1).toString(),"boolean")){
+				if(!compatibles(t.getnTupla(1).toString(),"proc")){
 					emite("desapila-ind");
 				}else{
 					this.emite("mueve "+(this.pilaTablaSim.getTSnivel(n).getEntrada((String) t.getnTupla(0)).getProps().getTam()));
@@ -953,7 +951,7 @@ public class AnalizadorSintactico {
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 				}
 			this.id_compR(id);
-			this.emite("apila "+ propsID.getTbase().getN());
+			this.emite("apila "+ propsID.getTbase().getTam());
 			this.emite("multiplica");
 			this.emite("suma");
 			etq = etq+3;
@@ -1298,7 +1296,7 @@ public class AnalizadorSintactico {
 			this.anaLex.scanner();
 			String tipo1 = "boolean";
 			String modo = "val";
-			this.emite("apila "+ this.anaLex.getLex());
+			this.emite(this.anaLex.getLex());
 			etq = etq+1;
 			Tupla t = new Tupla(2);
 			t.setnTupla(0, tipo1);
