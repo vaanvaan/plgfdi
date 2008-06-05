@@ -263,6 +263,12 @@ public class Maquina_P{
 			}else if(accion.equalsIgnoreCase("ir-ind")){
 				ir_ind();
 				print_state("ir_ind",com.getOperando().toString());
+			}else if(accion.equalsIgnoreCase("new")){
+				heap_new(Integer.parseInt(com.getOperando().toString()));
+				print_state("new",com.getOperando().toString());
+			}else if(accion.equalsIgnoreCase("del")){
+				heap_del(Integer.parseInt(com.getOperando().toString()));
+				print_state("del",com.getOperando().toString());
 			}else if(accion.equalsIgnoreCase("stop")){
 				stop();
 				print_state("stop","");
