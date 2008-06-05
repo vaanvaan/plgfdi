@@ -3,7 +3,7 @@ program prueba14;
     procedure cuadrado(var x : real);
 	begin
 	    x := x*x;
-	end;
+	end
 
     var numero : real;
 

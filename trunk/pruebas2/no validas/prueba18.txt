@@ -5,7 +5,7 @@ program prueba18;
     procedure holamundo(var r : real);
 	begin
 		r:=r+1;
-	end;
+	end
 begin
     num := 21;
     holamundo(num);

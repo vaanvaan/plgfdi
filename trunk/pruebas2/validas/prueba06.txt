@@ -12,7 +12,7 @@ procedure introducirNota(var nota : real; var i : integer;);
    write(i);
    write('-');
    read(nota);
-   end;
+   end
 procedure escribirNota(var nota : real; var i : integer;);
    begin
    write('n');
@@ -23,7 +23,7 @@ procedure escribirNota(var nota : real; var i : integer;);
    write(i);
    write('-');
    write(nota);
-   end;
+   end
 
 begin
 ind:=0;

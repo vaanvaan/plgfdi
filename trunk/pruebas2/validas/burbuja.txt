@@ -18,12 +18,12 @@ program burbuja;
 	    a[10] := v;	    a[21] := w;
 	    a[11] := x;	    a[22] := z;
             
-        end;
+        end
 
     procedure imprimir(var x : char);
 	begin
 	    write(x);
-	end;
+	end
 
     begin        
         rellenaArray(tam, lista);

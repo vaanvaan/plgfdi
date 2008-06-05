@@ -5,12 +5,12 @@ var r1 : real;
 procedure proc1(var re : real);
  begin
   re := re*7;
- end;
+ end
 
 procedure proc1(var i : integer);
  begin
   i := 5;
- end;
+ end
 
 begin
 

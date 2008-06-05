@@ -14,7 +14,7 @@ procedure arrayCuad(var arr : array[0..5] of real;);
 	   arr[indice] := x*x;
 	   indice := indice+1;
 	end;
-   end;
+   end
 
 begin
    lista[0]:= 1,00;
