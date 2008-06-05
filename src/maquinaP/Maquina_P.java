@@ -269,6 +269,9 @@ public class Maquina_P{
 			}else if(accion.equalsIgnoreCase("del")){
 				heap_del(Integer.parseInt(com.getOperando().toString()));
 				print_state("del",com.getOperando().toString());
+			}else if(accion.equalsIgnoreCase("mueve")){
+				mueve(Integer.parseInt(com.getOperando().toString()));
+				print_state("mueve",com.getOperando().toString());
 			}else if(accion.equalsIgnoreCase("stop")){
 				stop();
 				print_state("stop","");
