@@ -1,0 +1,19 @@
+program prueba03;
+var a : real, b : real, c : real;
+var d : boolena,e : boolean, f : boolean;
+
+begin
+   a:=-12,765;
+   b:=5,0;
+   c:=3,1416;
+   a:= (a div 2,7) + b*c;
+   c:= a div b;
+   d:= false;
+   e:= (a > b) or (b > (c div a));
+   f:= d and e;
+   write(a);
+   write(e);
+   write(c);
+   d:= not d;
+   write(d);
+end.

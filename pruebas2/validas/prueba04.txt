@@ -1,0 +1,30 @@
+program prueba04;
+
+var lista : array[0..5] of real;
+
+
+procedure arrayCuad(var arr : array[0..5] of real;);
+   var indice : integer;
+   var x : real;
+   begin
+      indice := 0;
+      while indice < 6 do
+	begin
+           x := arr[indice];
+	   arr[indice] := x*x;
+	   indice := indice+1;
+	end;
+   end;
+
+begin
+   lista[0]:= 1,00;
+   lista[1]:= 1,50;
+   lista[2]:= 2,00;
+   lista[3]:= 3,00;
+   lista[4]:= 4,00;
+   lista[5]:= 5,00;
+   arrayCuad(lista);
+   arrayCuad(lista);
+   write(lista[3]);
+
+end.
