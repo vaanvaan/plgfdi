@@ -21,8 +21,8 @@ program prueba1;
 	
 	sujeto1.ident := 1;
 	sujeto2.ident := 2;
-	sujeto1.sangre := a;
-	sujeto2.sangre := b;
+	sujeto1.sangre := 'a';
+	sujeto2.sangre := 'b';
 	sujeto1.4meses := false;
 	sujeto2.4meses := true;
 	

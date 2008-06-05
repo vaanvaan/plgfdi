@@ -12,23 +12,23 @@ program prueba12;
    
    begin
 	
-	lista1[0] := m;
-	lista1[1] := u;
-	lista1[2] := n;
-	lista1[3] := d;
-	lista1[4] := o;
+	lista1[0] := 'm';
+	lista1[1] := 'u';
+	lista1[2] := 'n';
+	lista1[3] := 'd';
+	lista1[4] := 'o';
 
-	lista2[0] := m;
-	lista2[1] := o;
-	lista2[2] := n;
-	lista2[3] := t;
-	lista2[4] := e;
+	lista2[0] := 'm';
+	lista2[1] := 'o';
+	lista2[2] := 'n';
+	lista2[3] := 't';
+	lista2[4] := 'e';
 
-	lista3[0] := i;
-	lista3[1] := s;
-	lista3[2] := l;
-	lista3[3] := a;
-	lista3[4] := s;
+	lista3[0] := 'i';
+	lista3[1] := 's';
+	lista3[2] := 'l';
+	lista3[3] := 'a';
+	lista3[4] := 's';
 
 	listaArrays[0] := lista1;
 	listaArrays[1] := lista2;
