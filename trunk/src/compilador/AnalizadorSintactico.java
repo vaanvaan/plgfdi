@@ -662,7 +662,7 @@ public class AnalizadorSintactico {
 		this.pilaTablaSim.añadeID(n,(String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
 		dir = dir + Integer.parseInt(t.getnTupla(3).toString());
 		ArrayList<CParams> params0 = new ArrayList<CParams>();
-		params0.add((CParams)t.getnTupla(3));
+		params0.add((CParams)t.getnTupla(4));
 		ArrayList<CParams> params1 = this.lista_ParamsR(params0);
 		return params1;
 	}
