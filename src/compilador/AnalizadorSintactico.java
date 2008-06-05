@@ -570,7 +570,7 @@ public class AnalizadorSintactico {
 		String token = anaLex.getToken();
 		String lex = anaLex.getLex();
 		int longt = -1;
-		if(token.compareTo("num")==0 && Integer.parseInt(lex)>=0){
+		if(token.compareTo("num")==0 && Integer.parseInt(lex)==0){
 			this.compara(".");
 			this.compara(".");
 			anaLex.scanner();
