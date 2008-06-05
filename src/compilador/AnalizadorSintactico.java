@@ -166,10 +166,11 @@ public class AnalizadorSintactico {
 	
 	/**
 	 * Sustituye la instrucción con etiqueta flag, por la correcta.
-	 * @param tipo tipo de instrucción a sustituir. 0:inicio, 1:ir-a, 2:ir-f, 3:ir-v, 4:ir-a etq + 1
-	 * @param flag dirección de la instrucción
+	 * @param tipo tipo de instrucción a sustituir. 0:inicio, 1:ir-a, 2:ir-f, 3:ir-v
+	 * @param flag etiqueta donde se encuentra la instrucción
+	 * @param etqDest etiqueta donde ha de saltar la instrucción
 	 */
-	public void parchea(int tipo,int flag){
+	public void parchea(int tipo, int flag, int etqDest){
 		int etqAux = etq;
 		etq = flag;
 		switch (tipo){
@@ -183,16 +184,13 @@ public class AnalizadorSintactico {
 			emiteP("desapila-dir 0");
 			break;
 		case 1:
-			emiteP("ir-a "+etq); 
+			emiteP("ir-a "+etqDest); 
 			break;
 		case 2:
-			emiteP("ir-f "+etq);
+			emiteP("ir-f "+etqDest);
 			break;
 		case 3:
-			emiteP("ir-v "+etq);
-			break;
-		case 4:
-			emiteP("ir-a "+(etq+1));
+			emiteP("ir-v "+etqDest);
 			break;
 		}
 		etq = etqAux;
@@ -218,8 +216,8 @@ public class AnalizadorSintactico {
 			emite("ir-a "+etq);
 			etq = etq + 1;
 			this.bloqueDecls();
-			this.parchea(0, 0);
-			this.parchea(4, flag);
+			this.parchea(0, 0, etq);
+			this.parchea(1, flag, etq);
 			this.proposicion_compuesta(); 
 			this.compara(".");
 			this.anaLex.scanner();
@@ -794,9 +792,9 @@ public class AnalizadorSintactico {
 			int flag2 = etq;
 			emite("ir-a "+etq);
 			etq = etq+1;
-			parchea(2,flag1);
+			parchea(2, flag1, etq);
 			this.pElse();
-			parchea(1,flag2);
+			parchea(1, flag2, etq);
 		}else if(lexTipo.compareTo("while")==0){
 			this.compara("while");
 			parh = false;
@@ -811,10 +809,10 @@ public class AnalizadorSintactico {
 			emite("ir-f "+etq);
 			etq = etq+1;
 			this.proposicion();
-			emite("ir-a("+etqb);
+			emite("ir-a "+etqb);
 			etq = etq+1;
-			parchea(2,flag);
-		}else if (lexTipo.compareTo("end")!=0){
+			parchea(2, flag, etq);
+		}else {
 			this.proposicion_simple();
 		}
 	}
@@ -859,6 +857,7 @@ public class AnalizadorSintactico {
 				}
 				if(!compatibles(t.getnTupla(1).toString(),"proc")){
 					emite("desapila-ind");
+					etq = etq + 1;
 				}else{
 					this.emite("mueve "+(this.pilaTablaSim.getTSnivel(n).getEntrada((String) t.getnTupla(0)).getProps().getTam()));
 					etq = etq + 1;
@@ -916,7 +915,7 @@ public class AnalizadorSintactico {
 			}else{
 				emite("del "+(this.pilaTablaSim.getTSnivel(n).getEntrada(t.getnTupla(0).toString()).getProps().getTbase().getTam()));
 			}
-		}else
+		}else if (lexToken.compareTo("end") != 0)
 			// Si lo siguiente no empieza por "begin" ya dará error.
 			this.proposicion_compuesta();
 	}
@@ -964,7 +963,7 @@ public class AnalizadorSintactico {
 				throw new Exception("Error:"+ ": línea "+ (Global.getLinea()+1) + ", columna "+ (Global.getColumna()-1) +'\n');	
 			}
 			this.emite("apila-ind");
-			etq++;
+			etq = etq + 1;
 			return propsID.getTbase().getT();
 		
 		// 3. Si encontramos .
