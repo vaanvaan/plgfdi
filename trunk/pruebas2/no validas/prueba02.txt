@@ -1,0 +1,16 @@
+program prueba02;
+
+var r1 : real, r2 : real;
+
+procedure proc1(var re : real);
+ begin
+  re := re*7;
+ end;
+
+begin
+
+ r1 := 7,5;
+ r2 := 3,5;
+ proc1(r1,r2);
+
+end.

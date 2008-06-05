@@ -1,0 +1,42 @@
+program prueba06;
+
+var notas : array [0..4] of real;
+var ind : integer;
+procedure introducirNota(var nota : real; var i : integer;);
+   begin
+   write('n');
+   write('o');
+   write('t');
+   write('a');
+   write('-');
+   write(i);
+   write('-');
+   read(nota);
+   end;
+procedure escribirNota(var nota : real; var i : integer;);
+   begin
+   write('n');
+   write('o');
+   write('t');
+   write('a');
+   write('-');
+   write(i);
+   write('-');
+   write(nota);
+   end;
+
+begin
+ind:=0;
+while ind<5 do
+   begin
+   introducirNota(notas[ind],ind);
+   ind := ind+1;
+   end;
+
+ind:=0
+while ind<5 do
+   begin
+   escribirNota(notas[ind],ind);
+   ind := ind+1;
+   end; 
+end.

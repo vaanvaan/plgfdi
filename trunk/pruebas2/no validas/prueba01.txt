@@ -1,0 +1,15 @@
+program prueba01;
+
+var r : real;
+
+procedure prueba(var re : real);
+ begin
+  re := re + 1;
+ end;
+
+begin
+
+ r := 2,75;
+ prueba();
+
+end.

@@ -1,0 +1,20 @@
+program prueba04;
+
+var r1 : real;
+
+procedure proc1(var re : real);
+ begin
+  re := re*7;
+ end;
+
+procedure proc1(var i : integer);
+ begin
+  i := 5;
+ end;
+
+begin
+
+ r1 := 7,5;
+ proc1(r1);
+
+end.
