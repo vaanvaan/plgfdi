@@ -1,0 +1,54 @@
+program prueba13;
+
+   var empleado : record
+			dni : integer;
+			categoria : char;
+			sueldo : real;
+		  end;
+
+   var oficina : array[0..3] of record
+				dni : integer;
+				categoria : char;
+				sueldo : real;
+				end;
+
+   var incremento : real;
+   var j : integer;
+
+   procedure incrementaSueldo(var i : real; var emp : record dni : integer; categoria : char; sueldo : real; end; );
+	begin
+		if emp.categoria = a then emp.sueldo := emp.sueldo*(1,25*i+1);
+		else if emp.categoria = b then emp.sueldo := emp.sueldo * (1,10*i);
+		     else  emp.sueldo := emp.sueldo * (1,05*i);
+	
+	end;
+  
+   begin
+	j := 0;
+
+	oficina[0].dni := 01234567;
+	oficina[0].categoria := a;
+	oficina[0].sueldo := 1237,67;
+
+	oficina[1].dni := 56311234;
+	oficina[1].categoria := b;
+	oficina[1].sueldo := 1005,22;
+
+	oficina[2].dni := 35422187;
+	oficina[2].categoria := e;
+	oficina[2].sueldo := 621,02;
+
+	oficina[3].dni := 06562331;
+	oficina[3].categoria := d;
+	oficina[3].sueldo := 701,99;
+
+	incremento := 0,054;
+
+	while j<4 do
+	    begin
+		incrementaSueldo(incremento, oficina[i]);
+		write(oficina[i].sueldo);
+		j := j+1;
+	    end;	
+	
+   end.

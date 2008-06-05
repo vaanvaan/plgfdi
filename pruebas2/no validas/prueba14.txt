@@ -1,0 +1,14 @@
+program prueba14;
+
+    procedure cuadrado(var x : real);
+	begin
+	    x := x*x;
+	end;
+
+    var numero : real;
+
+begin
+    numero := 7;
+    cuadrado(numero);
+    write(numero);
+end.

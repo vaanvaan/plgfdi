@@ -1,0 +1,44 @@
+program prueba12;
+
+   var lista1 : array[0..4] of char;
+   var lista2 : array[0..4] of char;
+   var lista3 : array[0..4] of char;
+   var listaArrays : array[0..2] of ^array[0..4] of char;
+   var registro : record
+			numero : integer;
+			puntero : ^array[0..2] of ^array[0..4] of char;
+		  end;
+
+   
+   begin
+	
+	lista1[0] := m;
+	lista1[1] := u;
+	lista1[2] := n;
+	lista1[3] := d;
+	lista1[4] := o;
+
+	lista2[0] := m;
+	lista2[1] := o;
+	lista2[2] := n;
+	lista2[3] := t;
+	lista2[4] := e;
+
+	lista3[0] := i;
+	lista3[1] := s;
+	lista3[2] := l;
+	lista3[3] := a;
+	lista3[4] := s;
+
+	listaArrays[0] := lista1;
+	listaArrays[1] := lista2;
+	listaArrays[2] := lista3;
+
+	registro.numero := 7;
+	registro.puntero := listaArrays;
+
+	write(registro.puntero^[2]^[4]);
+	
+	
+	
+   end.

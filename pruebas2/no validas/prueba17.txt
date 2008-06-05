@@ -1,0 +1,9 @@
+program prueba17;
+
+    var numero : ^real;
+    var num2 : integer;
+
+begin
+    num2 := 21;
+    numero := num2;
+end.

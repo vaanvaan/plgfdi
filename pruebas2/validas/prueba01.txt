@@ -1,0 +1,39 @@
+program prueba1;
+
+   var donante : record 
+			ident : integer;
+			sangre : char;
+			4meses : boolean;
+		end;
+   var sujeto1 : record 
+			ident : integer;
+			sangre : char;
+			4meses : boolean;
+		end;
+   var sujeto2 : record 
+			ident : integer;
+			sangre : char;
+			4meses : boolean;
+		end;
+   begin
+	
+	
+	
+	sujeto1.ident := 1;
+	sujeto2.ident := 2;
+	sujeto1.sangre := a;
+	sujeto2.sangre := b;
+	sujeto1.4meses := false;
+	sujeto2.4meses := true;
+	
+	write(sujeto1.ident);
+	write(sujeto2.ident);
+	
+	
+	sujeto2.ident := sujeto1.ident;
+	sujeto2.sangre := sujeto1.sangre;
+	sujeto2.4meses := sujeto1.4meses;
+	
+	write(sujeto2.ident);
+
+   end.

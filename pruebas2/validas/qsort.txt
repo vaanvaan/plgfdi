@@ -1,0 +1,82 @@
+program quicksort;
+        
+   var i : integer, j : integer, tmp : integer, size: integer;
+   var arr : array [0..49] of integer;
+   var tam : integer, i : integer;
+
+   procedure LeerArr(var tam : integer; var a: array [0..49] of integer);
+        begin
+            tam := 10;
+	    array[0]:= 3;
+	    array[1]:= 5;
+	    array[2]:= 4;
+	    array[3]:= 2;
+	    array[4]:= 6;
+	    array[5]:= 7;
+	    array[6]:= 8;
+	    array[7]:= 9;
+	    array[8]:= 0;
+	    array[9]:= 1;
+	end
+   end;
+
+   procedure quicksort(tam : integer; var arr: array [0..49] of integer);
+	procedure quicksortrec(start : integer, stop : integer);
+            var m : integer, partirpt : integer;
+
+            procedure partir (start : integer, stop : integer, var p : integer);
+                var izq : integer, der : integer, pivote : integer;
+
+                procedure swap(var a : integer, b : integer);
+                    var t : integer;
+                    begin
+                        t := a;
+                        a := b;
+                        b := t;
+                    end;
+
+		begin
+                    pivote := arr[start];
+                    izq := start + 1;
+                    der := stop;
+
+                    while izq <= der do
+			begin
+                        while (izq <= stop) and (arr[izq] < pivote) do
+                            izq := izq + 1;
+                        while (der > start) and (arr[der] >= pivote) do
+                            der := der - 1;
+                        if izq < der then 
+                            swap(arr[left], arr[right]);
+			end;
+
+                    swap(arr[start], arr[right]);
+
+                    p := der;
+		end;
+
+            begin 
+                if start < stop then
+		begin
+                    partir(start, stop, partirpt);
+                    quicksortrec(start, partirpt-1);
+                    quicksortrec(partirpt+1, stop);
+                end;
+            end;
+                    
+        begin
+            quicksortrec(0, tam-1)
+        end;
+
+    begin
+        LeerArr(tam, arr);
+
+        Quicksort(tam, arr);
+
+	i:=0;
+	while(i<10)
+	   begin
+		write(arr[i]);
+		i := i+1;
+	   end;
+    end.

@@ -1,0 +1,89 @@
+program triangulopascal;
+    
+    var tam : integer;
+    var triangulo : array [0..19] of array [0..19] of integer;
+    var i : integer, j : integer;
+   
+    procedure pedirTamano(var tamano : integer);
+	var x : integer;
+	begin
+	    write(i);write(n);write(t);write(r);write(o);write(d);write(u);write(c);write(e);
+	    write('_');write(t);write(a);write(m);write(a);write(ñ);write(o);
+	    read(x);
+	    if (x>1)and(x<21) then tamano := x;
+	    else tam := 10;
+	end;
+
+    procedure rellenaCeros(var arr : array [0..19] of array [0..19] of integer);
+	var i : integer, j : integer;
+	begin
+	    i := 0;
+	    while i<20 do
+		begin
+		    j := 0;
+		    while j<20 do
+			begin
+			    arr[i][j] := 0;
+			    j := j+1;
+			end;
+		    i := i+1;
+		end;
+	end;
+
+    procedure escribeTriangulo(var arr : array [0..19] of array [0..19] of integer);
+	var i : integer, j : integer;
+	begin
+	
+	    i := 0;
+	    while i<20 do
+		begin
+		    j := 0;
+		    while j<20 do
+			begin
+			    if arr[i][j]<10 then
+				begin 
+				    write(0);
+				    write(0);
+				    write(arr[i][j]);
+				    write(' ');
+				end;
+			    else 
+				begin
+				    if arr[i][j]<100 then
+					begin
+					    write(0);
+					    write(arr[i][j]);
+					    write(' ');
+					end;
+			    	    else 
+					begin
+					    write(arr[i][j]);
+					    write(' ');
+					end;
+				end;
+			    j := j+1;
+			end;
+		    write(\n);
+		    i := i+1;
+		end;
+	end;
+
+    begin        
+	rellenaCeros(triangulo);
+	pedirTamano(tam);
+	i := 1;
+	triangulo[0][0] := 1;
+	while i<tam do
+		begin
+		    triangulo[i][0] := 1;
+		    j := 1;
+		    while j<tam do
+			begin
+			    triangulo[i][j] := triangulo[i-1][j] + triangulo[i-1][j-1];
+			    j := j+1;
+			end;
+		    i := i+1;
+		end;
+	escribeTriangulo(triangulo);
+            
+    end.

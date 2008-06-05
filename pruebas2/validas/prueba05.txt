@@ -1,0 +1,24 @@
+program prueba5;
+
+   var lista : array[0..9] of integer;
+   var i : integer;
+
+   begin
+	
+	i := 0;
+	while(i<10) do
+	   begin
+		lista[i] := i;
+		i := i+1;
+	   end;
+	
+	i := 0;
+	while (i<10) do
+	   begin
+		if (lista[i]>5) then
+		   write(1);
+	   	else
+		   write(0);
+		i := i+1;
+	   end;
+   end.

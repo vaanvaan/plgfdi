@@ -1,0 +1,24 @@
+program prueba10;
+
+   var lista : array[0..2] of integer;
+   var puntero : ^integer;
+   var puntero2 : ^integer;
+
+   
+   begin
+	
+	lista[0] := 6;
+	lista[1] := 8;
+	lista[2] := 7;
+
+
+	puntero := lista[0];
+	puntero2 := puntero;
+	puntero2^ := 4;
+	
+	
+	write(lista[0]);
+	
+	
+	
+   end.
