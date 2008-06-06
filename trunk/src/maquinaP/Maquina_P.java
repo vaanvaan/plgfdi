@@ -471,10 +471,10 @@ public class Maquina_P{
 		if(ci >0){
 			String cima = pila.pop().toString();
 			if(esBooleano(cima)){
-				// FIXME
-				Boolean cond = Boolean.getBoolean(cima);
-				if(!cond){
-					pc = ci;
+				if(esBooleano(cima)){
+					if(cima.trim().equalsIgnoreCase("false")){
+						pc = ci;
+					}
 				}
 			}else{
 				halt = true;
