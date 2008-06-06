@@ -327,7 +327,7 @@ public class Maquina_P{
 	 * PC <- PC+1
 	 */
 	public void apila_ind(){
-		if ((pila.isEmpty()) || (pila.size() < 2)){
+		if (pila.isEmpty()){
 			error=true;
 			System.out.println("Pila vacia!");
 		}else{

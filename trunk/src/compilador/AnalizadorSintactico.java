@@ -1234,7 +1234,8 @@ public class AnalizadorSintactico {
 		String lex = this.anaLex.getLex();
 		if (token.compareTo("identificador")==0){
 			String tipo1 = (String) this.id_comp().getnTupla(1);
-			if(compatibles(tipo1,"integer")||compatibles(tipo1,"numReal")||compatibles(tipo1,"boolean") && (!parh)){
+			if((compatibles(tipo1,"integer")||compatibles(tipo1,"numReal")||compatibles(tipo1,"boolean")) 
+					&& (!parh)){
 				emite("apila-ind");
 				etq = etq+1;
 			}
