@@ -60,7 +60,6 @@ public class Maquina_P{
 		
 		if(debug){
 			Iterator it = memoriaref.iterator();
-			ArrayList memref = new ArrayList();
 			Map<String,String> mapmem = new HashMap<String,String>();
 			
 			System.out.println("=============================");
@@ -88,10 +87,6 @@ public class Maquina_P{
 			String a = "#";
 			memoria.add(a);
 		}
-//		for(int i=0; i<TAM_HEAP; i++){
-//			String a = "#";
-//			heap.add(a);
-//		}
 	}
 	
 	/**
@@ -129,11 +124,8 @@ public class Maquina_P{
 			}
 		}
 		//	Procesando los comandos
-//		Iterator itcomandos = comandos.iterator();
-//		while(itcomandos.hasNext() && !halt && !error){
 		boolean fin = pc >= comandos.size();
 		while(!fin && !halt && !error){
-//			ComandoVO com = (ComandoVO) itcomandos.next();
 			ComandoVO com = (ComandoVO) comandos.get(pc.intValue());
 			String accion = com.getAccion();
 			pc++;
@@ -162,31 +154,18 @@ public class Maquina_P{
 				print_state("apila", com.getOperando());
 			}else if(accion.equalsIgnoreCase("apila-dir")){
 				apila_dir(Integer.parseInt(com.getOperando()));
-				if(!memoriaref.contains(com.getOperando())){
-					memoriaref.add(com.getOperando());
-				}
 				print_state("apila_dir", com.getOperando());
 			}else if(accion.equalsIgnoreCase("apila-ind")){
 				apila_ind();
-//				if(!memoriaref.contains(com.getOperando())){
-//					memoriaref.add(com.getOperando());
-//				}
 				print_state("apila_ind", com.getOperando());
 			}else if(accion.equalsIgnoreCase("desapila")){
 				desapila();
 				print_state("desapila","");
 			}else if(accion.equalsIgnoreCase("desapila-dir")){
 				desapila_dir(Integer.parseInt(com.getOperando()));
-				if(!memoriaref.contains(com.getOperando())){
-					memoriaref.add(com.getOperando());
-				}
 				print_state("desapila_dir",com.getOperando());
 			}else if(accion.equalsIgnoreCase("desapila-ind")){
 				desapila_ind();
-//				if(!memoriaref.contains(com.getOperando())){
-//					memoriaref.add(com.getOperando());
-//				}
-				// tener cuidado con la memoria que se referencia
 				print_state("desapila_ind",com.getOperando());
 			}else if(accion.equalsIgnoreCase("suma")){
 				suma();
@@ -378,6 +357,9 @@ public class Maquina_P{
 			System.out.println("Out of memory! OR Pila vacia!");
 		}else{
 			String o = pila.pop().toString();
+			if(!memoriaref.contains(dir)){
+				memoriaref.add(dir);
+			}
 			memoria.set(dir, o);
 		}
 	}
@@ -405,6 +387,9 @@ public class Maquina_P{
 					System.out.println("MQ_P/> Posición referneciada:" + dir);
 					System.out.println("MQ_P/> Operación que produjo el error:"+" apila_ind()");
 				}else{
+					if(!memoriaref.contains(dir)){
+						memoriaref.add(dir);
+					}
 					memoria.set(dir, cima);
 				}
 			} else {
@@ -440,6 +425,9 @@ public class Maquina_P{
 				if((origen < memoria.size())&&(destino < memoria.size())){
 					for (int i = 0; i < num_celdas; i++) {
 						String obj = memoria.get(origen+i).toString();
+						if(!memoriaref.contains(destino+i)){
+							memoriaref.add(destino+i);
+						}
 						memoria.set((destino+i), obj);
 					}
 				}
@@ -471,10 +459,8 @@ public class Maquina_P{
 		if(ci >0){
 			String cima = pila.pop().toString();
 			if(esBooleano(cima)){
-				if(esBooleano(cima)){
-					if(cima.trim().equalsIgnoreCase("false")){
-						pc = ci;
-					}
+				if(cima.trim().equalsIgnoreCase("false")){
+					pc = ci;
 				}
 			}else{
 				halt = true;
