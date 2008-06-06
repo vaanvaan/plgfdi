@@ -120,12 +120,14 @@ public class AnalizadorSintactico {
 		emite("apila-dir 0");
 		emite("apila 2");
 		emite("suma");
-		emite("apila-dir "+(1+nivel));
+		//emite("apila-dir "+(1+nivel));
+		emite("apila-dir 1");
 		emite("desapila-ind");
 		emite("apila-dir 0");
 		emite("apila 3");
 		emite("suma");
-		emite("desapila-dir "+(1+nivel));
+		//emite("desapila-dir "+(1+nivel));
+		emite("desapila-dir 1");
 		emite("apila-dir 0");
 		emite("apila "+(dir+2));
 		emite("suma");
@@ -133,11 +135,13 @@ public class AnalizadorSintactico {
 	}
 	
 	public void epilogo(int nivel){
-		emite("apila-dir "+(1+nivel));
+		//emite("apila-dir "+(1+nivel));
+		emite("apila-dir 1");
 		emite("apila 2");
 		emite("resta");
 		emite("apila-ind");
-		emite("apila-dir "+(1+nivel));
+		//emite("apila-dir "+(1+nivel));
+		emite("apila-dir 1");
 		emite("apila 3");
 		emite("resta");
 		emite("copia");
@@ -145,7 +149,8 @@ public class AnalizadorSintactico {
 		emite("apila 2");
 		emite("suma");
 		emite("apila-ind");
-		emite("desapila-dir "+(1+nivel));
+		//emite("desapila-dir "+(1+nivel));
+		emite("desapila-dir 1");
 	}
 	
 	public void direccionParFormal(CParams pformal){
@@ -610,12 +615,11 @@ public class AnalizadorSintactico {
 		this.pilaTablaSim.creaTS();
 		ArrayList<CParams> params = this.parametros();
 		this.compara(";");
-		int inicio = etq;
 		Propiedades props = new Propiedades();
 		props.setT("proc");
 		props.setParams(params);
 		props.setNivel(n);
-		props.setInicio(inicio);
+		props.setInicio(etq);
 		this.pilaTablaSim.añadeID(n,lex, "proc", props);
 		
 		/*
@@ -627,6 +631,7 @@ public class AnalizadorSintactico {
 		*/
 		this.pilaTablaSim.añadeID(n-1,lex, "proc", props);
 		this.bloqueDecls();
+		props.setInicio(etq);
 		prologo(n-1);
 		etq = etq + longPrologo;
 		this.proposicion_compuesta();
@@ -1256,6 +1261,7 @@ public class AnalizadorSintactico {
 			parh = false;
 			Tupla t = this.factor();
 			this.emite(signo);
+			etq = etq + 1;
 			if(t.getnTupla(0).toString().compareTo("boolean")!=0){
 				//throw new Exception("Error sintaxis: tipos no compatibles.");
 				Global.setErrorMsg("Violación restricciones. Tipos incompatibles");}
