@@ -77,18 +77,17 @@ public class AnalizadorSintactico {
 	}
 	
 	
-	public void apilaRet(int ret){
+	public void apilaRet(){
 		emite("apila-dir 0");
 		emite("apila 1");
 		emite("suma");
-		emite("apila "+ret);
+		emite("apila "+etq);
 		emite("desapila-ind");
 	}
 	
 	public void accesoVar(entradaTS infoID){
 		// FIXME
-		// Quitar esta instrucción si no hay procedimientos.
-		emite("apila-dir"+(infoID.getProps().getNivel()));
+		emite("apila-dir 1");
 		emite("apila "+(infoID.getProps().getDir()));
 		emite("suma");
 		if(infoID.getClase().compareTo("pvar")==0){
@@ -104,14 +103,20 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	public void inicio(int numNiveles,int tamDatos){
-		emite("apila "+(numNiveles+1));
+	public void inicio(){
+		// Niveles totales = n + 1
+		// Si el nivel es 0 -> nº niveles 1
+		// Dir 0: Dirección de la última celda del display
+		// Dir 1: Dirección de comienzo del display
+		int numN = n + 1;
+		int tamDatos = dir - 1;
+		emite("apila "+(numN+1));
 		emite("desapila-dir 1");
-		emite("apila "+(1+numNiveles+tamDatos));
+		emite("apila "+(1+numN+tamDatos));
 		emite("desapila-dir 0");
 	}
 	
-	public void prologo(int nivel,int tamlocales){
+	public void prologo(int nivel){
 		emite("apila-dir 0");
 		emite("apila 2");
 		emite("suma");
@@ -122,7 +127,7 @@ public class AnalizadorSintactico {
 		emite("suma");
 		emite("desapila-dir "+(1+nivel));
 		emite("apila-dir(0)");
-		emite("apila "+(tamlocales+2));
+		emite("apila "+(dir+2));
 		emite("suma");
 		emite("desapila-dir 0");
 	}
@@ -149,7 +154,7 @@ public class AnalizadorSintactico {
 	}
 	
 	public void pasoParametro(String modoReal, CParams pformal){
-		if(pformal.getModo().compareTo("val")==0 || modoReal.compareTo("var")==0){
+		if(pformal.getModo().compareTo("val")==0 && modoReal.compareTo("var")==0){
 			emite("mueve "+pformal.getTipo().getTam());
 		}else{
 			emite("desapila-ind");
@@ -168,7 +173,7 @@ public class AnalizadorSintactico {
 	
 	/**
 	 * Sustituye la instrucción con etiqueta flag, por la correcta.
-	 * @param tipo tipo de instrucción a sustituir. 0:inicio, 1:ir-a, 2:ir-f, 3:ir-v
+	 * @param tipo tipo de instrucción a sustituir. 0:inicio, 1:ir-a, 2:ir-f, 3:ir-v, 4:apilaRet
 	 * @param flag etiqueta donde se encuentra la instrucción
 	 * @param etqDest etiqueta donde ha de saltar la instrucción
 	 */
@@ -177,13 +182,13 @@ public class AnalizadorSintactico {
 		etq = flag;
 		switch (tipo){
 		case 0:
-			emiteP("apila "+(n+1));
-			etq++;
-			emiteP("desapila-dir 1");
-			etq++;
+			emiteP("apila "+(n+1+1));
+			etq = etq + 2;
+			//emiteP("desapila-dir 1");
+			//etq++;
 			emiteP("apila "+(1+n+dir));
-			etq++;
-			emiteP("desapila-dir 0");
+			//etq++;
+			//emiteP("desapila-dir 0");
 			break;
 		case 1:
 			emiteP("ir-a "+etqDest); 
@@ -194,6 +199,8 @@ public class AnalizadorSintactico {
 		case 3:
 			emiteP("ir-v "+etqDest);
 			break;
+		case 4:
+			emiteP("apila "+etqDest);
 		}
 		etq = etqAux;
 	}
@@ -211,7 +218,7 @@ public class AnalizadorSintactico {
 			this.dir = 0;
 			this.n = 0;
 			this.etq = 0;
-			inicio(n,dir);
+			inicio();
 			etq = longInicio;
 			int flag = etq;
 			emite("ir-a "+etq);
@@ -620,10 +627,10 @@ public class AnalizadorSintactico {
 		*/
 		this.pilaTablaSim.añadeID(n-1,lex, "proc", props);
 		this.bloqueDecls();
-		prologo(n,dir);
+		prologo(n-1);
 		etq = etq + longPrologo;
 		this.proposicion_compuesta();
-		epilogo(n);
+		epilogo(n-1);
 		etq = etq + longEpilogo+1;
 		emite("ir-ind");
 		dir = dirAnt;
@@ -948,12 +955,14 @@ public class AnalizadorSintactico {
 		}
 		this.compara("(");
 		ArrayList<CParams> fparams = this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getProps().getParams();
-		apilaRet(etq);
+		int flag = etq + 3;
+		apilaRet();
 		etq = etq+longApilaRet;
 		this.Aexps(fparams);
 		this.compara(")");
 		emite("ir-a "+this.pilaTablaSim.getTSnivel(n).getEntrada(lex).getProps().getInicio());
 		etq = etq+1;
+		parchea(4, flag, etq);
 	}
 	
 	private void Aexps(ArrayList<CParams> fparams)throws Exception{
@@ -999,6 +1008,8 @@ public class AnalizadorSintactico {
 			this.compara(",");
 			emite("copia");
 			etq = etq+1;
+			this.direccionParFormal(fparams.get(nparams));
+			etq = etq + this.longdireccionParFormal;
 			parh = (fparams.get(nparams).getModo().compareTo("var")==0);
 			Tupla t = this.expresion();
 			if(fparams.size()<nparams 
@@ -1223,7 +1234,7 @@ public class AnalizadorSintactico {
 		String lex = this.anaLex.getLex();
 		if (token.compareTo("identificador")==0){
 			String tipo1 = (String) this.id_comp().getnTupla(1);
-			if(compatibles(tipo1,"integer")||compatibles(tipo1,"numReal")||compatibles(tipo1,"boolean") && (parh==false)){
+			if(compatibles(tipo1,"integer")||compatibles(tipo1,"numReal")||compatibles(tipo1,"boolean") && (!parh)){
 				emite("apila-ind");
 				etq = etq+1;
 			}
