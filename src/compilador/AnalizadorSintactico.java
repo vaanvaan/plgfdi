@@ -33,28 +33,64 @@ public class AnalizadorSintactico {
 	 */
 	private String pathDestino;
 	
+	/**
+	 * Nivel de anidamiento. Global.
+	 */
 	private int n;
 	
+	/**
+	 * Dirección de memoria actual. Global.
+	 */
 	private int dir;
 	
+	/**
+	 * Número de instrucciones P de la rutina apilaRet.
+	 */
 	private  int longApilaRet;
 	
+	/**
+	 * Número de instrucciones P de la rutina prologo.
+	 */
 	private int longPrologo;
 	
+	/**
+	 * Número de instrucciones P de la rutina epílogo.
+	 */
 	private int longEpilogo;
 	
+	/**
+	 * Número de instrucciones P de la rutina inicioPaso.
+	 */
 	private int longInicioPaso;
 	
+	/**
+	 * Número de instrucciones P de la rutina finPaso.
+	 */
 	private int longFinPaso;
 	
+	/**
+	 * Número de instrucciones P de la rutina direccionParFormal.
+	 */
 	private int longdireccionParFormal;
 	
+	/**
+	 * Número de instrucciones P de la rutina pasoParametro.
+	 */
 	private int longPasoParametro;
 	
+	/**
+	 * Número de instrucciones P de la rutina inicio.
+	 */
 	private int longInicio;
 	
+	/**
+	 * Número de instrucciónes generadas. Global.
+	 */
 	private int etq;
 	
+	/**
+	 * Indica si un parámetro se pasa de forma real. Global
+	 */
 	private boolean parh;
 	
 	/**Constructor del analizador sintactico, donde se crea el analizador lexico y la tabla de simbolos. 
@@ -76,7 +112,9 @@ public class AnalizadorSintactico {
 		pathDestino = path2;
 	}
 	
-	
+	/**
+	 * Almacena la dirección de retorno de una subrutina en memoria.
+	 */
 	public void apilaRet(){
 		emite("apila-dir 0");
 		emite("apila 1");
@@ -85,16 +123,26 @@ public class AnalizadorSintactico {
 		emite("desapila-ind");
 	}
 	
+	/**
+	 * Genera las instrucciones para aceder a una variable.
+	 * @param infoID entrada de la tabla de símbolos correspondiente a la variable.
+	 */
 	public void accesoVar(entradaTS infoID){
-		// FIXME
+		// Dirección relativa a la del inicio del display actual.
 		emite("apila-dir 1");
 		emite("apila "+(infoID.getProps().getDir()));
 		emite("suma");
+		// Si es un parámetro por valor, se apila su dirección.
 		if(infoID.getClase().compareTo("pvar")==0){
 			emite("apila-ind");
 		}
 	}
 	
+	/**
+	 * Indica el número de instrucciones P que se generan para acceder a una variable.
+	 * @param infoID entrada de la tabla de símbolos correspondiente a la variable.
+	 * @return número de instrucciones generadas.
+	 */
 	public int longAccesoVar(entradaTS infoID){
 		if(infoID.getClase().compareTo("pvar")==0){
 			return 4;
@@ -103,6 +151,9 @@ public class AnalizadorSintactico {
 		}
 	}
 	
+	/**
+	 * Genera las instrucciones P iniciales. Establece el display inicial.
+	 */
 	public void inicio(){
 		// Niveles totales = n + 1
 		// Si el nivel es 0 -> nº niveles 1
@@ -116,48 +167,58 @@ public class AnalizadorSintactico {
 		emite("desapila-dir 0");
 	}
 	
-	public void prologo(int nivel){
+	/**
+	 * Genera las instrucciones P para gestionar un nuevo display.
+	 */
+	public void prologo(){
 		emite("apila-dir 0");
 		emite("apila 2");
 		emite("suma");
-		//emite("apila-dir "+(1+nivel));
 		emite("apila-dir 1");
-		emite("desapila-ind");
+		emite("desapila-ind");	// Display anterior salvado
 		emite("apila-dir 0");
 		emite("apila 3");
 		emite("suma");
-		//emite("desapila-dir "+(1+nivel));
-		emite("desapila-dir 1");
+		emite("desapila-dir 1");	// Display actual fijado
 		emite("apila-dir 0");
 		emite("apila "+(dir+2));
 		emite("suma");
-		emite("desapila-dir 0");
+		emite("desapila-dir 0");	// Espacio reservado
 	}
 	
-	public void epilogo(int nivel){
-		//emite("apila-dir "+(1+nivel));
+	/**
+	 * Genera las instrucciones P para recuperar el anterior display.
+	 */
+	public void epilogo(){
 		emite("apila-dir 1");
 		emite("apila 2");
 		emite("resta");
-		emite("apila-ind");
-		//emite("apila-dir "+(1+nivel));
+		emite("apila-ind");	// apilada dirección de retorno
 		emite("apila-dir 1");
 		emite("apila 3");
 		emite("resta");
 		emite("copia");
-		emite("desapila-dir 0");
+		emite("desapila-dir 0");	// fijado CP
 		emite("apila 2");
 		emite("suma");
 		emite("apila-ind");
-		//emite("desapila-dir "+(1+nivel));
-		emite("desapila-dir 1");
+		emite("desapila-dir 1");	// recuperado antiguo display
 	}
 	
+	/**
+	 * Genera las instrucciones P para acceder a la dirección en memoria del siguiente parámetro.
+	 * @param pformal información del parámetro al que se quiere acceder
+	 */
 	public void direccionParFormal(CParams pformal){
 		emite("apila "+pformal.getDir());
 		emite("suma");
 	}
 	
+	/**
+	 * Genera las instrucciones P para almacenar en memoria un parámetro. 
+	 * @param modoReal modo de paso del marámetro.
+	 * @param pformal información de parámetro.
+	 */
 	public void pasoParametro(String modoReal, CParams pformal){
 		if(pformal.getModo().compareTo("val")==0 && modoReal.compareTo("var")==0){
 			emite("mueve "+pformal.getTipo().getTam());
@@ -166,12 +227,18 @@ public class AnalizadorSintactico {
 		}
 	}
 	
+	/**
+	 * Inicia el paso de parámetros.
+	 */
 	public void inicioPaso(){
 		emite("apila-dir 0");
 		emite("apila 3");
 		emite("suma");
 	}
 	
+	/**
+	 * Finaliza el paso de parámetros.
+	 */
 	public void finPaso(){
 		emite("desapila");
 	}
@@ -189,11 +256,7 @@ public class AnalizadorSintactico {
 		case 0:
 			emiteP("apila "+(n+1+1));
 			etq = etq + 2;
-			//emiteP("desapila-dir 1");
-			//etq++;
 			emiteP("apila "+(1+n+dir));
-			//etq++;
-			//emiteP("desapila-dir 0");
 			break;
 		case 1:
 			emiteP("ir-a "+etqDest); 
@@ -257,14 +320,17 @@ public class AnalizadorSintactico {
 		
 	}
 	
+	/**
+	 * Bloque de declaraciones. Primero las variables, y luego los procedimientos.
+	 * @throws Exception
+	 */
 	private void bloqueDecls()throws Exception{
 		this.declaraciones();
 		this.dec_Procs();
 	}
 	
 	/**
-	 * Método que reconoce la parte de las declaraciones de un programa escrito en Pascal.
-	 * 
+	 * Método que reconoce la parte de la declaración de variables.
 	 * @throws Exception Se recoge cualquier error lanzado dentro de las declaraciones.
 	 */
 	private void declaraciones() throws Exception{
@@ -278,7 +344,6 @@ public class AnalizadorSintactico {
 	/**
 	 * Método que reconoce una parte de las declaraciones de un programa escrito en Pascal. Es distinto de declaraciones()
 	 * para evitar la recursion a izquierdas.
-	 * 
 	 * @throws Exception Se recoge cualquier error lanzado dentro de esta parte de las declaraciones.
 	 */
 	private void declaracionesR() throws Exception{
@@ -289,8 +354,8 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	/**Método que reconoce una declaracion, ya sea constante o variable.
-	 * 
+	/**
+	 * Método que reconoce una declaracion, ya sea constante o variable.
 	 * @throws Exception Recoge cualquier error generado dentro de la declaracion.
 	 */
 	private void declaracion() throws Exception{
@@ -305,10 +370,9 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	/**Método que se encarga de reconocer una constante.
-	 * 
-	 * @return Se devuelve una tupla que se ira pasando de un metodo a otro y al final se añadira a la tabla de simbolos.
-	 * 
+	/**
+	 * Método que se encarga de reconocer una constante. 
+	 * @return Se devuelve una tupla que se ira pasando de un metodo a otro y al final se añadira a la tabla de simbolos. 0: id, 1:props
 	 * @throws Exception Se encarga de recoger cualquier error ocurrido en el reconocimiento de la constante.
 	 */
 	private Tupla constante() throws Exception{
@@ -333,10 +397,8 @@ public class AnalizadorSintactico {
 		return t;
 	}
 	
-	/**Método que se encarga de reconocer una variable.
-	 * 
-	 * @return Se devuelve una tupla que se ira pasando de un metodo a otro y al final se añadira a la tabla de simbolos.
-	 * 
+	/**
+	 * Método que se encarga de reconocer una variable.
 	 * @throws Exception Se encarga de recoger cualquier error ocurrido en el reconocimiento de la variable.
 	 */
 	private void variable() throws Exception{
@@ -356,11 +418,8 @@ public class AnalizadorSintactico {
 		
 	}
 	
-	/**Método que reconoce una lista de identificadores.
-	 * 
-	 * 
-	 * @return se devuelve una lista con todos los lexemas de los identificadores.
-	 * 
+	/**
+	 * Método que añade una lista de identificadores.
 	 * @throws Exception Se encarga de recoger cualquier error ocurrido en el reconocimiento de una lista de identificadores.
 	 */
 	private void lista_id(Propiedades props) throws Exception{
@@ -376,11 +435,9 @@ public class AnalizadorSintactico {
 	}
 	
 	
-	/**Método que reconoce parte de una secuencia de identificadores. Se creo para evitar la recursion a izquierdas en
-	 * el metodo lista_id
-	 * 
-	 * @param listaIDh0 Lista que se pasa por parametro para agregar mas identificadores.
-	 * @return Se devuelve una lista con los lexemas de los identificadores.
+	/**
+	 * Método que añade identificadores. Se creo para evitar la recursion a izquierdas en el metodo lista_id
+	 * @param props Propiedades de los identificadores.
 	 * @throws Exception Se recoge cualquier tipo de error ocurrido dentro de esta parte de la lista de identificadores.
 	 */
 	private void lista_idR(Propiedades props) throws Exception{
@@ -402,10 +459,9 @@ public class AnalizadorSintactico {
 	}
 	
 		
-	/**Método que sirve para reconocer el valor de una constante.
-	 * 
-	 * @param tipo Se pasa por parametro el tipo para ver si concuerda con el valor.
-	 * @return Se devuelve un String con el valor de la constante.
+	/**
+	 * Método que sirve para reconocer el valor de una constante y su tipo.
+	 * @return tupla0: tipo, tupla1:id
 	 * @throws Exception Se genera una excepcion si el tipo y el valor de una constante no concuerdan.
 	 */
 	private Tupla valor() throws Exception{
@@ -432,8 +488,8 @@ public class AnalizadorSintactico {
 		return t;
 	}
 	
-	/**Metodo que diferencia entre tipos construidos y tipos estandar
-	 * 
+	/**
+	 * Metodo que diferencia entre tipos construidos y tipos estandar
 	 * @return Unas propiedades con todo lo referente al tipo.
 	 * @throws Exception
 	 */
@@ -453,8 +509,8 @@ public class AnalizadorSintactico {
 		}
 	}
 	
-	/**Reconoce un tipo estandar, ya sea boolean,integer,real o char.
-	 * 
+	/**
+	 * Reconoce un tipo estandar, ya sea boolean,integer,real o char.
 	 * @return Devuelve unas propiedades con el tipo y el tamaño.
 	 * @throws Exception
 	 */
@@ -481,6 +537,12 @@ public class AnalizadorSintactico {
 		return p;
 	}
 	
+	/**
+	 * Reconoce un tipo construido. Array o registro.
+	 * @return Propiedades del tipo.
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
 	private Propiedades tipo_construido() throws Exception{
 		anaLex.predice();
 		String lex = this.anaLex.getLex();
@@ -505,11 +567,15 @@ public class AnalizadorSintactico {
 			p.setTam(Integer.parseInt(t.getnTupla(1).toString()));
 		}else{
 			Global.setErrorMsg("Violación restricciones. Tipo incorrecto");
-			// throw new Exception("Error sintaxis: Tipo incorrecto.");
 		}
 		return p;
 	}
 	
+	/**
+	 * Reconoce los campos de un registro
+	 * @return tupla0:tabla con los campos, tupla1:desplazamiento total
+	 * @throws Exception
+	 */
 	private Tupla campos()throws Exception{
 		int desp = 0;
 		Tupla t = this.campo(desp);
@@ -517,15 +583,13 @@ public class AnalizadorSintactico {
 		campos0.put(((CCampos) t.getnTupla(0)).getId(), (CCampos) t.getnTupla(0));
 		int desp1 = desp + Integer.parseInt(t.getnTupla(1).toString());
 		return this.camposR(campos0,desp1);
-		/*
-		int tam2 = Integer.parseInt(t.getnTupla(1).toString()) + Integer.parseInt(t2.getnTupla(1).toString());
-		Tupla tf = new Tupla(2);
-		tf.setnTupla(0, t2.getnTupla(0));
-		tf.setnTupla(1, t2.getnTupla(1));
-		return tf;
-		*/
 	}
 	
+	/**
+	 * Reconoce los campos de un registro.
+	 * @return tupla0:tabla con los campos, tupla1:desplazamiento total
+	 * @throws Exception
+	 */
 	private Tupla camposR(Hashtable<String, CCampos> campos0, int desp0)throws Exception{
 		anaLex.predice();
 		String lex = this.anaLex.getLex();
@@ -538,15 +602,16 @@ public class AnalizadorSintactico {
 			campos0.put(((CCampos) t.getnTupla(0)).getId(), (CCampos) t.getnTupla(0));
 			int desp1 = desp0 + Integer.parseInt(t.getnTupla(1).toString());
 			return this.camposR(campos0, desp1);
-			/*
-			int tam2 = Integer.parseInt(t.getnTupla(1).toString()) + Integer.parseInt(t2.getnTupla(1).toString());
-			tf.setnTupla(0, t2.getnTupla(0));
-			tf.setnTupla(1, tam2);
-			*/
 		}
 		return tf;
 	}
 	
+	/**
+	 * Reconoce un campo.
+	 * @param desp desplazamiento del campo.
+	 * @return tupla0: información del campo, tupla1: tamaño.
+	 * @throws Exception
+	 */
 	private Tupla campo(int desp)throws Exception{
 		String lex = this.id();
 		Tupla t = new Tupla(2); 
@@ -564,6 +629,11 @@ public class AnalizadorSintactico {
 		return t;
 	}
 	
+	/**
+	 * Analiza la longitud de un subrango de enteros [0..X].
+	 * @return longitud.
+	 * @throws Exception
+	 */
 	private int subrango()throws Exception{
 		anaLex.scanner();
 		String token = anaLex.getToken();
@@ -593,6 +663,10 @@ public class AnalizadorSintactico {
 		return longt;
 	}
 	
+	/**
+	 * Añaliza las declaraciones de procedimientos.
+	 * @throws Exception
+	 */
 	private void dec_Procs()throws Exception{
 		anaLex.predice();
 		String lex = this.anaLex.getLex();
@@ -602,6 +676,10 @@ public class AnalizadorSintactico {
 		}
 	}
 	
+	/**
+	 * Añaliza la declaración de un procedimiento y genera el código P necesario.
+	 * @throws Exception
+	 */
 	private void dec_Proc()throws Exception{
 		this.compara("procedure");
 		String lex = this.id();
@@ -621,28 +699,24 @@ public class AnalizadorSintactico {
 		props.setNivel(n);
 		props.setInicio(etq);
 		this.pilaTablaSim.añadeID(n,lex, "proc", props);
-		
-		/*
-		Propiedades props2 = new Propiedades();
-		props2.setT("proc");
-		props2.setParams(params);
-		props2.setInicio(inicio);
-		props.setNivel(n+1);
-		*/
 		this.pilaTablaSim.añadeID(n-1,lex, "proc", props);
 		this.bloqueDecls();
 		props.setInicio(etq);
-		prologo(n-1);
+		prologo();
 		etq = etq + longPrologo;
 		this.proposicion_compuesta();
-		epilogo(n-1);
+		epilogo();
 		etq = etq + longEpilogo+1;
 		emite("ir-ind");
 		dir = dirAnt;
-		//desapila TS (solo -1 en la cima supongo)
 		n = n - 1;
 	}
 	
+	/**
+	 * Analiza la forma de los parámetros del procedimiento.
+	 * @return lista con datos sobre los parámetros.
+	 * @throws Exception
+	 */
 	private ArrayList<CParams> parametros()throws Exception{
 		ArrayList<CParams> params = null;
 		anaLex.predice();
@@ -655,6 +729,11 @@ public class AnalizadorSintactico {
 		return params;
 	}
 	
+	/**
+	 * Analiza la forma de los parámetros del procedimiento.
+	 * @return lista con datos sobre los parámetros.
+	 * @throws Exception
+	 */
 	private ArrayList<CParams> lista_Params()throws Exception{
 		Tupla t = param();
 		this.pilaTablaSim.añadeID(n,(String)t.getnTupla(0), (String)t.getnTupla(1),(Propiedades)t.getnTupla(2));
@@ -666,6 +745,11 @@ public class AnalizadorSintactico {
 		return params0;
 	}
 	
+	/**
+	 * Analiza la forma de los parámetros del procedimiento.
+	 * @return lista con datos sobre los parámetros.
+	 * @throws Exception
+	 */
 	private void lista_ParamsR(ArrayList<CParams> params0)throws Exception{
 		anaLex.predice();
 		String lex = this.anaLex.getLex();
@@ -680,6 +764,11 @@ public class AnalizadorSintactico {
 		}
 	}
 	
+	/**
+	 * Analiza la forma de un parámetro
+	 * @return tupla0: id, tupla1: clase, tupla2: props, tupla3: tamaño, tupla4: información.
+	 * @throws Exception
+	 */
 	private Tupla param()throws Exception{
 		anaLex.predice();
 		String lexa = this.anaLex.getLex();
@@ -1056,9 +1145,6 @@ public class AnalizadorSintactico {
 			tup.setnTupla(0, tipo);
 			tup.setnTupla(1, modo);
 		}else{
-			// FIXME Comprobar si después de Expresión_Simple viene OPREL
-			// Si ExpresiónR<> vacío entonces parh = false si no parh
-			// ARREGLADO!
 			Tupla t1 = this.expresion_simple();
 			Tupla t2 = this.expresionR((String) t1.getnTupla(0));
 			if (((String) t2.getnTupla(1)).compareTo("val")==0){
@@ -1112,7 +1198,6 @@ public class AnalizadorSintactico {
 		String lexToken = anaLex.getToken();
 		Tupla tup;
 		if (lexToken.compareTo("resta")==0){
-			String op = this.operador();
 			tup = this.termino();
 			if(((String) tup.getnTupla(0)).compareTo("integer")!=0 &&
 					((String) tup.getnTupla(0)).compareTo("numReal")!=0){
@@ -1122,9 +1207,6 @@ public class AnalizadorSintactico {
 			etq = etq+1;
 			return tup;
 		} else {
-			// FIXME Comprobar si después de Expresión_Simple viene OPSUMA ó OR
-			// Si exp_simpleR <> vacío entonces parh = false si no parh
-			// ARREGLADO!!
 			tup = new Tupla(2);
 			Tupla t1 = this.termino();
 			Tupla t2 = this.exp_simpleR((String) t1.getnTupla(0));
@@ -1178,9 +1260,6 @@ public class AnalizadorSintactico {
 	 */
 	private Tupla termino() throws Exception {
 		Tupla tup = new Tupla(2);
-		// FIXME Comprobar si después de Expresión_Simple viene viene OPMULT ó AND()
-		// Si ExpresiónR<> vacío entonces parh = false si no parh
-		// ARREGLADO!!
 		Tupla t1 = this.factor();
 		Tupla t2 = this.terminoR((String) t1.getnTupla(0));
 		if (((String) t2.getnTupla(1)).compareTo("val")==0){
@@ -1354,6 +1433,7 @@ public class AnalizadorSintactico {
 	 * @param tipo2 Tipo de la segunda expresion
 	 * @return Cierto si los tipos son iguales, y falso si son tipos distintos.
 	 */
+	@SuppressWarnings("unused")
 	private boolean compatibles(Propiedades p1,Propiedades p2,TS ts,ArrayList<String[]> visitados)
 	{
 		
@@ -1434,29 +1514,5 @@ public class AnalizadorSintactico {
 	private boolean compatibles(String tipo1,String tipo2){
 		return (tipo1.compareTo(tipo2)==0);
 	}
-
-	/**Función que comprueba que los dos tipos sean comparables
-	 * 
-	 * 
-	 * @param t1 de tipo string (Tipo1)
-	 * @param t2 de tipo string (Tipo2)
-	 * @return
-
-	
-	/**
-	 * 
-	 * @return
-	 */
-	
-	
-	/**public static void main(String[] args) {
-		AnalizadorSintactico anaSin = new AnalizadorSintactico("c:/prueba.txt");
-		try {
-			anaSin.programa();
-			System.out.println(Global.getErrorMsg());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}*/
 
 }
