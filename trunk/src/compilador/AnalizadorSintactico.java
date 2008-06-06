@@ -126,7 +126,7 @@ public class AnalizadorSintactico {
 		emite("apila 3");
 		emite("suma");
 		emite("desapila-dir "+(1+nivel));
-		emite("apila-dir(0)");
+		emite("apila-dir 0");
 		emite("apila "+(dir+2));
 		emite("suma");
 		emite("desapila-dir 0");
@@ -1262,7 +1262,7 @@ public class AnalizadorSintactico {
 			this.anaLex.scanner();
 			String tipo1 = "boolean";
 			String modo = "val";
-			this.emite(this.anaLex.getLex());
+			this.emite("apila "+this.anaLex.getLex());
 			etq = etq+1;
 			Tupla t = new Tupla(2);
 			t.setnTupla(0, tipo1);
